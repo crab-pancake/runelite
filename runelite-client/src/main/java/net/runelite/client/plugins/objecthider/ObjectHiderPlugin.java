@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @PluginDescriptor(
-		name = "Ground Object Hider",
+		name = "Ground Object Hider (custom)",
 		description = "Hides Ground Objects. A selector is used to choose objects to hide.",
 		tags = {"external", "objects", "memory", "usage", "ground", "decorations", "performance"}
 )
