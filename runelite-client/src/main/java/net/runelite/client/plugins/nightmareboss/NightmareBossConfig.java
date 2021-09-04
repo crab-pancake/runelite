@@ -10,8 +10,8 @@ public interface NightmareBossConfig extends Config
 	@Alpha
 	@ConfigItem(
 			position = 0,
-			keyName = "warningColor",
-			name = "Warning color",
+			keyName = "warningColour",
+			name = "Warning colour",
 			description = "Colour of the hand outline if underneath you"
 	)
 	default Color warningColour()
@@ -22,8 +22,8 @@ public interface NightmareBossConfig extends Config
 	@Alpha
 	@ConfigItem(
 			position = 1,
-			keyName = "markerColor",
-			name = "Outline color",
+			keyName = "outlineColour",
+			name = "Outline colour",
 			description = "Colour of the hand outline otherwise"
 	)
 	default Color colour()
@@ -33,9 +33,9 @@ public interface NightmareBossConfig extends Config
 
 	@ConfigItem(
 			position = 1,
-			keyName = "borderWidth",
-			name = "Border Width",
-			description = "Width of the marked object border"
+			keyName = "width",
+			name = "Outline Width",
+			description = "Width of the outline"
 	)
 	default double width()
 	{
