@@ -9,7 +9,7 @@ public interface NightmareBossConfig extends Config
 {
 	@Alpha
 	@ConfigItem(
-			position = 1,
+			position = 0,
 			keyName = "warningColor",
 			name = "Warning color",
 			description = "Colour of the hand outline if underneath you"
