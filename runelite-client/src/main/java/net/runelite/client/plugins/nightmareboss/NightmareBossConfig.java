@@ -32,7 +32,7 @@ public interface NightmareBossConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 2,
+			position = 1,
 			keyName = "borderWidth",
 			name = "Border Width",
 			description = "Width of the marked object border"
