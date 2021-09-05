@@ -50,7 +50,7 @@ public interface NightmareBossConfig extends Config
 	)
 	@Range(
 			min = 0,
-			max = 4
+			max = 3
 	)
 	default int outlineFeather()
 	{
