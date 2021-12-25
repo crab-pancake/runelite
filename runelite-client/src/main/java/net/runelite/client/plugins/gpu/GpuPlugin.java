@@ -66,7 +66,6 @@ import net.runelite.api.BufferProvider;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.Model;
-import net.runelite.api.NodeCache;
 import net.runelite.api.Perspective;
 import net.runelite.api.Renderable;
 import net.runelite.api.Scene;
@@ -79,6 +78,7 @@ import net.runelite.api.hooks.DrawCallbacks;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginInstantiationException;
@@ -194,6 +194,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 	private int vaoHandle;
 
 	private int interfaceTexture;
+	private int interfacePbo;
 
 	private int vaoUiHandle;
 	private int vboUiHandle;
@@ -262,6 +263,9 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 
 	private int yaw;
 	private int pitch;
+	private int viewportOffsetX;
+	private int viewportOffsetY;
+
 	// fields for non-compute draw
 	private boolean drawingModel;
 	private int modelX, modelY, modelZ;
@@ -297,6 +301,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 			try
 			{
 				fboSceneHandle = rboSceneHandle = -1; // AA FBO
+				targetBufferOffset = 0;
 				unorderedModels = smallModels = largeModels = 0;
 				drawingModel = false;
 
@@ -329,6 +334,24 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 
 				invokeOnMainThread(() ->
 				{
+					try
+					{
+						// Get and display the device and driver used by the GPU plugin
+						GLDrawable dummyDrawable = GLDrawableFactory.getFactory(GLProfile.getDefault())
+							.createDummyDrawable(GLProfile.getDefaultDevice(), true, new GLCapabilities(GLProfile.getDefault()), null);
+						dummyDrawable.setRealized(true);
+						GLContext versionContext = dummyDrawable.createContext(null);
+						versionContext.makeCurrent();
+						GL versionGL = versionContext.getGL();
+						log.info("Using device: {}", versionGL.glGetString(GL.GL_RENDERER));
+						log.info("Using driver: {}", versionGL.glGetString(GL.GL_VERSION));
+						versionContext.destroy();
+					}
+					catch (Exception ex)
+					{
+						log.warn("error checking device and driver version", ex);
+					}
+
 					GLProfile glProfile = GLProfile.get(GLProfile.GL4);
 
 					GLCapabilities glCaps = new GLCapabilities(glProfile);
@@ -370,15 +393,28 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 					}
 
 					this.gl = glContext.getGL().getGL4();
-					gl.setSwapInterval(0);
+
+					setupSyncMode();
 
 					if (log.isDebugEnabled())
 					{
 						gl.glEnable(gl.GL_DEBUG_OUTPUT);
 
-						// Suppress warning messages which flood the log on NVIDIA systems.
-						gl.getContext().glDebugMessageControl(gl.GL_DEBUG_SOURCE_API, gl.GL_DEBUG_TYPE_OTHER,
-							gl.GL_DEBUG_SEVERITY_NOTIFICATION, 0, null, 0, false);
+						//	GLDebugEvent[ id 0x20071
+						//		type Warning: generic
+						//		severity Unknown (0x826b)
+						//		source GL API
+						//		msg Buffer detailed info: Buffer object 11 (bound to GL_ARRAY_BUFFER_ARB, and GL_SHADER_STORAGE_BUFFER (4), usage hint is GL_STREAM_DRAW) will use VIDEO memory as the source for buffer object operations.
+						glContext.glDebugMessageControl(gl.GL_DEBUG_SOURCE_API, gl.GL_DEBUG_TYPE_OTHER,
+							gl.GL_DONT_CARE, 1, new int[]{0x20071}, 0, false);
+
+						//	GLDebugMessageHandler: GLDebugEvent[ id 0x20052
+						//		type Warning: implementation dependent performance
+						//		severity Medium: Severe performance/deprecation/other warnings
+						//		source GL API
+						//		msg Pixel-path performance warning: Pixel transfer is synchronized with 3D rendering.
+						glContext.glDebugMessageControl(gl.GL_DEBUG_SOURCE_API, gl.GL_DEBUG_TYPE_PERFORMANCE,
+							gl.GL_DONT_CARE, 1, new int[]{0x20052}, 0, false);
 					}
 
 					initVao();
@@ -406,12 +442,6 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 				lastAntiAliasingMode = null;
 
 				textureArrayId = -1;
-
-				// increase size of model cache for dynamic objects since we are extending scene size
-				NodeCache cachedModels2 = client.getCachedModels2();
-				cachedModels2.setCapacity(256);
-				cachedModels2.setRemainingCapacity(256);
-				cachedModels2.reset();
 
 				if (client.getGameState() == GameState.LOGGED_IN)
 				{
@@ -448,6 +478,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		{
 			client.setGpu(false);
 			client.setDrawCallbacks(null);
+			client.setUnlockedFps(false);
 
 			invokeOnMainThread(() ->
 			{
@@ -516,6 +547,48 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 	GpuPluginConfig provideConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(GpuPluginConfig.class);
+	}
+
+	@Subscribe
+	public void onConfigChanged(ConfigChanged configChanged)
+	{
+		if (configChanged.getGroup().equals(GpuPluginConfig.GROUP))
+		{
+			if (configChanged.getKey().equals("unlockFps")
+				|| configChanged.getKey().equals("vsyncMode")
+				|| configChanged.getKey().equals("fpsTarget"))
+			{
+				log.debug("Rebuilding sync mode");
+				clientThread.invokeLater(() -> invokeOnMainThread(this::setupSyncMode));
+			}
+		}
+	}
+
+	private void setupSyncMode()
+	{
+		final boolean unlockFps = config.unlockFps();
+		client.setUnlockedFps(unlockFps);
+
+		// Without unlocked fps, the client manages sync on its 20ms timer
+		GpuPluginConfig.SyncMode syncMode = unlockFps
+			? this.config.syncMode()
+			: GpuPluginConfig.SyncMode.OFF;
+
+		switch (syncMode)
+		{
+			case ON:
+				gl.setSwapInterval(1);
+				client.setUnlockedFpsTarget(0);
+				break;
+			case OFF:
+				gl.setSwapInterval(0);
+				client.setUnlockedFpsTarget(config.fpsTarget()); // has no effect with unlockFps=false
+				break;
+			case ADAPTIVE:
+				gl.setSwapInterval(-1);
+				client.setUnlockedFpsTarget(0);
+				break;
+		}
 	}
 
 	private void initProgram() throws ShaderException
@@ -690,6 +763,8 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 
 	private void initInterfaceTexture()
 	{
+		interfacePbo = glGenBuffers(gl);
+
 		interfaceTexture = glGenTexture(gl);
 		gl.glBindTexture(gl.GL_TEXTURE_2D, interfaceTexture);
 		gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE);
@@ -701,6 +776,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 
 	private void shutdownInterfaceTexture()
 	{
+		glDeleteBuffer(gl, interfacePbo);
 		glDeleteTexture(gl, interfaceTexture);
 		interfaceTexture = -1;
 	}
@@ -761,9 +837,17 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 	{
 		yaw = client.getCameraYaw();
 		pitch = client.getCameraPitch();
+		viewportOffsetX = client.getViewportXOffset();
+		viewportOffsetY = client.getViewportYOffset();
 
 		final Scene scene = client.getScene();
 		scene.setDrawDistance(getDrawDistance());
+
+		// Only reset the target buffer offset right before drawing the scene. That way if there are frames
+		// after this that don't involve a scene draw, like during LOADING/HOPPING/CONNECTION_LOST, we can
+		// still redraw the previous frame's scene to emulate the client behavior of not painting over the
+		// viewport buffer.
+		targetBufferOffset = 0;
 
 		invokeOnMainThread(() ->
 		{
@@ -993,15 +1077,19 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		invokeOnMainThread(() -> drawFrame(overlayColor));
 	}
 
-	private void resize(int canvasWidth, int canvasHeight, int viewportWidth, int viewportHeight)
+	private void prepareInterfaceTexture(int canvasWidth, int canvasHeight)
 	{
 		if (canvasWidth != lastCanvasWidth || canvasHeight != lastCanvasHeight)
 		{
 			lastCanvasWidth = canvasWidth;
 			lastCanvasHeight = canvasHeight;
 
+			gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, interfacePbo);
+			gl.glBufferData(gl.GL_PIXEL_UNPACK_BUFFER, canvasWidth * canvasHeight * 4L, null, gl.GL_STREAM_DRAW);
+			gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, 0);
+
 			gl.glBindTexture(gl.GL_TEXTURE_2D, interfaceTexture);
-			gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, canvasWidth, canvasHeight, 0, gl.GL_BGRA, gl.GL_UNSIGNED_INT_8_8_8_8_REV, null);
+			gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, canvasWidth, canvasHeight, 0, gl.GL_BGRA, gl.GL_UNSIGNED_BYTE, null);
 			gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
 
 			if (OSType.getOSType() == OSType.MacOS && glDrawable instanceof GLFBODrawable)
@@ -1014,25 +1102,28 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 				glfboDrawable.resetSize(gl);
 			}
 		}
+
+		final BufferProvider bufferProvider = client.getBufferProvider();
+		final int[] pixels = bufferProvider.getPixels();
+		final int width = bufferProvider.getWidth();
+		final int height = bufferProvider.getHeight();
+
+		gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, interfacePbo);
+		gl.glMapBuffer(gl.GL_PIXEL_UNPACK_BUFFER, gl.GL_WRITE_ONLY)
+			.asIntBuffer()
+			.put(pixels, 0, width * height);
+		gl.glUnmapBuffer(gl.GL_PIXEL_UNPACK_BUFFER);
+		gl.glBindTexture(gl.GL_TEXTURE_2D, interfaceTexture);
+		gl.glTexSubImage2D(gl.GL_TEXTURE_2D, 0, 0, 0, width, height, gl.GL_BGRA, gl.GL_UNSIGNED_INT_8_8_8_8_REV, 0);
+		gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, 0);
+		gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
 	}
 
 	private void drawFrame(int overlayColor)
 	{
-		if (jawtWindow.getAWTComponent() != client.getCanvas())
-		{
-			// We inject code in the game engine mixin to prevent the client from doing canvas replacement,
-			// so this should not ever be hit
-			log.warn("Canvas invalidated!");
-			shutDown();
-			startUp();
-			return;
-		}
-
-		if (client.getGameState() == GameState.LOADING || client.getGameState() == GameState.HOPPING)
-		{
-			// While the client is loading it doesn't draw
-			return;
-		}
+		// We inject code in the game engine mixin to prevent the client from doing canvas replacement,
+		// so this should not ever be tripped
+		assert jawtWindow.getAWTComponent() == client.getCanvas() : "canvas invalidated";
 
 		final int canvasHeight = client.getCanvasHeight();
 		final int canvasWidth = client.getCanvasWidth();
@@ -1040,7 +1131,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		final int viewportHeight = client.getViewportHeight();
 		final int viewportWidth = client.getViewportWidth();
 
-		resize(canvasWidth, canvasHeight, viewportWidth, viewportHeight);
+		prepareInterfaceTexture(canvasWidth, canvasHeight);
 
 		// Setup anti-aliasing
 		final AntiAliasingMode antiAliasingMode = config.antiAliasingMode();
@@ -1094,7 +1185,8 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 
 		// Draw 3d scene
 		final TextureProvider textureProvider = client.getTextureProvider();
-		if (textureProvider != null)
+		final GameState gameState = client.getGameState();
+		if (textureProvider != null && gameState.getState() >= GameState.LOADING.getState())
 		{
 			if (textureArrayId == -1)
 			{
@@ -1104,8 +1196,8 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 			}
 
 			final Texture[] textures = textureProvider.getTextures();
-			int renderHeightOff = client.getViewportYOffset();
-			int renderWidthOff = client.getViewportXOffset();
+			int renderWidthOff = viewportOffsetX;
+			int renderHeightOff = viewportOffsetY;
 			int renderCanvasHeight = canvasHeight;
 			int renderViewportHeight = viewportHeight;
 			int renderViewportWidth = viewportWidth;
@@ -1254,7 +1346,6 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		modelBufferSmall.clear();
 		modelBufferUnordered.clear();
 
-		targetBufferOffset = 0;
 		smallModels = largeModels = unorderedModels = 0;
 		tempOffset = 0;
 		tempUvOffset = 0;
@@ -1280,24 +1371,9 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 
 	private void drawUi(final int overlayColor, final int canvasHeight, final int canvasWidth)
 	{
-		final BufferProvider bufferProvider = client.getBufferProvider();
-		final int[] pixels = bufferProvider.getPixels();
-		final int width = bufferProvider.getWidth();
-		final int height = bufferProvider.getHeight();
-
 		gl.glEnable(gl.GL_BLEND);
-
-		vertexBuffer.clear(); // reuse vertex buffer for interface
-		vertexBuffer.ensureCapacity(pixels.length);
-
-		IntBuffer interfaceBuffer = vertexBuffer.getBuffer();
-		interfaceBuffer.put(pixels);
-		vertexBuffer.flip();
-
 		gl.glBlendFunc(gl.GL_ONE, gl.GL_ONE_MINUS_SRC_ALPHA);
 		gl.glBindTexture(gl.GL_TEXTURE_2D, interfaceTexture);
-
-		gl.glTexSubImage2D(gl.GL_TEXTURE_2D, 0, 0, 0, width, height, gl.GL_BGRA, gl.GL_UNSIGNED_INT_8_8_8_8_REV, interfaceBuffer);
 
 		// Use the texture bound in the first pass
 		final UIScalingMode uiScalingMode = config.uiScalingMode();
@@ -1410,12 +1486,18 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
-		if (computeMode == ComputeMode.NONE || gameStateChanged.getGameState() != GameState.LOGGED_IN)
+		switch (gameStateChanged.getGameState())
 		{
-			return;
+			case LOGGED_IN:
+				if (computeMode != ComputeMode.NONE)
+				{
+					invokeOnMainThread(this::uploadScene);
+				}
+				break;
+			case LOGIN_SCREEN:
+				// Avoid drawing the last frame's buffer during LOADING after LOGIN_SCREEN
+				targetBufferOffset = 0;
 		}
-
-		invokeOnMainThread(this::uploadScene);
 	}
 
 	private void uploadScene()
@@ -1443,38 +1525,42 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 	/**
 	 * Check is a model is visible and should be drawn.
 	 */
-	private boolean isVisible(Model model, int orientation, int pitchSin, int pitchCos, int yawSin, int yawCos, int _x, int _y, int _z, long hash)
+	private boolean isVisible(Model model, int pitchSin, int pitchCos, int yawSin, int yawCos, int x, int y, int z)
 	{
-		final int XYZMag = model.getXYZMag();
+		model.calculateBoundsCylinder();
+
+		final int xzMag = model.getXYZMag();
+		final int bottomY = model.getBottomY();
 		final int zoom = client.get3dZoom();
 		final int modelHeight = model.getModelHeight();
 
-		int Rasterizer3D_clipMidX2 = client.getRasterizer3D_clipMidX2();
-		int Rasterizer3D_clipNegativeMidX = client.getRasterizer3D_clipNegativeMidX();
-		int Rasterizer3D_clipNegativeMidY = client.getRasterizer3D_clipNegativeMidY();
-		int Rasterizer3D_clipMidY2 = client.getRasterizer3D_clipMidY2();
+		int Rasterizer3D_clipMidX2 = client.getRasterizer3D_clipMidX2(); // width / 2
+		int Rasterizer3D_clipNegativeMidX = client.getRasterizer3D_clipNegativeMidX(); // -width / 2
+		int Rasterizer3D_clipNegativeMidY = client.getRasterizer3D_clipNegativeMidY(); // -height / 2
+		int Rasterizer3D_clipMidY2 = client.getRasterizer3D_clipMidY2(); // height / 2
 
-		int var11 = yawCos * _z - yawSin * _x >> 16;
-		int var12 = pitchSin * _y + pitchCos * var11 >> 16;
-		int var13 = pitchCos * XYZMag >> 16;
-		int var14 = var12 + var13;
-		if (var14 > 50)
+		int var11 = yawCos * z - yawSin * x >> 16;
+		int var12 = pitchSin * y + pitchCos * var11 >> 16;
+		int var13 = pitchCos * xzMag >> 16;
+		int depth = var12 + var13;
+		if (depth > 50)
 		{
-			int var15 = _z * yawSin + yawCos * _x >> 16;
-			int var16 = (var15 - XYZMag) * zoom;
-			if (var16 / var14 < Rasterizer3D_clipMidX2)
+			int rx = z * yawSin + yawCos * x >> 16;
+			int var16 = (rx - xzMag) * zoom;
+			if (var16 / depth < Rasterizer3D_clipMidX2)
 			{
-				int var17 = (var15 + XYZMag) * zoom;
-				if (var17 / var14 > Rasterizer3D_clipNegativeMidX)
+				int var17 = (rx + xzMag) * zoom;
+				if (var17 / depth > Rasterizer3D_clipNegativeMidX)
 				{
-					int var18 = pitchCos * _y - var11 * pitchSin >> 16;
-					int var19 = pitchSin * XYZMag >> 16;
-					int var20 = (var18 + var19) * zoom;
-					if (var20 / var14 > Rasterizer3D_clipNegativeMidY)
+					int ry = pitchCos * y - var11 * pitchSin >> 16;
+					int yheight = pitchSin * xzMag >> 16;
+					int ybottom = (pitchCos * bottomY >> 16) + yheight; // use bottom height instead of y pos for height
+					int var20 = (ry + ybottom) * zoom;
+					if (var20 / depth > Rasterizer3D_clipNegativeMidY)
 					{
-						int var21 = (pitchCos * modelHeight >> 16) + var19;
-						int var22 = (var18 - var21) * zoom;
-						return var22 / var14 < Rasterizer3D_clipMidY2;
+						int ytop = (pitchCos * modelHeight >> 16) + yheight;
+						int var22 = (ry - ytop) * zoom;
+						return var22 / depth < Rasterizer3D_clipMidY2;
 					}
 				}
 			}
@@ -1510,9 +1596,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 					renderable.setModelHeight(model.getModelHeight());
 				}
 
-				model.calculateBoundsCylinder();
-
-				if (!isVisible(model, orientation, pitchSin, pitchCos, yawSin, yawCos, x, y, z, hash))
+				if (!isVisible(model, pitchSin, pitchCos, yawSin, yawCos, x, y, z))
 				{
 					return;
 				}
@@ -1524,7 +1608,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 				modelY = y + client.getCameraY2();
 				modelZ = z + client.getCameraZ2();
 				modelOrientation = orientation;
-				int triangleCount = model.getTrianglesCount();
+				int triangleCount = model.getFaceCount();
 				vertexBuffer.ensureCapacity(12 * triangleCount);
 				uvBuffer.ensureCapacity(12 * triangleCount);
 
@@ -1540,9 +1624,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		{
 			Model model = (Model) renderable;
 
-			model.calculateBoundsCylinder();
-
-			if (!isVisible(model, orientation, pitchSin, pitchCos, yawSin, yawCos, x, y, z, hash))
+			if (!isVisible(model, pitchSin, pitchCos, yawSin, yawCos, x, y, z))
 			{
 				return;
 			}
@@ -1550,7 +1632,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 			model.calculateExtreme(orientation);
 			client.checkClickbox(model, orientation, pitchSin, pitchCos, yawSin, yawCos, x, y, z, hash);
 
-			int tc = Math.min(MAX_TRIANGLE, model.getTrianglesCount());
+			int tc = Math.min(MAX_TRIANGLE, model.getFaceCount());
 			int uvOffset = model.getUvBufferOffset();
 
 			GpuIntBuffer b = bufferForTriangles(tc);
@@ -1578,9 +1660,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 					renderable.setModelHeight(model.getModelHeight());
 				}
 
-				model.calculateBoundsCylinder();
-
-				if (!isVisible(model, orientation, pitchSin, pitchCos, yawSin, yawCos, x, y, z, hash))
+				if (!isVisible(model, pitchSin, pitchCos, yawSin, yawCos, x, y, z))
 				{
 					return;
 				}
@@ -1590,16 +1670,9 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 
 				boolean hasUv = model.getFaceTextures() != null;
 
-				int faces = Math.min(MAX_TRIANGLE, model.getTrianglesCount());
-				vertexBuffer.ensureCapacity(12 * faces);
-				uvBuffer.ensureCapacity(12 * faces);
-				int len = 0;
-				for (int i = 0; i < faces; ++i)
-				{
-					len += sceneUploader.pushFace(model, i, false, vertexBuffer, uvBuffer, 0, 0, 0, 0);
-				}
+				int len = sceneUploader.pushModel(model, vertexBuffer, uvBuffer);
 
-				GpuIntBuffer b = bufferForTriangles(faces);
+				GpuIntBuffer b = bufferForTriangles(len / 3);
 
 				b.ensureCapacity(8);
 				IntBuffer buffer = b.getBuffer();

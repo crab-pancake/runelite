@@ -50,7 +50,7 @@ public class WidgetOverlay extends Overlay
 			new WidgetOverlay(client, WidgetInfo.RAIDS_POINTS_INFOBOX, OverlayPosition.TOP_LEFT),
 			new WidgetOverlay(client, WidgetInfo.TOB_PARTY_INTERFACE, OverlayPosition.TOP_LEFT),
 			new WidgetOverlay(client, WidgetInfo.TOB_PARTY_STATS, OverlayPosition.TOP_LEFT),
-			new WidgetOverlay(client, WidgetInfo.GWD_KC, OverlayPosition.TOP_RIGHT),
+			new WidgetOverlay(client, WidgetInfo.GWD_KC, OverlayPosition.TOP_LEFT),
 			new WidgetOverlay(client, WidgetInfo.TITHE_FARM, OverlayPosition.TOP_RIGHT),
 			new WidgetOverlay(client, WidgetInfo.PEST_CONTROL_BOAT_INFO, OverlayPosition.TOP_LEFT),
 			new WidgetOverlay(client, WidgetInfo.PEST_CONTROL_KNIGHT_INFO_CONTAINER, OverlayPosition.TOP_LEFT),
@@ -202,6 +202,20 @@ public class WidgetOverlay extends Overlay
 		{
 			super(client, widgetInfo, overlayPosition);
 			this.overlayManager = overlayManager;
+		}
+
+		@Override
+		public Dimension render(Graphics2D graphics)
+		{
+			// The xptracker component layer isn't hidden if the counter and process bar are both configured "Off",
+			// it just has its children hidden.
+			if (client.getVar(Varbits.EXPERIENCE_TRACKER_COUNTER) == 30 // Off
+				&& client.getVar(Varbits.EXPERIENCE_TRACKER_PROGRESS_BAR) == 0) // Off
+			{
+				return null;
+			}
+
+			return super.render(graphics);
 		}
 
 		/**

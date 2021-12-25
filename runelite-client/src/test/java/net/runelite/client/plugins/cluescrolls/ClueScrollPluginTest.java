@@ -30,14 +30,22 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
+import java.util.Arrays;
+import java.util.List;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
+import net.runelite.api.InventoryID;
+import net.runelite.api.Item;
+import net.runelite.api.ItemContainer;
+import net.runelite.api.ItemID;
 import net.runelite.api.NPC;
 import net.runelite.api.NullObjectID;
 import net.runelite.api.Player;
+import net.runelite.api.Varbits;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
@@ -45,10 +53,11 @@ import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.banktags.TagManager;
 import net.runelite.client.plugins.cluescrolls.clues.hotcold.HotColdLocation;
 import net.runelite.client.ui.overlay.OverlayManager;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,36 +103,6 @@ public class ClueScrollPluginTest
 	public void before()
 	{
 		Guice.createInjector(BoundFieldModule.of(this)).injectMembers(this);
-	}
-
-	@Test
-	public void getGetMirrorPoint()
-	{
-		WorldPoint point, converted;
-
-		// Zalcano's entrance portal
-		point = new WorldPoint(3282, 6058, 0);
-		converted = ClueScrollPlugin.getMirrorPoint(point, true);
-		assertNotEquals(point, converted);
-
-		// Elven Crystal Chest, which is upstairs
-		point = new WorldPoint(3273, 6082, 2);
-		converted = ClueScrollPlugin.getMirrorPoint(point, true);
-		assertNotEquals(point, converted);
-
-		// Around the area of the Elite coordinate clue
-		point = new WorldPoint(2185, 3280, 0);
-		// To overworld
-		converted = ClueScrollPlugin.getMirrorPoint(point, true);
-		assertEquals(point, converted);
-		// To real
-		converted = ClueScrollPlugin.getMirrorPoint(point, false);
-		assertNotEquals(point, converted);
-
-		// Brugsen Bursen, Grand Exchange
-		point = new WorldPoint(3165, 3477, 0);
-		converted = ClueScrollPlugin.getMirrorPoint(point, false);
-		assertEquals(point, converted);
 	}
 
 	@Test
@@ -214,5 +193,41 @@ public class ClueScrollPluginTest
 		plugin.onMenuOptionClicked(menuOptionClicked);
 		plugin.onChatMessage(withdrawMessage);
 		assertNull(plugin.getActiveSTASHClue());
+	}
+
+	@Test
+	public void testThatRunepouchIsAddedToInventory()
+	{
+		ItemContainer container = mock(ItemContainer.class);
+		ItemContainerChanged event = new ItemContainerChanged(InventoryID.INVENTORY.getId(), container);
+
+		final Item[] inventory = {
+			new Item(ItemID.COINS_995, 100),
+			new Item(ItemID.MITHRIL_BAR, 1),
+			new Item(ItemID.MITHRIL_BAR, 1),
+			new Item(ItemID.MITHRIL_BAR, 1),
+			new Item(ItemID.SOUL_RUNE, 30),
+			new Item(ItemID.COSMIC_RUNE, 100),
+			new Item(ItemID.RUNE_POUCH, 1),
+			new Item(ItemID.SPADE, 1),
+			new Item(ItemID.CLUE_SCROLL_MASTER, 1)
+		};
+
+		when(container.getItems()).thenReturn(inventory);
+		when(container.contains(ItemID.RUNE_POUCH)).thenReturn(true);
+
+		when(client.getVar(Varbits.RUNE_POUCH_RUNE1)).thenReturn(9); // Cosmic Rune
+		when(client.getVar(Varbits.RUNE_POUCH_AMOUNT1)).thenReturn(20);
+		when(client.getVar(Varbits.RUNE_POUCH_RUNE3)).thenReturn(4); // Fire Rune
+		when(client.getVar(Varbits.RUNE_POUCH_AMOUNT3)).thenReturn(4000);
+
+		plugin.onItemContainerChanged(event);
+
+		assertFalse(Arrays.equals(inventory, plugin.getInventoryItems()));
+
+		List<Item> inventoryList = Arrays.asList(plugin.getInventoryItems());
+
+		assertThat(inventoryList, hasItem(new Item(ItemID.COSMIC_RUNE, 120)));
+		assertThat(inventoryList, hasItem(new Item(ItemID.FIRE_RUNE, 4000)));
 	}
 }

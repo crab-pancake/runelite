@@ -40,12 +40,15 @@ public final class ScriptID
 	/**
 	 * Sends a chat message
 	 * <ul>
-	 * <li> int (byte) Flags </li>
 	 * <li> String Message to send </li>
+	 * <li> int modes </li>
+	 * <li> int (clan type) </li>
+	 * <li> int (boolean) use target</li>
+	 * <li> int set target </li>
 	 * </ul>
 	 */
-	@ScriptArguments(integer = 1, string = 1)
-	public static final int CHATBOX_INPUT = 96;
+	@ScriptArguments(integer = 4, string = 1)
+	public static final int CHAT_SEND = 5517;
 
 	/**
 	 * Rebuilds the chatbox and the pmbox
@@ -197,9 +200,15 @@ public final class ScriptID
 	public static final int FRIENDS_CHAT_CHANNEL_REBUILD = 1658;
 
 	/**
+	 * Builds the widget that holds all of the players inside a clan chat
+	 */
+	@ScriptArguments(integer = 7)
+	public static final int CLAN_SIDEPANEL_DRAW = 4396;
+
+	/**
 	 * Builds the widget for making an offer in Grand Exchange
 	 */
-	@ScriptArguments(integer = 15)
+	@ScriptArguments(integer = 16)
 	public static final int GE_OFFERS_SETUP_BUILD = 779;
 
 	/**
@@ -367,4 +376,18 @@ public final class ScriptID
 
 	@ScriptArguments(integer = 6)
 	public static final int COLLECTION_DRAW_LIST = 2730;
+
+	/**
+	 * Draws the active notification in increasing sizes (increasing horizontally first, then vertically) to show a
+	 * starting animation.
+	 */
+	@ScriptArguments(integer = 3)
+	public static final int NOTIFICATION_START = 3346;
+
+	/**
+	 * Draws the active notification in full size for a specified number of client ticks. In essence, delayed between
+	 * the open and close animations.
+	 */
+	@ScriptArguments(integer = 1)
+	public static final int NOTIFICATION_DELAY = 3347;
 }

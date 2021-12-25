@@ -64,6 +64,7 @@ import net.runelite.api.Scene;
 import net.runelite.api.ScriptID;
 import net.runelite.api.Tile;
 import net.runelite.api.TileObject;
+import net.runelite.api.Varbits;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.ChatMessage;
@@ -95,6 +96,7 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.OverlayMenuClicked;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.RunepouchRune;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -142,14 +144,13 @@ public class ClueScrollPlugin extends Plugin
 	private static final Color HIGHLIGHT_BORDER_COLOR = Color.ORANGE;
 	private static final Color HIGHLIGHT_HOVER_BORDER_COLOR = HIGHLIGHT_BORDER_COLOR.darker();
 	private static final Color HIGHLIGHT_FILL_COLOR = new Color(0, 255, 0, 20);
-	private static final int[] REGION_MIRRORS = {
-		// Prifddinas
-		12894, 8755,
-		12895, 8756,
-		13150, 9011,
-		13151, 9012
-	};
 	private static final String CLUE_TAG_NAME = "clue";
+	private static final Varbits[] RUNEPOUCH_AMOUNT_VARBITS = {
+		Varbits.RUNE_POUCH_AMOUNT1, Varbits.RUNE_POUCH_AMOUNT2, Varbits.RUNE_POUCH_AMOUNT3
+	};
+	private static final Varbits[] RUNEPOUCH_RUNE_VARBITS = {
+		Varbits.RUNE_POUCH_RUNE1, Varbits.RUNE_POUCH_RUNE2, Varbits.RUNE_POUCH_RUNE3
+	};
 
 	@Getter
 	private ClueScroll clue;
@@ -323,11 +324,22 @@ public class ClueScrollPlugin extends Plugin
 		{
 			return;
 		}
-		if (event.getMenuOption().equals("Read"))
+
+		final boolean itemClicked = event.getMenuAction() == MenuAction.ITEM_FIRST_OPTION
+			|| event.getMenuAction() == MenuAction.ITEM_SECOND_OPTION
+			|| event.getMenuAction() == MenuAction.ITEM_THIRD_OPTION
+			|| event.getMenuAction() == MenuAction.ITEM_FOURTH_OPTION
+			|| event.getMenuAction() == MenuAction.ITEM_FIFTH_OPTION;
+		final boolean isXMarksTheSpotOrb = event.getId() == ItemID.MYSTERIOUS_ORB_23069;
+
+		if (itemClicked && (isXMarksTheSpotOrb || event.getMenuOption().equals("Read")))
 		{
 			final ItemComposition itemComposition = itemManager.getItemComposition(event.getId());
 
-			if (itemComposition != null && (itemComposition.getName().startsWith("Clue scroll") || itemComposition.getName().startsWith("Challenge scroll")))
+			if (isXMarksTheSpotOrb
+				|| itemComposition.getName().startsWith("Clue scroll")
+				|| itemComposition.getName().startsWith("Challenge scroll")
+				|| itemComposition.getName().startsWith("Treasure scroll"))
 			{
 				clueItemId = itemComposition.getId();
 				updateClue(MapClue.forItemId(clueItemId));
@@ -346,18 +358,43 @@ public class ClueScrollPlugin extends Plugin
 	@Subscribe
 	public void onItemContainerChanged(final ItemContainerChanged event)
 	{
-		if (event.getItemContainer() == client.getItemContainer(InventoryID.EQUIPMENT))
+		if (event.getContainerId() == InventoryID.EQUIPMENT.getId())
 		{
 			equippedItems = event.getItemContainer().getItems();
 			return;
 		}
 
-		if (event.getItemContainer() != client.getItemContainer(InventoryID.INVENTORY))
+		if (event.getContainerId() != InventoryID.INVENTORY.getId())
 		{
 			return;
 		}
 
 		inventoryItems = event.getItemContainer().getItems();
+
+		// Add runes from rune pouch to inventoryItems
+		if (event.getItemContainer().contains(ItemID.RUNE_POUCH) || event.getItemContainer().contains(ItemID.RUNE_POUCH_L))
+		{
+			List<Item> runePouchContents = getRunepouchContents();
+
+			if (!runePouchContents.isEmpty())
+			{
+				for (int i = 0; i < inventoryItems.length; i++)
+				{
+					Item invItem = inventoryItems[i];
+					for (Item rune : runePouchContents)
+					{
+						if (invItem.getId() == rune.getId())
+						{
+							inventoryItems[i] = new Item(invItem.getId(), rune.getQuantity() + invItem.getQuantity());
+							runePouchContents.remove(rune);
+							break;
+						}
+					}
+				}
+
+				inventoryItems = ArrayUtils.addAll(inventoryItems, runePouchContents.toArray(new Item[0]));
+			}
+		}
 
 		// Check if item was removed from inventory
 		if (clue != null && clueItemId != null)
@@ -387,6 +424,30 @@ public class ClueScrollPlugin extends Plugin
 				checkClueNPCs(clue, client.getCachedNPCs());
 			}
 		}
+	}
+
+	private List<Item> getRunepouchContents()
+	{
+		List<Item> items = new ArrayList<>(RUNEPOUCH_AMOUNT_VARBITS.length);
+		for (int i = 0; i < RUNEPOUCH_AMOUNT_VARBITS.length; i++)
+		{
+			int amount = client.getVar(RUNEPOUCH_AMOUNT_VARBITS[i]);
+			if (amount <= 0)
+			{
+				continue;
+			}
+
+			int varbId = client.getVar(RUNEPOUCH_RUNE_VARBITS[i]);
+			RunepouchRune rune = RunepouchRune.getRune(varbId);
+			if (rune == null)
+			{
+				continue;
+			}
+
+			Item item = new Item(rune.getItemId(), amount);
+			items.add(item);
+		}
+		return items;
 	}
 
 	@Subscribe
@@ -850,7 +911,7 @@ public class ClueScrollPlugin extends Plugin
 
 		WorldPoint coordinate = coordinatesToWorldPoint(degX, minX, degY, minY);
 		// Convert from overworld to real
-		WorldPoint mirrorPoint = getMirrorPoint(coordinate, false);
+		WorldPoint mirrorPoint = WorldPoint.getMirrorPoint(coordinate, false);
 		// Use mirror point as mirrorLocation if there is one
 		return new CoordinateClue(text, coordinate, coordinate == mirrorPoint ? null : mirrorPoint);
 	}
@@ -1130,31 +1191,6 @@ public class ClueScrollPlugin extends Plugin
 			list.getId(),
 			newScroll
 		);
-	}
-
-	/**
-	 * Translate a coordinate either between overworld and real, or real and overworld
-	 *
-	 * @param worldPoint
-	 * @param toOverworld whether to convert to overworld coordinates, or to real coordinates
-	 * @return
-	 */
-	public static WorldPoint getMirrorPoint(WorldPoint worldPoint, boolean toOverworld)
-	{
-		int region = worldPoint.getRegionID();
-		for (int i = 0; i < REGION_MIRRORS.length; i += 2)
-		{
-			int real = REGION_MIRRORS[i];
-			int overworld = REGION_MIRRORS[i + 1];
-
-			// Test against what we are converting from
-			if (region == (toOverworld ? real : overworld))
-			{
-				return WorldPoint.fromRegion(toOverworld ? overworld : real,
-					worldPoint.getRegionX(), worldPoint.getRegionY(), worldPoint.getPlane());
-			}
-		}
-		return worldPoint;
 	}
 
 	private boolean testClueTag(int itemId)

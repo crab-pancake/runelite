@@ -52,17 +52,11 @@ import net.runelite.api.GameState;
 import net.runelite.api.ItemComposition;
 import static net.runelite.api.ItemID.*;
 import net.runelite.api.SpritePixels;
-import net.runelite.api.events.GameStateChanged;
-import net.runelite.api.events.PostItemComposition;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.RuneLiteConfig;
-import net.runelite.client.eventbus.EventBus;
-import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.util.AsyncBufferedImage;
-import net.runelite.http.api.item.ItemClient;
 import net.runelite.http.api.item.ItemPrice;
 import net.runelite.http.api.item.ItemStats;
-import okhttp3.OkHttpClient;
 
 @Singleton
 @Slf4j
@@ -92,7 +86,6 @@ public class ItemManager
 	private Map<Integer, ItemPrice> itemPrices = Collections.emptyMap();
 	private Map<Integer, ItemStats> itemStats = Collections.emptyMap();
 	private final LoadingCache<ImageKey, AsyncBufferedImage> itemImages;
-	private final LoadingCache<Integer, ItemComposition> itemCompositions;
 	private final LoadingCache<OutlineKey, BufferedImage> itemOutlines;
 
 	// Worn items with weight reducing property have a different worn and inventory ItemID
@@ -172,11 +165,11 @@ public class ItemManager
 
 	@Inject
 	public ItemManager(Client client, ScheduledExecutorService scheduledExecutorService, ClientThread clientThread,
-		OkHttpClient okHttpClient, EventBus eventBus, RuneLiteConfig runeLiteConfig)
+		ItemClient itemClient, RuneLiteConfig runeLiteConfig)
 	{
 		this.client = client;
 		this.clientThread = clientThread;
-		this.itemClient = new ItemClient(okHttpClient);
+		this.itemClient = itemClient;
 		this.runeLiteConfig = runeLiteConfig;
 
 		scheduledExecutorService.scheduleWithFixedDelay(this::loadPrices, 0, 30, TimeUnit.MINUTES);
@@ -194,18 +187,6 @@ public class ItemManager
 				}
 			});
 
-		itemCompositions = CacheBuilder.newBuilder()
-			.maximumSize(1024L)
-			.expireAfterAccess(1, TimeUnit.HOURS)
-			.build(new CacheLoader<Integer, ItemComposition>()
-			{
-				@Override
-				public ItemComposition load(Integer key) throws Exception
-				{
-					return client.getItemDefinition(key);
-				}
-			});
-
 		itemOutlines = CacheBuilder.newBuilder()
 			.maximumSize(128L)
 			.expireAfterAccess(1, TimeUnit.HOURS)
@@ -217,8 +198,6 @@ public class ItemManager
 					return loadItemOutline(key.itemId, key.itemQuantity, key.outlineColor);
 				}
 			});
-
-		eventBus.register(this);
 	}
 
 	private void loadPrices()
@@ -260,31 +239,6 @@ public class ItemManager
 		{
 			log.warn("error loading stats!", e);
 		}
-	}
-
-
-	@Subscribe
-	public void onGameStateChanged(final GameStateChanged event)
-	{
-		if (event.getGameState() == GameState.HOPPING || event.getGameState() == GameState.LOGIN_SCREEN)
-		{
-			itemCompositions.invalidateAll();
-		}
-	}
-
-	@Subscribe
-	public void onPostItemComposition(PostItemComposition event)
-	{
-		itemCompositions.put(event.getItemComposition().getId(), event.getItemComposition());
-	}
-
-	/**
-	 * Invalidates internal item manager item composition cache (but not client item composition cache)
-	 * @see Client#getItemCompositionCache()
-	 */
-	public void invalidateItemCompositionCache()
-	{
-		itemCompositions.invalidateAll();
 	}
 
 	/**
@@ -396,8 +350,7 @@ public class ItemManager
 	@Nonnull
 	public ItemComposition getItemComposition(int itemId)
 	{
-		assert client.isClientThread() : "getItemComposition must be called on client thread";
-		return itemCompositions.getUnchecked(itemId);
+		return client.getItemDefinition(itemId);
 	}
 
 	/**

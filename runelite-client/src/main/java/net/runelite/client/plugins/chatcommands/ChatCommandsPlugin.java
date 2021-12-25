@@ -73,6 +73,7 @@ import static net.runelite.api.widgets.WidgetID.DIARY_QUEST_GROUP_ID;
 import static net.runelite.api.widgets.WidgetID.KILL_LOGS_GROUP_ID;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.chat.ChatClient;
 import net.runelite.client.chat.ChatColorType;
 import net.runelite.client.chat.ChatCommandManager;
 import net.runelite.client.chat.ChatMessageBuilder;
@@ -82,20 +83,18 @@ import net.runelite.client.config.RuneLiteConfig;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ChatInput;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.hiscore.HiscoreClient;
+import net.runelite.client.hiscore.HiscoreEndpoint;
+import net.runelite.client.hiscore.HiscoreResult;
+import net.runelite.client.hiscore.HiscoreSkill;
+import net.runelite.client.hiscore.Skill;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.QuantityFormatter;
 import net.runelite.client.util.Text;
-import net.runelite.http.api.chat.ChatClient;
 import net.runelite.http.api.chat.Duels;
-import net.runelite.http.api.hiscore.HiscoreClient;
-import net.runelite.http.api.hiscore.HiscoreEndpoint;
-import net.runelite.http.api.hiscore.HiscoreResult;
-import net.runelite.http.api.hiscore.HiscoreSkill;
-import net.runelite.http.api.hiscore.SingleHiscoreSkillResult;
-import net.runelite.http.api.hiscore.Skill;
 import net.runelite.http.api.item.ItemPrice;
 import okhttp3.OkHttpClient;
 import org.apache.commons.text.WordUtils;
@@ -116,8 +115,8 @@ public class ChatCommandsPlugin extends Plugin
 	private static final Pattern TOB_WAVE_DURATION_PATTERN = Pattern.compile("Theatre of Blood wave completion time: <col=ff0000>[0-9:.]+</col>\\. Personal best: (?<pb>[0-9:]+(?:\\.[0-9]+)?)");
 	private static final Pattern KILL_DURATION_PATTERN = Pattern.compile("(?i)(?:(?:Fight |Lap |Challenge |Corrupted challenge )?duration:|Subdued in) <col=[0-9a-f]{6}>[0-9:.]+</col>\\. Personal best: (?:<col=ff0000>)?(?<pb>[0-9:]+(?:\\.[0-9]+)?)");
 	private static final Pattern NEW_PB_PATTERN = Pattern.compile("(?i)(?:(?:Fight |Lap |Challenge |Corrupted challenge )?duration:|Subdued in) <col=[0-9a-f]{6}>(?<pb>[0-9:]+(?:\\.[0-9]+)?)</col> \\(new personal best\\)");
-	private static final Pattern DUEL_ARENA_WINS_PATTERN = Pattern.compile("You (were defeated|won)! You have(?: now)? won (\\d+) duels?");
-	private static final Pattern DUEL_ARENA_LOSSES_PATTERN = Pattern.compile("You have(?: now)? lost (\\d+) duels?");
+	private static final Pattern DUEL_ARENA_WINS_PATTERN = Pattern.compile("You (were defeated|won)! You have(?: now)? won ([\\d,]+|one) duels?");
+	private static final Pattern DUEL_ARENA_LOSSES_PATTERN = Pattern.compile("You have(?: now)? lost ([\\d,]+|one) duels?");
 	private static final Pattern ADVENTURE_LOG_TITLE_PATTERN = Pattern.compile("The Exploits of (.+)");
 	private static final Pattern ADVENTURE_LOG_PB_PATTERN = Pattern.compile("Fastest (?:kill|run)(?: - \\(Team size: " + TEAM_SIZES + "\\))?: ([0-9:]+(?:\\.[0-9]+)?)");
 	private static final Pattern HS_PB_PATTERN = Pattern.compile("Floor (?<floor>\\d) time: <col=ff0000>(?<floortime>[0-9:]+(?:\\.[0-9]+)?)</col>(?: \\(new personal best\\)|. Personal best: (?<floorpb>[0-9:]+(?:\\.[0-9]+)?))" +
@@ -415,7 +414,8 @@ public class ChatCommandsPlugin extends Plugin
 		if (matcher.find())
 		{
 			final int oldWins = getKc("Duel Arena Wins");
-			final int wins = Integer.parseInt(matcher.group(2));
+			final int wins = matcher.group(2).equals("one") ? 1 :
+				Integer.parseInt(matcher.group(2).replace(",", ""));
 			final String result = matcher.group(1);
 			int winningStreak = getKc("Duel Arena Win Streak");
 			int losingStreak = getKc("Duel Arena Lose Streak");
@@ -443,7 +443,8 @@ public class ChatCommandsPlugin extends Plugin
 		matcher = DUEL_ARENA_LOSSES_PATTERN.matcher(message);
 		if (matcher.find())
 		{
-			int losses = Integer.parseInt(matcher.group(1));
+			int losses = matcher.group(1).equals("one") ? 1 :
+				Integer.parseInt(matcher.group(1).replace(",", ""));
 
 			setKc("Duel Arena Losses", losses);
 		}
@@ -1370,16 +1371,14 @@ public class ChatCommandsPlugin extends Plugin
 
 		try
 		{
-			final SingleHiscoreSkillResult result = hiscoreClient.lookup(lookup.getName(), skill, lookup.getEndpoint());
-
+			final HiscoreResult result = hiscoreClient.lookup(lookup.getName(), lookup.getEndpoint());
 			if (result == null)
 			{
 				log.warn("unable to look up skill {} for {}: not found", skill, search);
 				return;
 			}
 
-			final Skill hiscoreSkill = result.getSkill();
-
+			final Skill hiscoreSkill = result.getSkill(skill);
 			ChatMessageBuilder chatMessageBuilder = new ChatMessageBuilder()
 				.append(ChatColorType.NORMAL)
 				.append("Level ")
@@ -1875,6 +1874,8 @@ public class ChatCommandsPlugin extends Plugin
 			case "dusk":
 			case "dawn":
 			case "gargs":
+			case "ggs":
+			case "gg":
 				return "Grotesque Guardians";
 
 			case "crazy arch":
@@ -2008,6 +2009,7 @@ public class ChatCommandsPlugin extends Plugin
 			case "cgaunt":
 			case "cgauntlet":
 			case "the corrupted gauntlet":
+			case "cg":
 				return "Corrupted Gauntlet";
 
 			// The Nightmare

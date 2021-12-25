@@ -594,6 +594,13 @@ public interface Client extends GameEngine
 	World[] getWorldList();
 
 	/**
+	 * Create a new menu entry
+	 * @param idx the index to create the menu entry at. Accepts negative indexes eg. -1 inserts at the end.
+	 * @return the newly created menu entry
+	 */
+	MenuEntry createMenuEntry(int idx);
+
+	/**
 	 * Gets an array of currently open right-click menu entries that can be
 	 * clicked and activated.
 	 *
@@ -902,20 +909,6 @@ public interface Client extends GameEngine
 	long getOverallExperience();
 
 	/**
-	 * Gets the game drawing mode.
-	 *
-	 * @return the game drawing mode
-	 */
-	int getGameDrawingMode();
-
-	/**
-	 * Sets the games drawing mode.
-	 *
-	 * @param gameDrawingMode the new drawing mode
-	 */
-	void setGameDrawingMode(int gameDrawingMode);
-
-	/**
 	 * Refreshes the chat.
 	 */
 	void refreshChat();
@@ -1082,7 +1075,7 @@ public interface Client extends GameEngine
 	 * @param id the ID of the animation. Any int is allowed, but implementations in the client
 	 * should be defined in {@link AnimationID}
 	 */
-	Sequence loadAnimation(int id);
+	Animation loadAnimation(int id);
 
 	/**
 	 * Gets the music volume
@@ -1182,9 +1175,26 @@ public interface Client extends GameEngine
 	 *
 	 * @param inventory the inventory type
 	 * @return the item container
+	 * @see InventoryID
 	 */
 	@Nullable
 	ItemContainer getItemContainer(InventoryID inventory);
+
+	/**
+	 * Get an item container by id
+	 *
+	 * @param id the inventory id
+	 * @return the item container
+	 * @see InventoryID
+	 */
+	@Nullable
+	ItemContainer getItemContainer(int id);
+
+	/**
+	 * Get all item containers
+	 * @return
+	 */
+	HashTable<ItemContainer> getItemContainers();
 
 	/**
 	 * Gets the length of the cs2 vm's int stack
@@ -1252,7 +1262,7 @@ public interface Client extends GameEngine
 	 *
 	 * @return
 	 */
-	NameableContainer<Friend> getFriendContainer();
+	FriendContainer getFriendContainer();
 
 	/**
 	 * Retrieve the nameable container containing ignores
@@ -1769,8 +1779,6 @@ public interface Client extends GameEngine
 
 	TextureProvider getTextureProvider();
 
-	NodeCache getCachedModels2();
-
 	void setRenderArea(boolean[][] renderArea);
 
 	int getRasterizer3D_clipMidX2();
@@ -1918,4 +1926,31 @@ public interface Client extends GameEngine
 	 */
 	@Nullable
 	ClanSettings getGuestClanSettings();
+
+	/**
+	 * Get clan channel by id.
+	 * @param clanId the clan id
+	 * @return
+	 * @see net.runelite.api.clan.ClanID
+	 */
+	@Nullable
+	ClanChannel getClanChannel(int clanId);
+
+	/**
+	 * Get clan settings by id
+	 * @param clanId the clan id
+	 * @return
+	 * @see net.runelite.api.clan.ClanID
+	 */
+	@Nullable
+	ClanSettings getClanSettings(int clanId);
+
+	void setUnlockedFps(boolean unlock);
+	void setUnlockedFpsTarget(int fps);
+
+	/**
+	 * Gets the ambient sound effects
+	 * @return
+	 */
+	Deque<AmbientSoundEffect> getAmbientSoundEffects();
 }
