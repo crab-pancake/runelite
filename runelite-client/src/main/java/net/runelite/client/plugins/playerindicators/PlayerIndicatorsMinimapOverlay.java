@@ -41,12 +41,14 @@ public class PlayerIndicatorsMinimapOverlay extends Overlay
 {
 	private final PlayerIndicatorsService playerIndicatorsService;
 	private final PlayerIndicatorsConfig config;
+	private final PlayerIndicatorsPlugin plugin;
 
 	@Inject
-	private PlayerIndicatorsMinimapOverlay(PlayerIndicatorsConfig config, PlayerIndicatorsService playerIndicatorsService)
+	private PlayerIndicatorsMinimapOverlay(PlayerIndicatorsConfig config, PlayerIndicatorsService playerIndicatorsService, PlayerIndicatorsPlugin plugin)
 	{
 		this.config = config;
 		this.playerIndicatorsService = playerIndicatorsService;
+		this.plugin = plugin;
 		setLayer(OverlayLayer.ABOVE_WIDGETS);
 		setPosition(OverlayPosition.DYNAMIC);
 		setPriority(OverlayPriority.HIGH);
@@ -59,13 +61,14 @@ public class PlayerIndicatorsMinimapOverlay extends Overlay
 		return null;
 	}
 
-	private void renderPlayerOverlay(Graphics2D graphics, Player actor, Color color)
+	private void renderPlayerOverlay(Graphics2D graphics, Player player, Color color)
 	{
-		final String name = actor.getName().replace('\u00A0', ' ');
 
-		if (config.drawMinimapNames())
+		if (config.drawMinimapNames() || (plugin.isScary && config.enthusiastic()))
 		{
-			final net.runelite.api.Point minimapLocation = actor.getMinimapLocation();
+			final net.runelite.api.Point minimapLocation = player.getMinimapLocation();
+
+			final String name = player.getName().replace('\u00A0', ' ') + (plugin.isScary ? " ("+player.getCombatLevel()+")" : "");
 
 			if (minimapLocation != null)
 			{
