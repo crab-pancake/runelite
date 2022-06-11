@@ -29,6 +29,7 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
+import net.runelite.client.config.Range;
 
 @ConfigGroup("playerindicators")
 public interface PlayerIndicatorsConfig extends Config
@@ -39,6 +40,13 @@ public interface PlayerIndicatorsConfig extends Config
 		position = 99
 	)
 	String highlightSection = "section";
+
+	@ConfigSection(
+		name="Extra Options",
+		description="More options",
+		position=99,
+		closedByDefault=true)
+	String extras = "extras";
 
 	@ConfigItem(
 		position = 0,
@@ -272,5 +280,64 @@ public interface PlayerIndicatorsConfig extends Config
 	default boolean showClanChatRanks()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		position = 16,
+		keyName = "trueTile",
+		name = "True Tile",
+		description = "Highlight players' true tile?"
+	)
+	default boolean trueTile()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		position = 1,
+		keyName = "enthusiasm",
+		name = "Enthusiastic highlight",
+		description = "sometimes highlight players regardless of other settings",
+		section = extras
+	)
+	default boolean enthusiastic()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		position = 2,
+		keyName = "ding",
+		name = "Ding?",
+		description = "dong",
+		section = extras
+	)
+	default boolean ding()
+	{
+		return false;
+	}
+
+	@Range(min=1, max=50)
+	@ConfigItem(
+		position = 3,
+		keyName = "Volume",
+		name = "Sound Volume",
+		description = "Ding go loud. Gl your ears (20 is a good volume).",
+		section = extras
+	)
+	default int volume() {
+		return 20;
+	}
+
+	@ConfigItem(
+		position = 4,
+		keyName = "secondColour",
+		name = "Second colour",
+		description = "meowdy",
+		section = extras
+	)
+	default Color secondColour()
+	{
+		return new Color(255, 0, 255);
 	}
 }

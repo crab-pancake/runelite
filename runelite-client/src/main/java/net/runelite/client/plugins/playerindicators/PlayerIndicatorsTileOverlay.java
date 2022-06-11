@@ -25,10 +25,15 @@
 
 package net.runelite.client.plugins.playerindicators;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import javax.inject.Inject;
+import net.runelite.api.Client;
+import net.runelite.api.Perspective;
+import net.runelite.api.coords.LocalPoint;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -39,12 +44,16 @@ public class PlayerIndicatorsTileOverlay extends Overlay
 {
 	private final PlayerIndicatorsService playerIndicatorsService;
 	private final PlayerIndicatorsConfig config;
+	private final PlayerIndicatorsPlugin plugin;
+	private final Client client;
 
 	@Inject
-	private PlayerIndicatorsTileOverlay(PlayerIndicatorsConfig config, PlayerIndicatorsService playerIndicatorsService)
+	private PlayerIndicatorsTileOverlay(PlayerIndicatorsConfig config, PlayerIndicatorsService playerIndicatorsService, PlayerIndicatorsPlugin plugin, Client client)
 	{
 		this.config = config;
 		this.playerIndicatorsService = playerIndicatorsService;
+		this.plugin = plugin;
+		this.client = client;
 		setLayer(OverlayLayer.ABOVE_SCENE);
 		setPosition(OverlayPosition.DYNAMIC);
 		setPriority(OverlayPriority.MED);
@@ -53,18 +62,31 @@ public class PlayerIndicatorsTileOverlay extends Overlay
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		if (!config.drawTiles())
+		if (!config.drawTiles() && !(plugin.isScary && config.enthusiastic()))
 		{
 			return null;
 		}
 
 		playerIndicatorsService.forEachPlayer((player, color) ->
 		{
-			final Polygon poly = player.getCanvasTilePoly();
+			Polygon poly = null;
+			if (config.trueTile())
+			{
+				LocalPoint lp = LocalPoint.fromWorld(client, player.getWorldLocation());
+				if (lp != null)
+				{
+					poly = Perspective.getCanvasTilePoly(client, new LocalPoint(lp.getX(), lp.getY()));
+				}
+			}
+			else
+			{
+				poly = player.getCanvasTilePoly();
+
+			}
 
 			if (poly != null)
 			{
-				OverlayUtil.renderPolygon(graphics, poly, color);
+				OverlayUtil.renderPolygon(graphics, poly, color, new Color(0, 0, 0, 15), new BasicStroke(1.5F));
 			}
 		});
 

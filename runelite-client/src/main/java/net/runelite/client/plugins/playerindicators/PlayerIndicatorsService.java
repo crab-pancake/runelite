@@ -47,23 +47,27 @@ public class PlayerIndicatorsService
 	private final Client client;
 	private final PlayerIndicatorsConfig config;
 	private final PartyService partyService;
+	private final PlayerIndicatorsPlugin plugin;
 
 	@Inject
-	private PlayerIndicatorsService(Client client, PlayerIndicatorsConfig config, PartyService partyService)
+	private PlayerIndicatorsService(Client client, PlayerIndicatorsConfig config, PartyService partyService, PlayerIndicatorsPlugin plugin)
 	{
 		this.config = config;
 		this.client = client;
 		this.partyService = partyService;
+		this.plugin = plugin;
 	}
 
 	public void forEachPlayer(final BiConsumer<Player, Color> consumer)
 	{
 		if (!config.highlightOwnPlayer() && !config.highlightFriendsChat()
 			&& !config.highlightFriends() && !config.highlightOthers()
-			&& !config.highlightClanMembers() && !config.highlightPartyMembers())
+			&& !config.highlightClanMembers() && !config.highlightPartyMembers() && !config.enthusiastic())
 		{
 			return;
 		}
+
+		boolean show = plugin.isScary && config.enthusiastic();
 
 		final Player localPlayer = client.getLocalPlayer();
 
@@ -84,29 +88,33 @@ public class PlayerIndicatorsService
 					consumer.accept(player, config.getOwnPlayerColor());
 				}
 			}
-			else if (partyService.isInParty() && config.highlightPartyMembers() && partyService.getMemberByDisplayName(player.getName()) != null)
+			else if (partyService.isInParty() && (config.highlightPartyMembers() || show) && partyService.getMemberByDisplayName(player.getName()) != null)
 			{
 				consumer.accept(player, config.getPartyMemberColor());
 			}
-			else if (config.highlightFriends() && player.isFriend())
+			else if ((config.highlightFriends() || show) && client.isFriended(player.getName(),false))
 			{
 				consumer.accept(player, config.getFriendColor());
 			}
-			else if (config.highlightFriendsChat() && isFriendsChatMember)
+			else if ((config.highlightFriendsChat() || show) && isFriendsChatMember)
 			{
 				consumer.accept(player, config.getFriendsChatMemberColor());
 			}
-			else if (config.highlightTeamMembers() && localPlayer.getTeam() > 0 && localPlayer.getTeam() == player.getTeam())
+			else if ((config.highlightTeamMembers() || show) && localPlayer.getTeam() > 0 && localPlayer.getTeam() == player.getTeam())
 			{
 				consumer.accept(player, config.getTeamMemberColor());
 			}
-			else if (config.highlightClanMembers() && isClanMember)
+			else if ((config.highlightClanMembers() || show) && isClanMember)
 			{
 				consumer.accept(player, config.getClanMemberColor());
 			}
-			else if (config.highlightOthers() && !isFriendsChatMember && !isClanMember)
+			else if ((config.highlightOthers() || show) && !isFriendsChatMember && !isClanMember)
 			{
-				consumer.accept(player, config.getOthersColor());
+				if (show && plugin.isSquishy(client, player))
+				{
+					consumer.accept(player, config.secondColour());
+				}
+				else consumer.accept(player, config.getOthersColor());
 			}
 		}
 	}
