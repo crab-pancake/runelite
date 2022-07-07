@@ -171,7 +171,10 @@ public final class WidgetID
 	public static final int GRAVESTONE_GROUP_ID = 672;
 	public static final int POH_TREASURE_CHEST_INVENTORY_GROUP_ID = 674;
 	public static final int GROUP_IRON_GROUP_ID = 726;
+	public static final int GROUP_STORAGE_INVENTORY_GROUP_ID = 725;
 	public static final int GROUP_STORAGE_GROUP_ID = 724;
+	public static final int WILDERNESS_LOOT_CHEST = 742;
+	public static final int TRADE_WINDOW_GROUP_ID = 335;
 
 	static class WorldMap
 	{
@@ -195,16 +198,14 @@ public final class WidgetID
 
 	static class DialogNPC
 	{
-		static final int HEAD_MODEL = 6;
-		static final int NAME = 3;
-		static final int TEXT = 5;
+		static final int HEAD_MODEL = 2;
+		static final int NAME = 4;
+		static final int TEXT = 6;
 	}
 
 	static class DialogPlayer
 	{
-		static final int NAME = 3;
-		static final int TEXT = 5;
-		static final int HEAD_MODEL = 6;
+		static final int TEXT = 6;
 	}
 
 	static class LogoutPanel
@@ -297,6 +298,7 @@ public final class WidgetID
 
 	static class GroupStorage
 	{
+		static final int UI = 2;
 		static final int ITEM_CONTAINER = 10;
 	}
 
@@ -450,6 +452,8 @@ public final class WidgetID
 		static final int MAGIC_ICON = 71;
 		static final int INTERFACE_CONTAINER = 72;
 		static final int INVENTORY_CONTAINER = 78;
+		static final int CHATBOX_PARENT = 94;
+		static final int INVENTORY_PARENT = 95;
 	}
 
 	static class ResizableViewportBottomLine
@@ -476,6 +480,10 @@ public final class WidgetID
 		static final int MAGIC_ICON = 64;
 		static final int INTERFACE_CONTAINER = 69;
 		static final int INVENTORY_CONTAINER = 75;
+		static final int CHATBOX_PARENT = 91;
+		static final int TABS1 = 92;
+		static final int TABS2 = 93;
+		static final int INVENTORY_PARENT = 94;
 	}
 
 	static class Chatbox
@@ -647,6 +655,11 @@ public final class WidgetID
 		static final int POINTS_INFOBOX = 3;
 	}
 
+	static class ChambersOfXericStorageUnitPrivate
+	{
+		static final int PRIVATE_CHEST_ITEM_CONTAINER = 6;
+	}
+
 	static class Tob
 	{
 		static final int PARTY_INTERFACE = 5;
@@ -753,28 +766,30 @@ public final class WidgetID
 
 	static class Minigames
 	{
-		static final int TELEPORT_BUTTON = 26;
+		static final int TELEPORT_BUTTON = 30;
 	}
 
 	static class StandardSpellBook
 	{
-		static final int LUMBRIDGE_HOME_TELEPORT = 5;
+		static final int LUMBRIDGE_HOME_TELEPORT = 6;
 		static final int KOUREND_HOME_TELEPORT = 4;
+		static final int CATHERBY_HOME_TELEPORT = 5;
 	}
 
 	static class AncientSpellBook
 	{
-		static final int EDGEVILLE_HOME_TELEPORT = 99;
+		static final int EDGEVILLE_HOME_TELEPORT = 100;
 	}
 
 	static class LunarSpellBook
 	{
-		static final int LUNAR_HOME_TELEPORT = 100;
+		static final int LUNAR_HOME_TELEPORT = 101;
+		static final int FERTILE_SOIL = 126;
 	}
 
 	static class ArceuusSpellBook
 	{
-		static final int ARCEUUS_HOME_TELEPORT = 144;
+		static final int ARCEUUS_HOME_TELEPORT = 145;
 	}
 
 	static class Pvp
@@ -809,11 +824,7 @@ public final class WidgetID
 	static class QuestList
 	{
 		static final int BOX = 0;
-		static final int SCROLLBAR = 4;
-		static final int CONTAINER = 5;
-		static final int FREE_CONTAINER = 6;
-		static final int MEMBERS_CONTAINER = 7;
-		static final int MINIQUEST_CONTAINER = 8;
+		static final int CONTAINER = 2;
 	}
 
 	static class Music
@@ -937,5 +948,10 @@ public final class WidgetID
 		static final int LAYER = 0;
 		static final int HEADER = 1;
 		static final int MEMBERS = 6;
+	}
+
+	static class Trade
+	{
+		static final int HEADER = 31;
 	}
 }

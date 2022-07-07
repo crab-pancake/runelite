@@ -81,6 +81,7 @@ enum DiscordGameEventType
 	BOSS_KRAKEN("Kraken", DiscordAreaType.BOSSES, 9116),
 	BOSS_KREEARRA("Kree'arra", DiscordAreaType.BOSSES, 11346),
 	BOSS_KRIL_TSUTSAROTH("K'ril Tsutsaroth", DiscordAreaType.BOSSES, 11603),
+	BOSS_NEX("Nex", DiscordAreaType.BOSSES, 11601),
 	BOSS_NIGHTMARE("Nightmare of Ashihama", DiscordAreaType.BOSSES, 15515),
 	BOSS_SARACHNIS("Sarachnis", DiscordAreaType.BOSSES, 7322),
 	BOSS_SKOTIZO("Skotizo", DiscordAreaType.BOSSES, 6810),
@@ -311,6 +312,7 @@ enum DiscordGameEventType
 	MG_TZHAAR_FIGHT_PITS("Tzhaar Fight Pits", DiscordAreaType.MINIGAMES, 9552),
 	MG_VARROCK_RAT_PITS("Varrock Rat Pits", DiscordAreaType.MINIGAMES, 11599),
 	MG_VOLCANIC_MINE("Volcanic Mine", DiscordAreaType.MINIGAMES, 15263, 15262),
+	MG_GUARDIANS_OF_THE_RIFT("Guardians of the Rift", DiscordAreaType.MINIGAMES, 14484),
 
 	// Raids
 	RAIDS_CHAMBERS_OF_XERIC("Chambers of Xeric", DiscordAreaType.RAIDS, 12889, 13136, 13137, 13138, 13139, 13140, 13141, 13145, 13393, 13394, 13395, 13396, 13397, 13401),
