@@ -25,6 +25,7 @@
  */
 package net.runelite.client.plugins.devtools;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -194,7 +195,7 @@ class DevToolsOverlay extends Overlay
 		for (NPC npc : npcs)
 		{
 			NPCComposition composition = npc.getComposition();
-			Color color = composition.getCombatLevel() > 1 ? YELLOW : ORANGE;
+			Color color = composition.getCombatLevel() > 0 ? YELLOW : ORANGE;
 			if (composition.getConfigs() != null)
 			{
 				NPCComposition transformedComposition = composition.transform();
@@ -208,7 +209,7 @@ class DevToolsOverlay extends Overlay
 				}
 			}
 
-			String text = composition.getName() + " (ID:" + composition.getId() + ")" +
+			String text = composition.getName() + " (ID:" + composition.getId() + ")" + " (Index: " + npc.getIndex() +
 				" (A: " + npc.getAnimation() + ") (P: " + npc.getPoseAnimation() + ") (G: " + npc.getGraphic() + ")";
 			OverlayUtil.renderActorOverlay(graphics, npc, text, color);
 		}

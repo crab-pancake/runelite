@@ -26,8 +26,11 @@ package net.runelite.client.plugins.playerindicators;
 
 import com.google.inject.Provides;
 import java.awt.Color;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
 import lombok.Value;
+import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.FriendsChatRank;
 import static net.runelite.api.FriendsChatRank.UNRANKED;
@@ -47,11 +50,16 @@ import static net.runelite.api.MenuAction.WIDGET_TARGET_ON_PLAYER;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.Player;
 import net.runelite.api.ScriptID;
+import net.runelite.api.WorldType;
 import net.runelite.api.clan.ClanTitle;
 import net.runelite.api.events.ClientTick;
+import net.runelite.api.events.PlayerSpawned;
 import net.runelite.api.events.ScriptPostFired;
+import net.runelite.api.events.VarbitChanged;
+import net.runelite.api.events.WorldChanged;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
+import net.runelite.client.Notifier;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -70,6 +78,7 @@ import net.runelite.client.util.ColorUtil;
 public class PlayerIndicatorsPlugin extends Plugin
 {
 	private static final String TRADING_WITH_TEXT = "Trading with: ";
+	private static final Pattern PATTERN = Pattern.compile("^Level: (\\d+)$");
 
 	@Inject
 	private OverlayManager overlayManager;
@@ -101,6 +110,12 @@ public class PlayerIndicatorsPlugin extends Plugin
 	@Inject
 	private PartyService partyService;
 
+	@Inject
+	private Notifier notifier;
+
+	boolean isScary;
+	int lastPlayedTick = -1;
+
 	@Provides
 	PlayerIndicatorsConfig provideConfig(ConfigManager configManager)
 	{
@@ -110,6 +125,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
+		isScary = false;
 		overlayManager.add(playerIndicatorsOverlay);
 		overlayManager.add(playerIndicatorsTileOverlay);
 		overlayManager.add(playerIndicatorsMinimapOverlay);
@@ -121,7 +137,79 @@ public class PlayerIndicatorsPlugin extends Plugin
 		overlayManager.remove(playerIndicatorsOverlay);
 		overlayManager.remove(playerIndicatorsTileOverlay);
 		overlayManager.remove(playerIndicatorsMinimapOverlay);
+		lastPlayedTick = -1;
 	}
+
+	@Subscribe
+	private void onPlayerSpawned(PlayerSpawned event)
+	{
+		if (!config.ding() || !isScary) return;
+
+		Player player = event.getPlayer();
+		if (player == client.getLocalPlayer()) return;
+
+		// later: check what player is wearing also?
+		if (config.ding()
+				&& !client.isFriended(player.getName(),false)
+				&& isSquishy(client, player))
+		{
+			if (lastPlayedTick < client.getTickCount()) // play max once per tick
+			{
+				client.playSoundEffect(3924, config.volume());
+				lastPlayedTick = client.getTickCount();
+			}
+			notifier.notify("Scary person!");
+			client.addChatMessage(ChatMessageType.WELCOME,"", "Scary: "+player.getName()+" ("+player.getCombatLevel()+")","");
+		}
+	}
+
+	@Subscribe
+	private void onVarbitChanged(VarbitChanged event)
+	{
+		checkScary(client);
+	}
+
+	@Subscribe
+	private void onWorldChanged(WorldChanged event)
+	{
+		checkScary(client);
+	}
+
+	boolean isSquishy(Client client, Player player)
+	{
+		final Widget widget = client.getWidget(407);
+		if (widget == null && !WorldType.isPvpWorld(client.getWorldType()))
+		{
+			return false;
+		}
+
+		int number = 0;
+
+		if (widget != null)
+		{
+			final String string = widget.getText();
+			final Matcher m = PATTERN.matcher(string);
+			if (m.matches()) {
+				number = Integer.parseInt(m.group(1)) + 1; // add +/- 1 margin for safety
+			}
+		}
+
+		final int range = number + (WorldType.isPvpWorld(client.getWorldType()) ? 15 : 0);
+		final int localNumber = client.getLocalPlayer().getCombatLevel();
+
+		final int minLevel = Math.max(3, localNumber - range);
+		final int maxLevel = Math.min(126, localNumber + range);
+
+		return player.getCombatLevel() >= minLevel && player.getCombatLevel() <= maxLevel;
+	}
+
+	public void checkScary(Client client)
+	{
+		clientThread.invokeLater(() -> {
+			isScary = client.getVarbitValue(5963) == 1 || WorldType.isPvpWorld(client.getWorldType());
+		});
+	}
+
 
 	@Subscribe
 	public void onClientTick(ClientTick clientTick)
@@ -200,7 +288,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 		{
 			color = config.getPartyMemberColor();
 		}
-		else if (player.isFriend() && config.highlightFriends())
+		else if (client.isFriended(player.getName(),false) && config.highlightFriends())
 		{
 			color = config.getFriendColor();
 		}
