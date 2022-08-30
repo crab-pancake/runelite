@@ -62,8 +62,6 @@ import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.VarbitChanged;
-import net.runelite.api.widgets.Widget;
-import static net.runelite.api.widgets.WidgetInfo.PVP_WORLD_SAFE_ZONE;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -96,8 +94,6 @@ public class TimersPlugin extends Plugin
 	private static final String CANNON_REPAIR_MESSAGE = "You repair your cannon, restoring it to working order.";
 	private static final String CANNON_DESTROYED_MESSAGE = "Your cannon has been destroyed!";
 	private static final String CANNON_BROKEN_MESSAGE = "<col=ef1020>Your cannon has broken!";
-	private static final String CHARGE_EXPIRED_MESSAGE = "<col=ef1020>Your magical charge fades away.</col>";
-	private static final String CHARGE_MESSAGE = "<col=ef1020>You feel charged with magic power.</col>";
 	private static final String EXTENDED_ANTIFIRE_DRINK_MESSAGE = "You drink some of your extended antifire potion.";
 	private static final String EXTENDED_SUPER_ANTIFIRE_DRINK_MESSAGE = "You drink some of your extended super antifire potion.";
 	private static final String FROZEN_MESSAGE = "<col=ef1020>You have been frozen!</col>";
@@ -108,7 +104,6 @@ public class TimersPlugin extends Plugin
 	private static final String STAFF_OF_THE_DEAD_SPEC_MESSAGE = "Spirits of deceased evildoers offer you their protection";
 	private static final String SUPER_ANTIFIRE_DRINK_MESSAGE = "You drink some of your super antifire potion";
 	private static final String SUPER_ANTIFIRE_EXPIRED_MESSAGE = "<col=7f007f>Your super antifire potion has expired.</col>";
-	private static final String KILLED_TELEBLOCK_OPPONENT_TEXT = "Your Tele Block has been removed because you killed ";
 	private static final String PRAYER_ENHANCE_EXPIRED = "<col=ff0000>Your prayer enhance effect has worn off.</col>";
 	private static final String SHADOW_VEIL_MESSAGE = ">Your thieving abilities have been enhanced.</col>";
 	private static final String DEATH_CHARGE_MESSAGE = ">Upon the death of your next foe, some of your special attack energy will be restored.</col>";
@@ -121,8 +116,10 @@ public class TimersPlugin extends Plugin
 	private static final String PICKPOCKET_FAILURE_MESSAGE = "You fail to pick the ";
 	private static final String DODGY_NECKLACE_PROTECTION_MESSAGE = "Your dodgy necklace protects you.";
 	private static final String SHADOW_VEIL_PROTECTION_MESSAGE = "Your attempt to steal goes unnoticed.";
+	private static final String SILK_DRESSING_MESSAGE = "You quickly apply the dressing to your wounds.";
+	private static final String BLESSED_CRYSTAL_SCARAB_MESSAGE = "You crack the crystal in your hand.";
 
-	private static final Pattern TELEBLOCK_PATTERN = Pattern.compile("A Tele Block spell has been cast on you(?: by .+)?\\. It will expire in (?<mins>\\d+) minutes?(?:, (?<secs>\\d+) seconds?)?\\.");
+	private static final Pattern DIVINE_POTION_PATTERN = Pattern.compile("You drink some of your divine (.+) potion\\.");
 	private static final int VENOM_VALUE_CUTOFF = -40; // Antivenom < -40 <= Antipoison < 0
 	private static final int POISON_TICK_LENGTH = 30;
 
@@ -137,36 +134,12 @@ public class TimersPlugin extends Plugin
 	private int freezeTime = -1; // time frozen, in game ticks
 
 	private TimerTimer staminaTimer;
+	private TimerTimer buffTimer;
 
-	private int lastRaidVarb;
-	private int lastVengCooldownVarb;
-	private int lastIsVengeancedVarb;
-	private int lastPoisonVarp;
-	private int lastPvpVarb;
-	private int lastCorruptionVarb;
-	private int lastStaminaEffect;
-	private int lastImbuedHeartVarb;
-	private int lastDivineAttackVarb;
-	private int lastDivineStrengthVarb;
-	private int lastDivineDefenceVarb;
-	private int lastDivineRangeVarb;
-	private int lastDivineMagicVarb;
-	private int lastDivineCombatVarb;
-	private int lastDivineBastionVarb;
-	private int lastDivineBattlemageVarb;
 	private boolean imbuedHeartTimerActive;
 	private int nextPoisonTick;
 	private WorldPoint lastPoint;
 	private int lastAnimation;
-	private boolean widgetHiddenChangedOnPvpWorld;
-	private boolean divineAttackTimerActive;
-	private boolean divineStrengthTimerActive;
-	private boolean divineDefenceTimerActive;
-	private boolean divineMagicTimerActive;
-	private boolean divineRangeTimerActive;
-	private boolean divineCombatTimerActive;
-	private boolean divineBastionTimerActive;
-	private boolean divineBattlemageTimerActive;
 	private ElapsedTimer tzhaarTimer;
 
 	@Inject
@@ -204,69 +177,26 @@ public class TimersPlugin extends Plugin
 	protected void shutDown() throws Exception
 	{
 		infoBoxManager.removeIf(t -> t instanceof TimerTimer);
-		lastRaidVarb = -1;
 		lastPoint = null;
 		lastAnimation = -1;
-		widgetHiddenChangedOnPvpWorld = false;
-		lastPoisonVarp = 0;
 		nextPoisonTick = 0;
 		removeTzhaarTimer();
 		staminaTimer = null;
 		imbuedHeartTimerActive = false;
-		lastImbuedHeartVarb = 0;
-		lastStaminaEffect = 0;
-		lastDivineAttackVarb = 0;
-		lastDivineStrengthVarb = 0;
-		lastDivineDefenceVarb = 0;
-		lastDivineRangeVarb = 0;
-		lastDivineMagicVarb = 0;
-		lastDivineCombatVarb = 0;
-		lastDivineBastionVarb = 0;
-		lastDivineBattlemageVarb = 0;
-		divineAttackTimerActive = false;
-		divineStrengthTimerActive = false;
-		divineDefenceTimerActive = false;
-		divineMagicTimerActive = false;
-		divineRangeTimerActive = false;
-		divineCombatTimerActive = false;
-		divineBastionTimerActive = false;
-		divineBattlemageTimerActive = false;
 	}
 
 	@Subscribe
 	public void onVarbitChanged(VarbitChanged event)
 	{
-		int raidVarb = client.getVarbitValue(Varbits.IN_RAID);
-		int vengCooldownVarb = client.getVarbitValue(Varbits.VENGEANCE_COOLDOWN);
-		int isVengeancedVarb = client.getVarbitValue(Varbits.VENGEANCE_ACTIVE);
-		int poisonVarp = client.getVar(VarPlayer.POISON);
-		int pvpVarb = client.getVarbitValue(Varbits.PVP_SPEC_ORB);
-		int corruptionCooldownVarb = client.getVarbitValue(Varbits.CORRUPTION_COOLDOWN);
-		int imbuedHeartCooldownVarb = client.getVarbitValue(Varbits.IMBUED_HEART_COOLDOWN);
-		int staminaEffectActive = client.getVarbitValue(Varbits.RUN_SLOWED_DEPLETION_ACTIVE);
-		int staminaPotionEffectVarb = client.getVarbitValue(Varbits.STAMINA_EFFECT);
-		int enduranceRingEffectVarb = client.getVarbitValue(Varbits.RING_OF_ENDURANCE_EFFECT);
-		int divineAttackVarb = client.getVarbitValue(Varbits.DIVINE_ATTACK);
-		int divineStrengthVarb = client.getVarbitValue(Varbits.DIVINE_STRENGTH);
-		int divineDefenceVarb = client.getVarbitValue(Varbits.DIVINE_DEFENCE);
-		int divineRangeVarb = client.getVarbitValue(Varbits.DIVINE_RANGE);
-		int divineMagicVarb = client.getVarbitValue(Varbits.DIVINE_MAGIC);
-		int divineCombatVarb = client.getVarbitValue(Varbits.DIVINE_COMBAT);
-		int divineBastionVarb = client.getVarbitValue(Varbits.DIVINE_BASTION);
-		int divineBattlemageVarb = client.getVarbitValue(Varbits.DIVINE_BATTLEMAGE);
-
-		final int totalStaminaEffect = staminaPotionEffectVarb + enduranceRingEffectVarb;
-
-		if (lastRaidVarb != raidVarb)
+		if (event.getVarbitId() == Varbits.IN_RAID)
 		{
 			removeGameTimer(OVERLOAD_RAID);
 			removeGameTimer(PRAYER_ENHANCE);
-			lastRaidVarb = raidVarb;
 		}
 
-		if (lastVengCooldownVarb != vengCooldownVarb && config.showVengeance())
+		if (event.getVarbitId() == Varbits.VENGEANCE_COOLDOWN && config.showVengeance())
 		{
-			if (vengCooldownVarb == 1)
+			if (event.getValue() == 1)
 			{
 				createGameTimer(VENGEANCE);
 			}
@@ -274,13 +204,11 @@ public class TimersPlugin extends Plugin
 			{
 				removeGameTimer(VENGEANCE);
 			}
-
-			lastVengCooldownVarb = vengCooldownVarb;
 		}
 
-		if (lastCorruptionVarb != corruptionCooldownVarb && config.showArceuusCooldown())
+		if (event.getVarbitId() == Varbits.CORRUPTION_COOLDOWN && config.showArceuusCooldown())
 		{
-			if (corruptionCooldownVarb == 1)
+			if (event.getValue() == 1)
 			{
 				createGameTimer(CORRUPTION_COOLDOWN);
 			}
@@ -288,13 +216,11 @@ public class TimersPlugin extends Plugin
 			{
 				removeGameTimer(CORRUPTION_COOLDOWN);
 			}
-
-			lastCorruptionVarb = corruptionCooldownVarb;
 		}
 
-		if (lastIsVengeancedVarb != isVengeancedVarb && config.showVengeanceActive())
+		if (event.getVarbitId() == Varbits.VENGEANCE_ACTIVE && config.showVengeanceActive())
 		{
-			if (isVengeancedVarb == 1)
+			if (event.getValue() == 1)
 			{
 				createGameIndicator(VENGEANCE_ACTIVE);
 			}
@@ -302,15 +228,18 @@ public class TimersPlugin extends Plugin
 			{
 				removeGameIndicator(VENGEANCE_ACTIVE);
 			}
-
-			lastIsVengeancedVarb = isVengeancedVarb;
 		}
 
-		if (lastPoisonVarp != poisonVarp && config.showAntiPoison())
+		if (event.getVarpId() == VarPlayer.POISON.getId() && config.showAntiPoison())
 		{
+			final int poisonVarp = event.getValue();
 			final int tickCount = client.getTickCount();
 
-			if (nextPoisonTick - tickCount <= 0 || lastPoisonVarp == 0)
+			if (poisonVarp == 0)
+			{
+				nextPoisonTick = -1;
+			}
+			else if (nextPoisonTick - tickCount <= 0)
 			{
 				nextPoisonTick = tickCount + POISON_TICK_LENGTH;
 			}
@@ -332,23 +261,38 @@ public class TimersPlugin extends Plugin
 				removeGameTimer(ANTIPOISON);
 				createGameTimer(ANTIVENOM, duration);
 			}
-
-			lastPoisonVarp = poisonVarp;
 		}
 
-		if (lastPvpVarb != pvpVarb)
+		if (event.getVarbitId() == Varbits.TELEBLOCK && config.showTeleblock())
 		{
-			if (pvpVarb == 0)
+			final int teleblockVarb = event.getValue();
+			if (teleblockVarb > 100)
 			{
-				log.debug("Left a PVP zone, clearing teleblock timer");
+				// Reduce by 100 ticks because the blocking effect subsides and immunity period supervenes
+				createGameTimer(TELEBLOCK, Duration.of((teleblockVarb - 100), RSTimeUnit.GAME_TICKS));
+			}
+			else
+			{
 				removeGameTimer(TELEBLOCK);
 			}
-
-			lastPvpVarb = pvpVarb;
 		}
 
-		if (lastImbuedHeartVarb != imbuedHeartCooldownVarb && config.showImbuedHeart())
+		if (event.getVarpId() == VarPlayer.CHARGE_GOD_SPELL.getId() && config.showCharge())
 		{
+			final int chargeSpellVarp = event.getValue();
+			if (chargeSpellVarp > 0)
+			{
+				createGameTimer(CHARGE, Duration.of((chargeSpellVarp * 2L), RSTimeUnit.GAME_TICKS));
+			}
+			else
+			{
+				removeGameTimer(CHARGE);
+			}
+		}
+
+		if (event.getVarbitId() == Varbits.IMBUED_HEART_COOLDOWN && config.showImbuedHeart())
+		{
+			final int imbuedHeartCooldownVarb = event.getValue();
 			if (imbuedHeartCooldownVarb == 0)
 			{
 				removeGameTimer(IMBUEDHEART);
@@ -359,218 +303,77 @@ public class TimersPlugin extends Plugin
 				createGameTimer(IMBUEDHEART, Duration.of(10L * imbuedHeartCooldownVarb, RSTimeUnit.GAME_TICKS));
 				imbuedHeartTimerActive = true;
 			}
-
-			lastImbuedHeartVarb = imbuedHeartCooldownVarb;
 		}
 
-		if (event.getIndex() == VarPlayer.LAST_HOME_TELEPORT.getId() && config.showHomeMinigameTeleports())
+		if (event.getVarpId() == VarPlayer.LAST_HOME_TELEPORT.getId() && config.showHomeMinigameTeleports())
 		{
 			checkTeleport(VarPlayer.LAST_HOME_TELEPORT);
 		}
 
-		if (event.getIndex() == VarPlayer.LAST_MINIGAME_TELEPORT.getId() && config.showHomeMinigameTeleports())
+		if (event.getVarpId() == VarPlayer.LAST_MINIGAME_TELEPORT.getId() && config.showHomeMinigameTeleports())
 		{
 			checkTeleport(VarPlayer.LAST_MINIGAME_TELEPORT);
 		}
 
-		// staminaEffectActive is checked to match https://github.com/Joshua-F/cs2-scripts/blob/741271f0c3395048c1bad4af7881a13734516adf/scripts/%5Bproc%2Cbuff_bar_get_value%5D.cs2#L25
-		if (staminaEffectActive == 1 && lastStaminaEffect != totalStaminaEffect && config.showStamina())
+		if (event.getVarbitId() == Varbits.RUN_SLOWED_DEPLETION_ACTIVE
+			|| event.getVarbitId() == Varbits.STAMINA_EFFECT
+			|| event.getVarbitId() == Varbits.RING_OF_ENDURANCE_EFFECT)
 		{
-			final Duration staminaDuration = Duration.of(10L * totalStaminaEffect, RSTimeUnit.GAME_TICKS);
+			// staminaEffectActive is checked to match https://github.com/Joshua-F/cs2-scripts/blob/741271f0c3395048c1bad4af7881a13734516adf/scripts/%5Bproc%2Cbuff_bar_get_value%5D.cs2#L25
+			int staminaEffectActive = client.getVarbitValue(Varbits.RUN_SLOWED_DEPLETION_ACTIVE);
+			int staminaPotionEffectVarb = client.getVarbitValue(Varbits.STAMINA_EFFECT);
+			int enduranceRingEffectVarb = client.getVarbitValue(Varbits.RING_OF_ENDURANCE_EFFECT);
 
-			if (staminaTimer == null && totalStaminaEffect > 0)
+			final int totalStaminaEffect = staminaPotionEffectVarb + enduranceRingEffectVarb;
+			if (staminaEffectActive == 1 && config.showStamina())
 			{
-				staminaTimer = createGameTimer(STAMINA, staminaDuration);
+				final Duration staminaDuration = Duration.of(10L * totalStaminaEffect, RSTimeUnit.GAME_TICKS);
+
+				if (totalStaminaEffect == 0)
+				{
+					removeGameTimer(STAMINA);
+					staminaTimer = null;
+				}
+				else if (staminaTimer == null)
+				{
+					staminaTimer = createGameTimer(STAMINA, staminaDuration);
+				}
+				else
+				{
+					staminaTimer.updateDuration(staminaDuration);
+				}
 			}
-			else if (totalStaminaEffect == 0)
+		}
+
+		if (event.getVarbitId() == Varbits.BUFF_STAT_BOOST && config.showOverload())
+		{
+			int serverTicks = event.getValue() * 25; // from [proc,buff_bar_get_value]
+			Duration duration = Duration.of(serverTicks, RSTimeUnit.GAME_TICKS);
+			if (serverTicks == 0)
 			{
-				removeGameTimer(STAMINA);
-				staminaTimer = null;
+				removeGameTimer(SMELLING_SALTS);
+				buffTimer = null;
+			}
+			else if (buffTimer == null)
+			{
+				buffTimer = createGameTimer(SMELLING_SALTS, duration);
 			}
 			else
 			{
-				Instant endInstant = Instant.now().plus(staminaDuration);
-				int timeDifference = (int) Duration.between(staminaTimer.getEndTime(), endInstant).getSeconds();
-				if (timeDifference != 0)
-				{
-					Duration remainingDuration = Duration.between(staminaTimer.getStartTime(), endInstant);
-					staminaTimer.setDuration(remainingDuration);
-				}
+				buffTimer.updateDuration(duration);
 			}
-			lastStaminaEffect = totalStaminaEffect;
 		}
 
-		if (lastDivineAttackVarb != divineAttackVarb && config.showDivine())
+		if (event.getVarbitId() == Varbits.LIQUID_ADERNALINE_ACTIVE && config.showLiquidAdrenaline())
 		{
-			//if divine super combat potion effect isn't active
-			if (divineCombatVarb == 0)
+			if (event.getValue() == 1)
 			{
-				//it checks if "divineAttackVarb == 500" for the case if the player already has the divine super attack potion effect and drinks another dose
-				if ((!divineAttackTimerActive && divineAttackVarb > 0) || divineAttackVarb == 500)
-				{
-					final Duration potionDuration = Duration.of(divineAttackVarb, RSTimeUnit.GAME_TICKS);
-					createGameTimer(DIVINE_SUPER_ATTACK, potionDuration);
-					divineAttackTimerActive = true;
-				}
-				else if (divineAttackVarb == 0)
-				{
-					removeGameTimer(DIVINE_SUPER_ATTACK);
-					divineAttackTimerActive = false;
-				}
+				createGameTimer(LIQUID_ADRENALINE);
 			}
-			lastDivineAttackVarb = divineAttackVarb;
-		}
-
-		if (lastDivineStrengthVarb != divineStrengthVarb && config.showDivine())
-		{
-			//if divine super combat potion effect isn't active
-			if (divineCombatVarb == 0)
+			else
 			{
-				//it checks if "divineStrengthVarb == 500" for the case if the player already has the divine super strength potion effect and drinks another dose
-				if ((!divineStrengthTimerActive && divineStrengthVarb > 0) || divineStrengthVarb == 500)
-				{
-					final Duration potionDuration = Duration.of(divineStrengthVarb, RSTimeUnit.GAME_TICKS);
-					createGameTimer(DIVINE_SUPER_STRENGTH, potionDuration);
-					divineStrengthTimerActive = true;
-				}
-				else if (divineStrengthVarb == 0)
-				{
-					removeGameTimer(DIVINE_SUPER_STRENGTH);
-					divineStrengthTimerActive = false;
-				}
+				removeGameTimer(LIQUID_ADRENALINE);
 			}
-			lastDivineStrengthVarb = divineStrengthVarb;
-		}
-
-		if (lastDivineDefenceVarb != divineDefenceVarb && config.showDivine())
-		{
-			//if divine super combat potion, divine bastion potion and divine battlemage potion effects aren't active
-			if (divineCombatVarb == 0 && divineBastionVarb == 0 && divineBattlemageVarb == 0)
-			{
-				//it checks if "divineDefenceVarb == 500" for the case if the player already has the divine super defence potion effect and drinks another dose
-				if ((!divineDefenceTimerActive && divineDefenceVarb > 0) || divineDefenceVarb == 500)
-				{
-					final Duration potionDuration = Duration.of(divineDefenceVarb, RSTimeUnit.GAME_TICKS);
-					createGameTimer(DIVINE_SUPER_DEFENCE, potionDuration);
-					divineDefenceTimerActive = true;
-				}
-				else if (divineDefenceVarb == 0)
-				{
-					removeGameTimer(DIVINE_SUPER_DEFENCE);
-					divineDefenceTimerActive = false;
-				}
-			}
-			lastDivineDefenceVarb = divineDefenceVarb;
-		}
-
-		if (lastDivineMagicVarb != divineMagicVarb && config.showDivine())
-		{
-			//if divine battlemage potion effect isn't active
-			if (divineBattlemageVarb == 0)
-			{
-				//it checks if "divineMagicVarb == 500" for the case if the player already has the divine magic potion effect and drinks another dose
-				if ((!divineMagicTimerActive && divineMagicVarb > 0) || divineMagicVarb == 500)
-				{
-					final Duration potionDuration = Duration.of(divineMagicVarb, RSTimeUnit.GAME_TICKS);
-					createGameTimer(DIVINE_MAGIC, potionDuration);
-					divineMagicTimerActive = true;
-				}
-				else if (divineMagicVarb == 0)
-				{
-					removeGameTimer(DIVINE_MAGIC);
-					divineMagicTimerActive = false;
-				}
-			}
-			lastDivineMagicVarb = divineMagicVarb;
-		}
-
-		if (lastDivineRangeVarb != divineRangeVarb && config.showDivine())
-		{
-			//if divine bastion potion effect isn't active
-			if (divineBastionVarb == 0)
-			{
-				//it checks if "divineRangeVarb == 500" for the case if the player already has the divine range potion effect and drinks another dose
-				if ((!divineRangeTimerActive && divineRangeVarb > 0) || divineRangeVarb == 500)
-				{
-					final Duration potionDuration = Duration.of(divineRangeVarb, RSTimeUnit.GAME_TICKS);
-					createGameTimer(DIVINE_RANGING, potionDuration);
-					divineRangeTimerActive = true;
-				}
-				else if (divineRangeVarb == 0)
-				{
-					removeGameTimer(DIVINE_RANGING);
-					divineRangeTimerActive = false;
-				}
-			}
-			lastDivineRangeVarb = divineRangeVarb;
-		}
-
-		if (lastDivineCombatVarb != divineCombatVarb && config.showDivine())
-		{
-			//it checks if "divineCombatVarb == 500" for the case if the player already has the divine super combat potion effect and drinks another dose
-			if ((!divineCombatTimerActive && divineCombatVarb > 0) || divineCombatVarb == 500)
-			{
-				removeGameTimer(DIVINE_SUPER_ATTACK);
-				removeGameTimer(DIVINE_SUPER_STRENGTH);
-				removeGameTimer(DIVINE_SUPER_DEFENCE);
-				divineAttackTimerActive = false;
-				divineStrengthTimerActive = false;
-				divineDefenceTimerActive = false;
-
-				final Duration potionDuration = Duration.of(divineCombatVarb, RSTimeUnit.GAME_TICKS);
-				createGameTimer(DIVINE_SUPER_COMBAT, potionDuration);
-				divineCombatTimerActive = true;
-			}
-			else if (divineCombatVarb == 0)
-			{
-				removeGameTimer(DIVINE_SUPER_COMBAT);
-				divineCombatTimerActive = false;
-			}
-			lastDivineCombatVarb = divineCombatVarb;
-		}
-
-		if (lastDivineBastionVarb != divineBastionVarb && config.showDivine())
-		{
-			//it checks if "divineBastionVarb == 500" for the case if the player already has the divine bastion potion effect and drinks another dose
-			if ((!divineBastionTimerActive && divineBastionVarb > 0) || divineBastionVarb == 500)
-			{
-				removeGameTimer(DIVINE_RANGING);
-				removeGameTimer(DIVINE_SUPER_DEFENCE);
-				divineRangeTimerActive = false;
-				divineDefenceTimerActive = false;
-
-				final Duration potionDuration = Duration.of(divineBastionVarb, RSTimeUnit.GAME_TICKS);
-				createGameTimer(DIVINE_BASTION, potionDuration);
-				divineBastionTimerActive = true;
-			}
-			else if (divineBastionVarb == 0)
-			{
-				removeGameTimer(DIVINE_BASTION);
-				divineBastionTimerActive = false;
-			}
-			lastDivineBastionVarb = divineBastionVarb;
-		}
-
-		if (lastDivineBattlemageVarb != divineBattlemageVarb && config.showDivine())
-		{
-			//it checks if "divineBattlemageVarb == 500" for the case if the player already has the divine bastion potion effect and drinks another dose
-			if ((!divineBattlemageTimerActive && divineBattlemageVarb > 0) || divineBattlemageVarb == 500)
-			{
-				removeGameTimer(DIVINE_MAGIC);
-				removeGameTimer(DIVINE_SUPER_DEFENCE);
-				divineMagicTimerActive = false;
-				divineDefenceTimerActive = false;
-
-				final Duration potionDuration = Duration.of(divineBattlemageVarb, RSTimeUnit.GAME_TICKS);
-				createGameTimer(DIVINE_BATTLEMAGE, potionDuration);
-				divineBattlemageTimerActive = true;
-			}
-			else if (divineBattlemageVarb == 0)
-			{
-				removeGameTimer(DIVINE_BATTLEMAGE);
-				divineBattlemageTimerActive = false;
-			}
-			lastDivineBattlemageVarb = divineBattlemageVarb;
 		}
 	}
 
@@ -610,6 +413,7 @@ public class TimersPlugin extends Plugin
 		{
 			removeGameTimer(OVERLOAD);
 			removeGameTimer(OVERLOAD_RAID);
+			removeGameTimer(SMELLING_SALTS);
 		}
 
 		if (!config.showPrayerEnhance())
@@ -625,16 +429,6 @@ public class TimersPlugin extends Plugin
 			removeGameTimer(DIVINE_SUPER_COMBAT);
 			removeGameTimer(DIVINE_RANGING);
 			removeGameTimer(DIVINE_MAGIC);
-			removeGameTimer(DIVINE_BASTION);
-			removeGameTimer(DIVINE_BATTLEMAGE);
-			divineAttackTimerActive = false;
-			divineStrengthTimerActive = false;
-			divineDefenceTimerActive = false;
-			divineMagicTimerActive = false;
-			divineRangeTimerActive = false;
-			divineCombatTimerActive = false;
-			divineBastionTimerActive = false;
-			divineBattlemageTimerActive = false;
 		}
 
 		if (!config.showCannon())
@@ -702,6 +496,21 @@ public class TimersPlugin extends Plugin
 		else
 		{
 			createTzhaarTimer();
+		}
+
+		if (!config.showLiquidAdrenaline())
+		{
+			removeGameTimer(LIQUID_ADRENALINE);
+		}
+
+		if (!config.showSilkDressing())
+		{
+			removeGameTimer(SILK_DRESSING);
+		}
+
+		if (!config.showBlessedCrystalScarab())
+		{
+			removeGameTimer(BLESSED_CRYSTAL_SCARAB);
 		}
 	}
 
@@ -853,23 +662,6 @@ public class TimersPlugin extends Plugin
 			removeGameTimer(MAGICIMBUE);
 		}
 
-		if (config.showTeleblock())
-		{
-			Matcher m = TELEBLOCK_PATTERN.matcher(message);
-			if (m.find())
-			{
-				String minss = m.group("mins");
-				String secss = m.group("secs");
-				int mins = Integer.parseInt(minss);
-				int secs = secss != null ? Integer.parseInt(secss) : 0;
-				createGameTimer(TELEBLOCK, Duration.ofSeconds(mins * 60 + secs));
-			}
-			else if (message.contains(KILLED_TELEBLOCK_OPPONENT_TEXT))
-			{
-				removeGameTimer(TELEBLOCK);
-			}
-		}
-
 		if (config.showAntiFire() && message.contains(SUPER_ANTIFIRE_DRINK_MESSAGE))
 		{
 			createGameTimer(SUPERANTIFIRE);
@@ -890,16 +682,6 @@ public class TimersPlugin extends Plugin
 			removeGameTimer(PRAYER_ENHANCE);
 		}
 
-		if (config.showCharge() && message.equals(CHARGE_MESSAGE))
-		{
-			createGameTimer(CHARGE);
-		}
-
-		if (config.showCharge() && message.equals(CHARGE_EXPIRED_MESSAGE))
-		{
-			removeGameTimer(CHARGE);
-		}
-
 		if (config.showStaffOfTheDead() && message.contains(STAFF_OF_THE_DEAD_SPEC_MESSAGE))
 		{
 			createGameTimer(STAFF_OF_THE_DEAD);
@@ -914,6 +696,48 @@ public class TimersPlugin extends Plugin
 		{
 			freezeTimer = createGameTimer(ICEBARRAGE);
 			freezeTime = client.getTickCount();
+		}
+
+		if (config.showDivine())
+		{
+			Matcher mDivine = DIVINE_POTION_PATTERN.matcher(message);
+			if (mDivine.find())
+			{
+				switch (mDivine.group(1))
+				{
+					case "super attack":
+						createGameTimer(DIVINE_SUPER_ATTACK);
+						break;
+
+					case "super strength":
+						createGameTimer(DIVINE_SUPER_STRENGTH);
+						break;
+
+					case "super defence":
+						createGameTimer(DIVINE_SUPER_DEFENCE);
+						break;
+
+					case "combat":
+						createGameTimer(DIVINE_SUPER_COMBAT);
+						break;
+
+					case "ranging":
+						createGameTimer(DIVINE_RANGING);
+						break;
+
+					case "magic":
+						createGameTimer(DIVINE_MAGIC);
+						break;
+
+					case "bastion":
+						createGameTimer(DIVINE_BASTION);
+						break;
+
+					case "battlemage":
+						createGameTimer(DIVINE_BATTLEMAGE);
+						break;
+				}
+			}
 		}
 
 		if (config.showArceuus())
@@ -1026,6 +850,16 @@ public class TimersPlugin extends Plugin
 				}
 			}
 		}
+
+		if (message.equals(SILK_DRESSING_MESSAGE) && config.showSilkDressing())
+		{
+			createGameTimer(SILK_DRESSING);
+		}
+
+		if (message.equals(BLESSED_CRYSTAL_SCARAB_MESSAGE) && config.showBlessedCrystalScarab())
+		{
+			createGameTimer(BLESSED_CRYSTAL_SCARAB);
+		}
 	}
 
 	private boolean isInFightCaves()
@@ -1082,7 +916,7 @@ public class TimersPlugin extends Plugin
 				return;
 		}
 
-		int lastTeleport = client.getVar(varPlayer);
+		int lastTeleport = client.getVarpValue(varPlayer);
 		long lastTeleportSeconds = (long) lastTeleport * 60;
 		Instant teleportExpireInstant = Instant.ofEpochSecond(lastTeleportSeconds).plus(teleport.getDuration());
 		Duration remainingTime = Duration.between(Instant.now(), teleportExpireInstant);
@@ -1115,20 +949,6 @@ public class TimersPlugin extends Plugin
 		}
 
 		lastPoint = currentWorldPoint;
-
-		if (!widgetHiddenChangedOnPvpWorld)
-		{
-			return;
-		}
-
-		widgetHiddenChangedOnPvpWorld = false;
-
-		Widget widget = client.getWidget(PVP_WORLD_SAFE_ZONE);
-		if (widget != null && !widget.isSelfHidden())
-		{
-			log.debug("Entered safe zone in PVP world, clearing Teleblock timer.");
-			removeGameTimer(TELEBLOCK);
-		}
 	}
 
 	@Subscribe

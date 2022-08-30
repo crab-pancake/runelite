@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Lars <lars.oernlo@gmail.com>
+ * Copyright (c) 2022, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,11 +22,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.runepouch.config;
+package net.runelite.api.annotations;
 
-public enum RunePouchOverlayMode
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import net.runelite.api.HitsplatID;
+import org.intellij.lang.annotations.MagicConstant;
+
+@MagicConstant(valuesFromClass = HitsplatID.class)
+@Documented
+@Retention(RetentionPolicy.SOURCE)
+public @interface HitsplatType
 {
-	INVENTORY,
-	MOUSE_HOVER,
-	BOTH
 }

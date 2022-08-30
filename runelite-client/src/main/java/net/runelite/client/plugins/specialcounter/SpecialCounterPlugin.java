@@ -213,8 +213,12 @@ public class SpecialCounterPlugin extends Plugin
 	@Subscribe
 	public void onVarbitChanged(VarbitChanged event)
 	{
-		int specialPercentage = client.getVar(VarPlayer.SPECIAL_ATTACK_PERCENT);
+		if (event.getVarpId() != VarPlayer.SPECIAL_ATTACK_PERCENT.getId())
+		{
+			return;
+		}
 
+		int specialPercentage = event.getValue();
 		if (this.specialPercentage == -1 || specialPercentage >= this.specialPercentage)
 		{
 			this.specialPercentage = specialPercentage;
@@ -235,7 +239,11 @@ public class SpecialCounterPlugin extends Plugin
 		// invokeLater because the varbit event happens prior to interact changed, so we can't always see what npc
 		// the player is attacking yet.
 		clientThread.invokeLater(() ->
-			hitsplatTick = client.getTickCount() + getHitDelay(specialWeapon, client.getLocalPlayer().getInteracting()));
+		{
+			Actor target = client.getLocalPlayer().getInteracting();
+			lastSpecTarget = target instanceof NPC ? (NPC) target : null;
+			hitsplatTick = client.getTickCount() + getHitDelay(specialWeapon, target);
+		});
 	}
 
 	@Subscribe
@@ -249,7 +257,8 @@ public class SpecialCounterPlugin extends Plugin
 			return;
 		}
 
-		if (!(target instanceof NPC))
+		// only check hitsplats applied to the target we are specing
+		if (lastSpecTarget == null || target != lastSpecTarget)
 		{
 			return;
 		}
@@ -275,7 +284,6 @@ public class SpecialCounterPlugin extends Plugin
 		if (hitsplatTick == client.getTickCount())
 		{
 			lastSpecHitsplat = hitsplat;
-			lastSpecTarget = npc;
 		}
 	}
 
