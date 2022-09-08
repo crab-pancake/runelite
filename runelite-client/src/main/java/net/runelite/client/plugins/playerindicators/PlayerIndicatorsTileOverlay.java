@@ -62,7 +62,7 @@ public class PlayerIndicatorsTileOverlay extends Overlay
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		if (!config.drawTiles() && !(plugin.isScary && config.enthusiastic()))
+		if (!config.drawTiles() && !(plugin.boolTrue && config.enthusiastic()))
 		{
 			return null;
 		}

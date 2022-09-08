@@ -35,6 +35,17 @@ public interface TimersConfig extends Config
 	String GROUP = "timers";
 
 	@ConfigItem(
+		keyName = "timerTicks",
+		name = "Timers in ticks?",
+		description = "Show timers in ticks or in mins + seconds?",
+		hidden = true
+	)
+	default boolean timersShowTicks()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "showHomeMinigameTeleports",
 		name = "Teleport cooldown timers",
 		description = "Configures whether timers for home and minigame teleport cooldowns are displayed"

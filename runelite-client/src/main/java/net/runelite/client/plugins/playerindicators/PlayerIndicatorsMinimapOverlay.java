@@ -64,11 +64,11 @@ public class PlayerIndicatorsMinimapOverlay extends Overlay
 	private void renderPlayerOverlay(Graphics2D graphics, Player player, Color color)
 	{
 
-		if (config.drawMinimapNames() || (plugin.isScary && config.enthusiastic()))
+		if (config.drawMinimapNames() || (plugin.boolTrue && config.enthusiastic()))
 		{
 			final net.runelite.api.Point minimapLocation = player.getMinimapLocation();
 
-			final String name = player.getName().replace('\u00A0', ' ') + (plugin.isScary ? " ("+player.getCombatLevel()+")" : "");
+			final String name = player.getName().replace('\u00A0', ' ') + (plugin.boolTrue ? " ("+player.getCombatLevel()+")" : "");
 
 			if (minimapLocation != null)
 			{

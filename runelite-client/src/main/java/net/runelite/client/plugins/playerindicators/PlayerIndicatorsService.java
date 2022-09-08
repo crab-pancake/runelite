@@ -67,7 +67,7 @@ public class PlayerIndicatorsService
 			return;
 		}
 
-		boolean show = plugin.isScary && config.enthusiastic();
+		boolean show = plugin.boolTrue && config.enthusiastic();
 
 		final Player localPlayer = client.getLocalPlayer();
 
@@ -110,7 +110,7 @@ public class PlayerIndicatorsService
 			}
 			else if ((config.highlightOthers() || show) && !isFriendsChatMember && !isClanMember)
 			{
-				if (show && plugin.isSquishy(client, player))
+				if (show && plugin.isBool2(client, player))
 				{
 					consumer.accept(player, config.secondColour());
 				}

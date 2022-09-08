@@ -44,7 +44,7 @@ public interface PlayerIndicatorsConfig extends Config
 	@ConfigSection(
 		name="Extra Options",
 		description="More options",
-		position=99,
+		position=100,
 		closedByDefault=true)
 	String extras = "extras";
 
