@@ -43,6 +43,16 @@ public interface PuzzleSolverConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "displayLightbox",
+		name = "Display light box",
+		description = "Display a solution to light boxes"
+	)
+	default boolean displayLightbox()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "displayRemainingMoves",
 		name = "Display remaining moves",
 		description = "Add a text line above puzzle boxes displaying the amount of remaining moves"
