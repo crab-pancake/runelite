@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Adam <Adam@sigterm.info>
+ * Copyright (c) 2022, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,59 +22,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.api;
+package net.runelite.client.game;
 
-import javax.annotation.Nonnull;
+import com.google.common.collect.Multimap;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.Graphs;
+import com.google.common.graph.MutableGraph;
+import java.util.Map;
+import static org.junit.Assert.assertFalse;
+import org.junit.Test;
 
-/**
- * Represents the model of an object.
- */
-public interface Model extends Mesh, Renderable
+public class ItemMappingTest
 {
-	int[] getFaceColors1();
+	@Test
+	public void testCycles()
+	{
+		Multimap<Integer, ItemMapping> mappings = ItemMapping.MAPPINGS;
 
-	int[] getFaceColors2();
+		MutableGraph<Integer> graph = GraphBuilder
+			.directed()
+			.build();
+		for (Map.Entry<Integer, ItemMapping> entry : mappings.entries())
+		{
+			graph.putEdge(entry.getKey(), entry.getValue().getTradeableItem());
+		}
 
-	int[] getFaceColors3();
-
-	int getSceneId();
-	void setSceneId(int sceneId);
-
-	int getBufferOffset();
-	void setBufferOffset(int bufferOffset);
-
-	int getUvBufferOffset();
-	void setUvBufferOffset(int bufferOffset);
-
-	int getBottomY();
-
-	void calculateBoundsCylinder();
-
-	byte[] getFaceRenderPriorities();
-
-	int getRadius();
-	int getDiameter();
-
-	float[] getFaceTextureUVCoordinates();
-
-	/**
-	 * @see #getAABB(int)
-	 */
-	@Deprecated
-	void calculateExtreme(int orientation);
-
-	@Nonnull
-	AABB getAABB(int orientation);
-
-	int getXYZMag();
-	boolean isClickable();
-
-	int[] getVertexNormalsX();
-	int[] getVertexNormalsY();
-	int[] getVertexNormalsZ();
-
-	byte getOverrideAmount();
-	byte getOverrideHue();
-	byte getOverrideSaturation();
-	byte getOverrideLuminance();
+		assertFalse("item mapping contains a cycle", Graphs.hasCycle(graph));
+	}
 }

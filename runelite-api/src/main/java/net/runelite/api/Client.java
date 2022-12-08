@@ -600,7 +600,7 @@ public interface Client extends OAuthApi, GameEngine
 	/**
 	 * Gets the current run energy of the logged in player.
 	 *
-	 * @return the run energy
+	 * @return the run energy in units of 1/100th of an percentage
 	 */
 	int getEnergy();
 
@@ -1851,23 +1851,25 @@ public interface Client extends OAuthApi, GameEngine
 	/**
 	 * Is a widget is in target mode?
 	 */
-	boolean getSpellSelected();
+	boolean isWidgetSelected();
 
 	/**
 	 * Sets if a widget is in target mode
 	 */
-	void setSpellSelected(boolean selected);
+	void setWidgetSelected(boolean selected);
 
 	/**
 	 * Get if an item is selected with "Use"
 	 * @return 1 if selected, else 0
 	 */
+	@Deprecated
 	int getSelectedItem();
 
 	/**
 	 * If an item is selected, this is the item index in the inventory.
 	 * @return
 	 */
+	@Deprecated
 	int getSelectedItemIndex();
 
 	/**
