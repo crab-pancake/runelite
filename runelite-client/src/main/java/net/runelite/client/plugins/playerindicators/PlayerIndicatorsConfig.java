@@ -284,6 +284,17 @@ public interface PlayerIndicatorsConfig extends Config
 
 	@ConfigItem(
 		position = 16,
+		keyName = "disableOutsidePvP",
+		name = "Disable outside PvP",
+		description = "Disable the overlays outside of PvP areas"
+	)
+	default boolean disableOutsidePvP()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		position = 16,
 		keyName = "trueTile",
 		name = "True Tile",
 		description = "Highlight players' true tile?"
