@@ -294,7 +294,7 @@ public interface PlayerIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
-		position = 16,
+		position = 17,
 		keyName = "trueTile",
 		name = "True Tile",
 		description = "Highlight players' true tile?"
@@ -307,11 +307,11 @@ public interface PlayerIndicatorsConfig extends Config
 	@ConfigItem(
 		position = 1,
 		keyName = "enthusiasm",
-		name = "Enthusiastic highlight",
-		description = "sometimes highlight players regardless of other settings",
+		name = "Enable in PvP",
+		description = "Always highlights in PvP",
 		section = extras
 	)
-	default boolean enthusiastic()
+	default boolean enableInPvP()
 	{
 		return false;
 	}
@@ -320,7 +320,7 @@ public interface PlayerIndicatorsConfig extends Config
 		position = 2,
 		keyName = "ding",
 		name = "Ding?",
-		description = "dong",
+		description = "makes a ding",
 		section = extras
 	)
 	default boolean ding()
@@ -344,10 +344,10 @@ public interface PlayerIndicatorsConfig extends Config
 		position = 4,
 		keyName = "secondColour",
 		name = "Second colour",
-		description = "meowdy",
+		description = "Different colour for people in range",
 		section = extras
 	)
-	default Color secondColour()
+	default Color inRange()
 	{
 		return new Color(255, 0, 255);
 	}

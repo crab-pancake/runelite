@@ -113,9 +113,9 @@ public class PlayerIndicatorsPlugin extends Plugin
 	@Inject
 	private Notifier notifier;
 
-	boolean boolTrue;
+	boolean pvpZone;
 	int lastPlayedTick = -1;
-	int anInt;
+	int range = 0;
 	Widget widget;
 
 	@Provides
@@ -127,8 +127,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
-		boolTrue = false;
-		anInt = 0;
+		pvpZone = false;
 		overlayManager.add(playerIndicatorsOverlay);
 		overlayManager.add(playerIndicatorsTileOverlay);
 		overlayManager.add(playerIndicatorsMinimapOverlay);
@@ -146,14 +145,14 @@ public class PlayerIndicatorsPlugin extends Plugin
 	@Subscribe
 	private void onPlayerSpawned(PlayerSpawned event)
 	{
-		if (!config.ding() || !boolTrue) return;
+		if (!config.ding() || !pvpZone) return;
 
 		Player p = event.getPlayer();
 		if (p == client.getLocalPlayer()) return;
 
 		if (config.ding()
 				&& !client.isFriended(p.getName(),false)
-				&& isBool2(client, p))
+				&& inRange(client, p))
 		{
 			if (lastPlayedTick < client.getTickCount()) // play max once per tick
 			{
@@ -168,20 +167,20 @@ public class PlayerIndicatorsPlugin extends Plugin
 	@Subscribe
 	private void onVarbitChanged(VarbitChanged event)
 	{
-		checkBool(client);
+		check(client);
 	}
 
 	@Subscribe
 	private void onWorldChanged(WorldChanged event)
 	{
-		checkBool(client);
+		check(client);
 	}
 
 	@Subscribe
 	private void onGameTick(GameTick event){
-		if (!boolTrue)
+		if (!pvpZone)
 		{
-			return;  // doesn't matter if not scary
+			return;
 		}
 
 		widget = client.getWidget(90,50);
@@ -191,28 +190,28 @@ public class PlayerIndicatorsPlugin extends Plugin
 
 			if (m.matches())
 			{
-				anInt = Integer.parseInt(m.group(1)) + (WorldType.isPvpWorld(client.getWorldType()) ? 15 : 0) + 1;  // add +/- 1 margin for safety
+				range = Integer.parseInt(m.group(1)) + (WorldType.isPvpWorld(client.getWorldType()) ? 15 : 0) + 1;  // add +/- 1 margin for safety
 			}
 		}
 	}
 
-	boolean isBool2(Client client, Player player)
+	boolean inRange(Client client, Player player)
 	{
 		if ((widget == null || widget.isHidden()) && !WorldType.isPvpWorld(client.getWorldType()))
 		{
 			return false;
 		}
 
-		final int low = Math.max(3, client.getLocalPlayer().getCombatLevel() - anInt);
-		final int high = Math.min(126, client.getLocalPlayer().getCombatLevel() + anInt);
+		final int low = Math.max(3, client.getLocalPlayer().getCombatLevel() - range);
+		final int high = Math.min(126, client.getLocalPlayer().getCombatLevel() + range);
 
 		return player.getCombatLevel() >= low && player.getCombatLevel() <= high;
 	}
 
-	public void checkBool(Client client)
+	public void check(Client client)
 	{
 		clientThread.invokeLater(() -> {
-			boolTrue = client.getVarbitValue(5963) == 1 || WorldType.isPvpWorld(client.getWorldType());
+			pvpZone = client.getVarbitValue(5963) == 1 || WorldType.isPvpWorld(client.getWorldType());
 		});
 	}
 

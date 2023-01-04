@@ -33,7 +33,6 @@ import net.runelite.api.FriendsChatManager;
 import net.runelite.api.FriendsChatMember;
 import net.runelite.api.FriendsChatRank;
 import net.runelite.api.Player;
-import net.runelite.api.Varbits;
 import net.runelite.api.clan.ClanChannel;
 import net.runelite.api.clan.ClanChannelMember;
 import net.runelite.api.clan.ClanRank;
@@ -63,19 +62,19 @@ public class PlayerIndicatorsService
 	{
 		if (!config.highlightOwnPlayer() && !config.highlightFriendsChat()
 			&& !config.highlightFriends() && !config.highlightOthers()
-			&& !config.highlightClanMembers() && !config.highlightPartyMembers() && !config.enthusiastic())
+			&& !config.highlightClanMembers() && !config.highlightPartyMembers() && !config.enableInPvP())
 		{
 			return;
 		}
 
-		boolean inWilderness = client.getVarbitValue(Varbits.IN_WILDERNESS) == 1;
-		boolean inPvp = client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1;
-		if (!inWilderness && !inPvp && config.disableOutsidePvP())
-		{
-			return;
-		}
+//		boolean inWilderness = client.getVarbitValue(Varbits.IN_WILDERNESS) == 1;
+//		boolean inPvp = client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1;
+//		if (!inWilderness && !inPvp && config.disableOutsidePvP())
+//		{
+//			return;
+//		}
 
-		boolean show = plugin.boolTrue && config.enthusiastic();
+		boolean show = plugin.pvpZone && config.enableInPvP();
 
 		final Player localPlayer = client.getLocalPlayer();
 
@@ -118,9 +117,9 @@ public class PlayerIndicatorsService
 			}
 			else if ((config.highlightOthers() || show) && !isFriendsChatMember && !isClanMember)
 			{
-				if (show && plugin.isBool2(client, player))
+				if (show && plugin.inRange(client, player))
 				{
-					consumer.accept(player, config.secondColour());
+					consumer.accept(player, config.inRange());
 				}
 				else consumer.accept(player, config.getOthersColor());
 			}
