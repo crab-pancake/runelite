@@ -130,15 +130,6 @@ public class TimersPlugin extends Plugin
 	private WorldPoint lastPoint;
 	private ElapsedTimer tzhaarTimer;
 
-	private boolean divineAttackTimerActive;
-	private boolean divineStrengthTimerActive;
-	private boolean divineDefenceTimerActive;
-	private boolean divineMagicTimerActive;
-	private boolean divineRangeTimerActive;
-	private boolean divineCombatTimerActive;
-	private boolean divineBastionTimerActive;
-	private boolean divineBattlemageTimerActive;
-
 	@Inject
 	private ItemManager itemManager;
 
