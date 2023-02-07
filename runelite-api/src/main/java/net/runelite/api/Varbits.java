@@ -84,10 +84,7 @@ public final class Varbits
 	public static final int DIVINE_SUPER_STRENGTH = 8430;
 	public static final int DIVINE_SUPER_DEFENCE = 8431;
 	public static final int DIVINE_RANGING = 8432;
-	public static final int DIVINE_MAGIC = 8433;
 	public static final int DIVINE_SUPER_COMBAT = 13663;
-	public static final int DIVINE_BASTION = 13664;
-	public static final int DIVINE_BATTLEMAGE = 13665;
 
 	/**
 	 * Ring of endurance effect timer, stamina duration extended from using the ring of endurance
