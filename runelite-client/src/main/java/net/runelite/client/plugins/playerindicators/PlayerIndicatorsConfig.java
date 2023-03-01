@@ -162,7 +162,7 @@ public interface PlayerIndicatorsConfig extends Config
 	)
 	default HighlightSetting highlightTeamMembers()
 	{
-		return HighlightSetting.ENABLED;
+		return HighlightSetting.PVP;
 	}
 
 	@ConfigItem(
@@ -210,7 +210,7 @@ public interface PlayerIndicatorsConfig extends Config
 	)
 	default HighlightSetting highlightOthers()
 	{
-		return HighlightSetting.DISABLED;
+		return HighlightSetting.PVP;
 	}
 
 	@ConfigItem(
@@ -292,17 +292,6 @@ public interface PlayerIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
-		position = 16,
-		keyName = "disableOutsidePvP",
-		name = "Disable outside PvP",
-		description = "Disable the overlays outside of PvP areas"
-	)
-	default boolean disableOutsidePvP()
-	{
-		return false;
-	}
-
-	@ConfigItem(
 		position = 17,
 		keyName = "trueTile",
 		name = "True Tile",
@@ -313,17 +302,17 @@ public interface PlayerIndicatorsConfig extends Config
 		return false;
 	}
 
-	@ConfigItem(
-		position = 1,
-		keyName = "enthusiasm",
-		name = "Enable in PvP",
-		description = "Always highlights in PvP",
-		section = extras
-	)
-	default boolean enableInPvP()
-	{
-		return false;
-	}
+//	@ConfigItem(
+//		position = 1,
+//		keyName = "enthusiasm",
+//		name = "Enable in PvP",
+//		description = "Always highlights in PvP",
+//		section = extras
+//	)
+//	default boolean enableInPvP()
+//	{
+//		return false;
+//	}
 
 	@ConfigItem(
 		position = 2,

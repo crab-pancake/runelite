@@ -24,7 +24,6 @@
  */
 package net.runelite.client.plugins.playerindicators;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import javax.inject.Inject;
@@ -57,13 +56,13 @@ public class PlayerIndicatorsMinimapOverlay extends Overlay
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		playerIndicatorsService.forEachPlayer((player, color) -> renderPlayerOverlay(graphics, player, color));
+		playerIndicatorsService.forEachPlayer((player, decorations) -> renderPlayerOverlay(graphics, player, decorations));
 		return null;
 	}
 
-	private void renderPlayerOverlay(Graphics2D graphics, Player player, Color color)
+	private void renderPlayerOverlay(Graphics2D graphics, Player player, PlayerIndicatorsService.Decorations decorations)
 	{
-		if (config.drawMinimapNames() || (plugin.pvpZone && config.enableInPvP()))
+		if (config.drawMinimapNames())  // || (plugin.pvpZone && config.enableInPvP())
 		{
 			final net.runelite.api.Point minimapLocation = player.getMinimapLocation();
 
@@ -71,7 +70,7 @@ public class PlayerIndicatorsMinimapOverlay extends Overlay
 
 			if (minimapLocation != null)
 			{
-				OverlayUtil.renderTextLocation(graphics, minimapLocation, name, color);
+				OverlayUtil.renderTextLocation(graphics, minimapLocation, name, decorations.getColor());
 			}
 		}
 	}

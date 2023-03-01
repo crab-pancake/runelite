@@ -111,25 +111,15 @@ public class PlayerIndicatorsOverlay extends Overlay
 		}
 
 		BufferedImage rankImage = null;
-		if (player.isFriendsChatMember() && config.highlightFriendsChat() && config.showFriendsChatRanks())
 		if (decorations.getFriendsChatRank() != null && config.showFriendsChatRanks())
 		{
-			final FriendsChatRank rank = playerIndicatorsService.getFriendsChatRank(player);
-
-			if (rank != FriendsChatRank.UNRANKED)
 			if (decorations.getFriendsChatRank() != FriendsChatRank.UNRANKED)
 			{
 				rankImage = chatIconManager.getRankImage(decorations.getFriendsChatRank());
 			}
 		}
-		else if (player.isClanMember() && config.highlightClanMembers() && config.showClanChatRanks())
 		else if (decorations.getClanTitle() != null && config.showClanChatRanks())
 		{
-			ClanTitle clanTitle = playerIndicatorsService.getClanTitle(player);
-			if (clanTitle != null)
-			{
-				rankImage = chatIconManager.getRankImage(clanTitle);
-			}
 			rankImage = chatIconManager.getRankImage(decorations.getClanTitle());
 		}
 
