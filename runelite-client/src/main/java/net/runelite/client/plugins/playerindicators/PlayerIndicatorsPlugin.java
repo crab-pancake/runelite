@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import lombok.Value;
 import net.runelite.api.ChatMessageType;
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.FriendsChatRank;
 import static net.runelite.api.FriendsChatRank.UNRANKED;
@@ -64,6 +65,7 @@ import net.runelite.client.Notifier;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ProfileChanged;
 import net.runelite.client.game.ChatIconManager;
 import net.runelite.client.party.PartyService;
 import net.runelite.client.plugins.Plugin;
@@ -76,6 +78,7 @@ import net.runelite.client.util.ColorUtil;
 	description = "Highlight players on-screen and/or on the minimap",
 	tags = {"highlight", "minimap", "overlay", "players"}
 )
+@Slf4j
 public class PlayerIndicatorsPlugin extends Plugin
 {
 	private static final String TRADING_WITH_TEXT = "Trading with: ";
@@ -111,6 +114,9 @@ public class PlayerIndicatorsPlugin extends Plugin
 	private PartyService partyService;
 
 	@Inject
+	private ConfigManager configManager;
+
+	@Inject
 	private Notifier notifier;
 
 	boolean pvpZone;
@@ -131,6 +137,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 		overlayManager.add(playerIndicatorsOverlay);
 		overlayManager.add(playerIndicatorsTileOverlay);
 		overlayManager.add(playerIndicatorsMinimapOverlay);
+		migrate();
 	}
 
 	@Override
@@ -215,6 +222,60 @@ public class PlayerIndicatorsPlugin extends Plugin
 		});
 	}
 
+
+	@Subscribe
+	public void onProfileChanged(ProfileChanged profileChanged)
+	{
+		migrate();
+	}
+
+	private void migrate()
+	{
+		String[] keys = {
+			"drawOwnName", "highlightSelf",
+			"drawPartyMembers", "highlightPartyMembers",
+			"drawFriendNames", "highlightFriends",
+			"drawClanMemberNames", "highlightFriendsChat",
+			"drawTeamMemberNames", "highlightTeamMembers",
+			"drawClanChatMemberNames", "highlightClanMembers",
+			"drawNonClanMemberNames", "highlightOthers"
+		};
+
+		Boolean disableOutsidePvP = configManager.getConfiguration(PlayerIndicatorsConfig.GROUP, "disableOutsidePvP", Boolean.class);
+		if (disableOutsidePvP != null)
+		{
+			configManager.unsetConfiguration(PlayerIndicatorsConfig.GROUP, "disableOutsidePvP");
+
+			for (int i = 0; i < keys.length; i += 2)
+			{
+				String old = keys[i];
+				String new_ = keys[i + 1];
+
+				Boolean value = configManager.getConfiguration(PlayerIndicatorsConfig.GROUP, old, Boolean.class);
+				if (value != null)
+				{
+					PlayerIndicatorsConfig.HighlightSetting newSetting;
+					if (disableOutsidePvP && value)
+					{
+						newSetting = PlayerIndicatorsConfig.HighlightSetting.PVP;
+					}
+					else if (value)
+					{
+						newSetting = PlayerIndicatorsConfig.HighlightSetting.ENABLED;
+					}
+					else
+					{
+						newSetting = PlayerIndicatorsConfig.HighlightSetting.DISABLED;
+					}
+
+					configManager.setConfiguration(PlayerIndicatorsConfig.GROUP, new_, newSetting);
+					configManager.unsetConfiguration(PlayerIndicatorsConfig.GROUP, old);
+				}
+			}
+
+			log.debug("Migrated player indicators config");
+		}
+	}
 
 	@Subscribe
 	public void onClientTick(ClientTick clientTick)
@@ -340,6 +401,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 	}
 
 	private String decorateTarget(String oldTarget, Decorations decorations)
+	private String decorateTarget(String oldTarget, PlayerIndicatorsService.Decorations decorations)
 	{
 		String newTarget = oldTarget;
 
@@ -355,9 +417,20 @@ public class PlayerIndicatorsPlugin extends Plugin
 			newTarget = ColorUtil.prependColorTag(newTarget, decorations.getColor());
 		}
 
-		if (decorations.getImage() != -1)
+		FriendsChatRank rank = decorations.getFriendsChatRank();
+		int image = -1;
+		if (rank != null && rank != UNRANKED && config.showFriendsChatRanks())
 		{
-			newTarget = "<img=" + decorations.getImage() + ">" + newTarget;
+			image = chatIconManager.getIconNumber(rank);
+		}
+		else if (decorations.getClanTitle() != null && config.showClanChatRanks())
+		{
+			image = chatIconManager.getIconNumber(decorations.getClanTitle());
+		}
+
+		if (image != -1)
+		{
+			newTarget = "<img=" + image + ">" + newTarget;
 		}
 
 		return newTarget;
@@ -381,7 +454,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 				}
 
 				Decorations playerColor = getDecorations(targetPlayer);
-				if (playerColor != null)
+				if (playerColor != null && playerColor.getColor() != null)
 				{
 					tradeTitle.setText(TRADING_WITH_TEXT + ColorUtil.wrapWithColorTag(playerName, playerColor.color));
 				}

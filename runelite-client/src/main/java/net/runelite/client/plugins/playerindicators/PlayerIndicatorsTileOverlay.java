@@ -67,7 +67,7 @@ public class PlayerIndicatorsTileOverlay extends Overlay
 			return null;
 		}
 
-		playerIndicatorsService.forEachPlayer((player, color) ->
+		playerIndicatorsService.forEachPlayer((player, decorations) ->
 		{
 			Polygon poly = null;
 			if (config.trueTile())
@@ -86,7 +86,7 @@ public class PlayerIndicatorsTileOverlay extends Overlay
 
 			if (poly != null)
 			{
-				OverlayUtil.renderPolygon(graphics, poly, color, new Color(0, 0, 0, 15), new BasicStroke(1.5F));
+				OverlayUtil.renderPolygon(graphics, poly, decorations.getColor(), new Color(0, 0, 0, 15), new BasicStroke(1.5F));
 			}
 		});
 

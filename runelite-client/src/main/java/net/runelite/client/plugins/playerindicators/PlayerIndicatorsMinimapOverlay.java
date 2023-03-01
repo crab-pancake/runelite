@@ -63,7 +63,6 @@ public class PlayerIndicatorsMinimapOverlay extends Overlay
 
 	private void renderPlayerOverlay(Graphics2D graphics, Player player, Color color)
 	{
-
 		if (config.drawMinimapNames() || (plugin.pvpZone && config.enableInPvP()))
 		{
 			final net.runelite.api.Point minimapLocation = player.getMinimapLocation();
