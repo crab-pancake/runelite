@@ -972,11 +972,11 @@ public class TimersPlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick event)
 	{
-		Player player = client.getLocalPlayer();
-		WorldPoint currentWorldPoint = player.getWorldLocation();
-
 		if (freezeTimer != null)
 		{
+			Player player = client.getLocalPlayer();
+			WorldPoint currentWorldPoint = player.getWorldLocation();
+
 			// assume movement means unfrozen
 			if (freezeTime != client.getTickCount()
 				&& !currentWorldPoint.equals(lastPoint))
@@ -984,9 +984,9 @@ public class TimersPlugin extends Plugin
 				removeGameTimer(freezeTimer.getTimer());
 				freezeTimer = null;
 			}
-		}
 
-		lastPoint = currentWorldPoint;
+			lastPoint = currentWorldPoint;
+		}
 	}
 
 	@Subscribe
@@ -1036,12 +1036,12 @@ public class TimersPlugin extends Plugin
 				createGameTimer(BIND);
 			}
 
-			if (actor.getGraphic() == SNARE.getGraphicId())
+			else if (actor.getGraphic() == SNARE.getGraphicId())
 			{
 				createGameTimer(SNARE);
 			}
 
-			if (actor.getGraphic() == ENTANGLE.getGraphicId())
+			else if (actor.getGraphic() == ENTANGLE.getGraphicId())
 			{
 				createGameTimer(ENTANGLE);
 			}
@@ -1055,13 +1055,13 @@ public class TimersPlugin extends Plugin
 					freezeTimer = createGameTimer(ICERUSH);
 				}
 
-				if (actor.getGraphic() == ICEBURST.getGraphicId())
+				else if (actor.getGraphic() == ICEBURST.getGraphicId())
 				{
 					removeGameTimer(ICEBARRAGE);
 					freezeTimer = createGameTimer(ICEBURST);
 				}
 
-				if (actor.getGraphic() == ICEBLITZ.getGraphicId())
+				else if (actor.getGraphic() == ICEBLITZ.getGraphicId())
 				{
 					removeGameTimer(ICEBARRAGE);
 					freezeTimer = createGameTimer(ICEBLITZ);

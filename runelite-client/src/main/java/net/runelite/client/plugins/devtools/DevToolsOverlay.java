@@ -209,7 +209,7 @@ class DevToolsOverlay extends Overlay
 				}
 			}
 
-			String text = composition.getName() + " (ID:" + composition.getId() + ")" + " (Index: " + npc.getIndex() +
+			String text = composition.getName() + " (ID:" + composition.getId() + ")" +
 				" (A: " + npc.getAnimation() + ") (P: " + npc.getPoseAnimation() + ") (G: " + npc.getGraphic() + ")";
 			OverlayUtil.renderActorOverlay(graphics, npc, text, color);
 		}
