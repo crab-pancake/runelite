@@ -302,20 +302,8 @@ public interface PlayerIndicatorsConfig extends Config
 		return false;
 	}
 
-//	@ConfigItem(
-//		position = 1,
-//		keyName = "enthusiasm",
-//		name = "Enable in PvP",
-//		description = "Always highlights in PvP",
-//		section = extras
-//	)
-//	default boolean enableInPvP()
-//	{
-//		return false;
-//	}
-
 	@ConfigItem(
-		position = 2,
+		position = 1,
 		keyName = "ding",
 		name = "Ding?",
 		description = "makes a ding",
@@ -328,7 +316,7 @@ public interface PlayerIndicatorsConfig extends Config
 
 	@Range(min=1, max=50)
 	@ConfigItem(
-		position = 3,
+		position = 2,
 		keyName = "Volume",
 		name = "Sound Volume",
 		description = "Ding go loud. Gl your ears (20 is a good volume).",
@@ -339,7 +327,7 @@ public interface PlayerIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
-		position = 4,
+		position = 3,
 		keyName = "secondColour",
 		name = "Second colour",
 		description = "Different colour for people in range",
