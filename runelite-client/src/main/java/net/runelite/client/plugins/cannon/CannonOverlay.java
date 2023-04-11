@@ -28,6 +28,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.Perspective;
@@ -98,6 +101,10 @@ class CannonOverlay extends Overlay
 				Color color = config.highlightDoubleHitColor();
 				drawDoubleHitSpots(graphics, cannonPoint, color);
 			}
+			if (config.showZoneCentres()){
+				Color color = config.highlightDoubleHitColor();
+				drawZoneCentreTiles(graphics, cannonPoint, color);
+			}
 		}
 
 		return null;
@@ -138,6 +145,54 @@ class CannonOverlay extends Overlay
 
 				OverlayUtil.renderPolygon(graphics, poly, color);
 			}
+		}
+	}
+
+	private void drawZoneCentreTiles(Graphics2D graphics, LocalPoint startTile, Color color){
+		List<Integer> straight = Arrays.asList(-14, -7, -3, 3, 7, 14);
+		List<Integer> diagonal = Arrays.asList(-12, -5, -2, 2, 5, 12);
+
+		for (int i : diagonal){
+			int xPos = startTile.getX() - (i * LOCAL_TILE_SIZE);
+			int yPos = startTile.getY() - (i * LOCAL_TILE_SIZE);
+
+			LocalPoint marker = new LocalPoint(xPos, yPos);
+			Polygon poly = Perspective.getCanvasTilePoly(client, marker);
+			if (poly == null)
+			{
+				continue;
+			}
+			OverlayUtil.renderPolygon(graphics, poly, color);
+
+			yPos = startTile.getY() + (i * LOCAL_TILE_SIZE);
+			marker = new LocalPoint(xPos, yPos);
+			poly = Perspective.getCanvasTilePoly(client, marker);
+			if (poly == null)
+			{
+				continue;
+			}
+			OverlayUtil.renderPolygon(graphics, poly, color);
+		}
+
+		for (int i : straight){
+			int xPos = startTile.getX() - (i * LOCAL_TILE_SIZE);
+			LocalPoint marker = new LocalPoint(xPos, startTile.getY());
+			Polygon poly = Perspective.getCanvasTilePoly(client, marker);
+			if (poly == null)
+			{
+				continue;
+			}
+			OverlayUtil.renderPolygon(graphics, poly, color);
+
+
+			int yPos = startTile.getY() - (i * LOCAL_TILE_SIZE);
+			marker = new LocalPoint(startTile.getX(), yPos);
+			poly = Perspective.getCanvasTilePoly(client, marker);
+			if (poly == null)
+			{
+				continue;
+			}
+			OverlayUtil.renderPolygon(graphics, poly, color);
 		}
 	}
 }
