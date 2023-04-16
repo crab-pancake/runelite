@@ -103,4 +103,15 @@ public interface CannonConfig extends Config
 	{
 		return true;
 	}
+
+	@ConfigItem(
+		keyName = "showZoneCentres",
+		name = "Show centre of cannon secondary zones",
+		description = "cannon zones",
+		position = 7
+	)
+	default boolean showZoneCentres()
+	{
+		return false;
+	}
 }
