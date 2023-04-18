@@ -112,7 +112,7 @@ class CannonOverlay extends Overlay
 
 
 	/**
-	 * Draw the double hit spots on a 6 by 6 grid around the cannon
+	 * Draw the double hit spots on a 7 by 7 grid around the cannon
 	 * @param startTile The position of the cannon
 	 */
 	private void drawDoubleHitSpots(Graphics2D graphics, LocalPoint startTile, Color color)
@@ -148,6 +148,7 @@ class CannonOverlay extends Overlay
 		}
 	}
 
+	// really lazy but cba changing it
 	private void drawZoneCentreTiles(Graphics2D graphics, LocalPoint startTile, Color color){
 		List<Integer> straight = Arrays.asList(-14, -7, -3, 3, 7, 14);
 		List<Integer> diagonal = Arrays.asList(-12, -5, -2, 2, 5, 12);
