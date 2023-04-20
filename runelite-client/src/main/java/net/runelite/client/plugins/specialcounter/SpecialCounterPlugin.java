@@ -241,6 +241,8 @@ public class SpecialCounterPlugin extends Plugin
 				return;
 			}
 
+			// TODO: if spec doesn't depend on dmg, apply hitsplat if xp was received
+
 			Actor target = client.getLocalPlayer().getInteracting();
 			lastSpecTarget = target instanceof NPC ? (NPC) target : null;
 			hitsplatTick = serverTicks + getHitDelay(specialWeapon, target);
