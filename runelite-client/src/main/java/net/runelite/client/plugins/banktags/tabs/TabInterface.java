@@ -406,6 +406,11 @@ public class TabInterface
 				}
 				break;
 			case NewTab.OPEN_TAB_MENU:
+				if (tagTabActive){
+					activateTab(null);
+					bankSearch.reset(true);
+					break;
+				}
 				client.setVarbit(Varbits.CURRENT_BANK_TAB, 0);
 				openTag(TAB_MENU_KEY);
 				break;
