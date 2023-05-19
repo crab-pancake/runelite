@@ -157,6 +157,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 
 		if (config.ding()
 				&& !client.isFriended(p.getName(),false)
+				&& !p.isFriendsChatMember()
 				&& inRange(client, p))
 		{
 			if (lastPlayedTick < client.getTickCount()) // play max once per tick
