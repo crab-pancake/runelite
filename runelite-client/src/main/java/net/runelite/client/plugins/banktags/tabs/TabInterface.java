@@ -440,7 +440,17 @@ public class TabInterface
 				else
 				{
 					openTag(Text.removeTags(clicked.getName()));
-					scrollTab(tabManager.indexOf(clicked.getName()) - currentTabIndex);
+
+					int newTab = tabManager.indexOf(clicked.getName());
+					if (newTab > currentTabIndex + maxTabs - 1)
+					{
+						// new tab at the bottom
+						scrollTab(newTab - currentTabIndex - maxTabs + 1);
+					}
+					else if (newTab < currentTabIndex){
+						// new tab at the top
+						scrollTab(newTab - currentTabIndex);
+					}
 					// openTag will reset and relayout
 				}
 
