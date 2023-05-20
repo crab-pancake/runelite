@@ -52,6 +52,7 @@ import net.runelite.api.MenuEntry;
 import net.runelite.api.ScriptID;
 import net.runelite.api.SpriteID;
 import net.runelite.api.VarClientStr;
+import net.runelite.api.Varbits;
 import net.runelite.api.events.DraggingWidgetChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GrandExchangeSearched;
@@ -483,6 +484,16 @@ public class BankTagsPlugin extends Plugin implements MouseWheelListener
 			{
 				Widget bankTitle = client.getWidget(WidgetInfo.BANK_TITLE_BAR);
 				bankTitle.setText("Tag tab <col=ff0000>" + activeTab.getTag() + "</col>");
+			}
+			else if (client.getVarbitValue(Varbits.CURRENT_BANK_TAB) == 0)
+			{
+				Widget bankTitle = client.getWidget(WidgetInfo.BANK_TITLE_BAR);
+				bankTitle.setText("The Bank of Gielinor");
+			}
+			else if (client.getVarbitValue(Varbits.CURRENT_BANK_TAB) > 0)
+			{
+				Widget bankTitle = client.getWidget(WidgetInfo.BANK_TITLE_BAR);
+				bankTitle.setText("Tab " + client.getVarbitValue(Varbits.CURRENT_BANK_TAB));
 			}
 
 			// Recompute scroll size. Only required for tag tab tab and with remove separators, to remove the
