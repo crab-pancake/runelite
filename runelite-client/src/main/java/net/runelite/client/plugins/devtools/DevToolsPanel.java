@@ -195,6 +195,8 @@ class DevToolsPanel extends PluginPanel
 			log.info("Shell couldn't be loaded", e);
 		}
 
+		container.add(plugin.getMenus());
+
 		return container;
 	}
 }
