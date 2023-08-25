@@ -156,6 +156,18 @@ public interface TileIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "hoverOnWalkOnly",
+		name = "Walk only",
+		description = "Shows hovered tile only when the selected option is 'Walk here' or 'Take' (items)",
+		position = 5,
+		section = hoveredTile
+	)
+	default boolean hoverOnWalkOnly()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "highlightCurrentTile",
 		name = "Highlight true tile",
 		description = "Highlights true tile player is on as seen by server",

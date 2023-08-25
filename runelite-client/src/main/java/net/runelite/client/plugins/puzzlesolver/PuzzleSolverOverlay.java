@@ -70,7 +70,7 @@ public class PuzzleSolverOverlay extends Overlay
 	private static final int INFO_BOX_BOTTOM_BORDER = 2;
 
 	private static final int PUZZLE_TILE_SIZE = 39;
-	private static final int DOT_MARKER_SIZE = 16;
+	private static final int DOT_MARKER_SIZE = 20;
 
 	private final Client client;
 	private final PuzzleSolverConfig config;
@@ -219,8 +219,8 @@ public class PuzzleSolverOverlay extends Overlay
 							{
 								graphics.setColor(Color.YELLOW);
 
-								// Display the next 4 steps
-								for (int i = 1; i < 5; i++)
+								// Display the next 6 steps
+								for (int i = 1; i < 7; i++)
 								{
 									int j = solver.getPosition() + i;
 
@@ -239,7 +239,7 @@ public class PuzzleSolverOverlay extends Overlay
 									int blankX = futureMove.getEmptyPiece() % DIMENSION;
 									int blankY = futureMove.getEmptyPiece() / DIMENSION;
 
-									int markerSize = DOT_MARKER_SIZE - i * 3;
+									int markerSize = DOT_MARKER_SIZE - i * 2;
 
 									int x = puzzleBoxLocation.getX() + blankX * PUZZLE_TILE_SIZE
 											+ PUZZLE_TILE_SIZE / 2 - markerSize / 2;

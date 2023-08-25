@@ -44,12 +44,14 @@ public class TileIndicatorsOverlay extends Overlay
 {
 	private final Client client;
 	private final TileIndicatorsConfig config;
+	private final TileIndicatorsPlugin plugin;
 
 	@Inject
-	private TileIndicatorsOverlay(Client client, TileIndicatorsConfig config)
+	private TileIndicatorsOverlay(Client client, TileIndicatorsConfig config, TileIndicatorsPlugin plugin)
 	{
 		this.client = client;
 		this.config = config;
+		this.plugin = plugin;
 		setPosition(OverlayPosition.DYNAMIC);
 		setLayer(OverlayLayer.ABOVE_SCENE);
 		setPriority(OverlayPriority.MED);
@@ -60,10 +62,13 @@ public class TileIndicatorsOverlay extends Overlay
 	{
 		if (config.highlightHoveredTile())
 		{
-			// If we have tile "selected" render it
-			if (client.getSelectedSceneTile() != null)
+			if (plugin.walk || !config.hoverOnWalkOnly())
 			{
-				renderTile(graphics, client.getSelectedSceneTile().getLocalLocation(), config.highlightHoveredColor(), config.hoveredTileBorderWidth(), config.hoveredTileFillColor());
+				// If we have tile "selected" render it
+				if (client.getSelectedSceneTile() != null)
+				{
+					renderTile(graphics, client.getSelectedSceneTile().getLocalLocation(), config.highlightHoveredColor(), config.hoveredTileBorderWidth(), config.hoveredTileFillColor());
+				}
 			}
 		}
 
