@@ -37,6 +37,7 @@ import net.runelite.api.FriendsChatRank;
 import static net.runelite.api.FriendsChatRank.UNRANKED;
 import net.runelite.api.Player;
 import net.runelite.api.Varbits;
+import net.runelite.api.WorldType;
 import net.runelite.api.clan.ClanChannel;
 import net.runelite.api.clan.ClanChannelMember;
 import net.runelite.api.clan.ClanRank;
@@ -51,13 +52,15 @@ class PlayerIndicatorsService
 	private final Client client;
 	private final PlayerIndicatorsConfig config;
 	private final PartyService partyService;
+	private final PlayerIndicatorsPlugin plugin;
 
 	@Inject
-	private PlayerIndicatorsService(Client client, PlayerIndicatorsConfig config, PartyService partyService)
+	private PlayerIndicatorsService(Client client, PlayerIndicatorsConfig config, PartyService partyService, PlayerIndicatorsPlugin plugin)
 	{
 		this.config = config;
 		this.client = client;
 		this.partyService = partyService;
+		this.plugin = plugin;
 	}
 
 	void forEachPlayer(final BiConsumer<Player, Decorations> consumer)
@@ -84,8 +87,13 @@ class PlayerIndicatorsService
 			return null;
 		}
 
+		if (!plugin.pvpZone && client.getIgnoreContainer().findByName(player.getName()) != null){
+			return null;
+		}
+
 		final Predicate<PlayerIndicatorsConfig.HighlightSetting> isEnabled = (hs) -> hs == PlayerIndicatorsConfig.HighlightSetting.ENABLED ||
-			(hs == PlayerIndicatorsConfig.HighlightSetting.PVP && (client.getVarbitValue(Varbits.IN_WILDERNESS) == 1 || client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1));
+			(hs == PlayerIndicatorsConfig.HighlightSetting.PVP && (client.getVarbitValue(Varbits.IN_WILDERNESS) == 1 ||
+				WorldType.isPvpWorld(client.getWorldType()) || client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1));
 
 		Color color = null;
 		if (player == client.getLocalPlayer())
@@ -99,7 +107,7 @@ class PlayerIndicatorsService
 		{
 			color = config.getPartyMemberColor();
 		}
-		else if (player.isFriend() && isEnabled.test(config.highlightFriends()))
+		else if (client.isFriended(player.getName(),false) && isEnabled.test(config.highlightFriends()))
 		{
 			color = config.getFriendColor();
 		}
@@ -117,7 +125,12 @@ class PlayerIndicatorsService
 		}
 		else if (!player.isFriendsChatMember() && !player.isClanMember() && isEnabled.test(config.highlightOthers()))
 		{
-			color = config.getOthersColor();
+			if (plugin.inRange(client, player))
+			{
+				color = config.inRange();
+			}
+			else
+				color = config.getOthersColor();
 		}
 
 		FriendsChatRank rank = null;

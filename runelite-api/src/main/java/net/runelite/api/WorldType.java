@@ -94,7 +94,7 @@ public enum WorldType
 	private final int mask;
 
 	private static final EnumSet<WorldType> PVP_WORLD_TYPES = EnumSet.of(
-		DEADMAN, // dmmt worlds are also flaged as DEADMAN
+		DEADMAN, // dmmt worlds are also flagged as DEADMAN
 		PVP
 	);
 

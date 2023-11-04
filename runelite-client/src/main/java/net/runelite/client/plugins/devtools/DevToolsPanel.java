@@ -107,6 +107,7 @@ class DevToolsPanel extends PluginPanel
 		container.add(plugin.getWalls());
 		container.add(plugin.getDecorations());
 
+		container.add(plugin.getInventory());
 		container.add(plugin.getProjectiles());
 
 		container.add(plugin.getLocation());
@@ -187,7 +188,7 @@ class DevToolsPanel extends PluginPanel
 		}
 		catch (LinkageError | ProvisionException e)
 		{
-			log.debug("Shell is not supported", e);
+			log.info("Shell is not supported", e);
 		}
 		catch (Exception e)
 		{

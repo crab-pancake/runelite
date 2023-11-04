@@ -48,14 +48,16 @@ public class PlayerIndicatorsOverlay extends Overlay
 
 	private final PlayerIndicatorsService playerIndicatorsService;
 	private final PlayerIndicatorsConfig config;
+	private final PlayerIndicatorsPlugin plugin;
 	private final ChatIconManager chatIconManager;
 
 	@Inject
 	private PlayerIndicatorsOverlay(PlayerIndicatorsConfig config, PlayerIndicatorsService playerIndicatorsService,
-		ChatIconManager chatIconManager)
+		PlayerIndicatorsPlugin plugin, ChatIconManager chatIconManager)
 	{
 		this.config = config;
 		this.playerIndicatorsService = playerIndicatorsService;
+		this.plugin = plugin;
 		this.chatIconManager = chatIconManager;
 		setPosition(OverlayPosition.DYNAMIC);
 		setPriority(OverlayPriority.MED);
@@ -68,7 +70,7 @@ public class PlayerIndicatorsOverlay extends Overlay
 		return null;
 	}
 
-	private void renderPlayerOverlay(Graphics2D graphics, Player actor, PlayerIndicatorsService.Decorations decorations)
+	private void renderPlayerOverlay(Graphics2D graphics, Player player, PlayerIndicatorsService.Decorations decorations)
 	{
 		final PlayerNameLocation drawPlayerNamesConfig = config.playerNamePosition();
 		if (drawPlayerNamesConfig == PlayerNameLocation.DISABLED)
@@ -81,18 +83,19 @@ public class PlayerIndicatorsOverlay extends Overlay
 		{
 			case MODEL_CENTER:
 			case MODEL_RIGHT:
-				zOffset = actor.getLogicalHeight() / 2;
+				zOffset = player.getLogicalHeight() / 2;
 				break;
 			default:
-				zOffset = actor.getLogicalHeight() + ACTOR_OVERHEAD_TEXT_MARGIN;
+				zOffset = player.getLogicalHeight() + ACTOR_OVERHEAD_TEXT_MARGIN;
 		}
 
-		final String name = Text.sanitize(actor.getName());
-		Point textLocation = actor.getCanvasTextLocation(graphics, name, zOffset);
+		final String name = Text.sanitize(player.getName()) + (plugin.pvpZone ? "  ("+player.getCombatLevel()+")" : "");
+
+		Point textLocation = player.getCanvasTextLocation(graphics, name, zOffset);
 
 		if (drawPlayerNamesConfig == PlayerNameLocation.MODEL_RIGHT)
 		{
-			textLocation = actor.getCanvasTextLocation(graphics, "", zOffset);
+			textLocation = player.getCanvasTextLocation(graphics, "", zOffset);
 
 			if (textLocation == null)
 			{

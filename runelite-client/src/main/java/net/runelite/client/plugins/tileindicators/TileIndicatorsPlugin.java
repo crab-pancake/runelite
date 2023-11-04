@@ -25,8 +25,12 @@
 package net.runelite.client.plugins.tileindicators;
 
 import com.google.inject.Provides;
+import java.util.Objects;
 import javax.inject.Inject;
+import net.runelite.api.Client;
+import net.runelite.api.events.PostMenuSort;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -45,6 +49,11 @@ public class TileIndicatorsPlugin extends Plugin
 	@Inject
 	private TileIndicatorsOverlay overlay;
 
+	@Inject
+	private Client client;
+
+	boolean walk;
+
 	@Provides
 	TileIndicatorsConfig provideConfig(ConfigManager configManager)
 	{
@@ -61,5 +70,11 @@ public class TileIndicatorsPlugin extends Plugin
 	protected void shutDown() throws Exception
 	{
 		overlayManager.remove(overlay);
+	}
+
+	@Subscribe(priority=-1)
+	public void onPostMenuSort(PostMenuSort e){
+		walk = client.getMenuEntries()[client.getMenuEntries().length - 1].getOption().equalsIgnoreCase("walk here") ||
+			client.getMenuEntries()[client.getMenuEntries().length - 1].getOption().equalsIgnoreCase("take");
 	}
 }

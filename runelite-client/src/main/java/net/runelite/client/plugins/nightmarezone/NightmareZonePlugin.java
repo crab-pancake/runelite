@@ -297,6 +297,6 @@ public class NightmareZonePlugin extends Plugin
 		}
 
 		// NMZ and the KBD lair uses the same region ID but NMZ uses planes 1-3 and KBD uses plane 0
-		return client.getLocalPlayer().getWorldLocation().getPlane() > 0 && Arrays.equals(client.getMapRegions(), NMZ_MAP_REGION);
+		return Arrays.equals(client.getMapRegions(), NMZ_MAP_REGION) && client.getLocalPlayer().getWorldLocation().getPlane() > 0;
 	}
 }

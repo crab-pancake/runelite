@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.util.List;
@@ -43,6 +44,7 @@ import net.runelite.api.Point;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.client.plugins.gpu.config.AntiAliasingMode;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -54,14 +56,14 @@ public class SceneOverlay extends Overlay
 	private static final Color CHUNK_BORDER_COLOR = Color.BLUE;
 	private static final Color LOCAL_VALID_MOVEMENT_COLOR = new Color(141, 220, 26);
 	private static final Color VALID_MOVEMENT_COLOR = new Color(73, 122, 18);
-	private static final Color LINE_OF_SIGHT_COLOR = new Color(204, 42, 219);
+	private static final Color LINE_OF_SIGHT_COLOR = Color.BLUE;
 	private static final Color INTERACTING_COLOR = Color.CYAN;
 
 	private static final int LOCAL_TILE_SIZE = Perspective.LOCAL_TILE_SIZE;
 	private static final int CHUNK_SIZE = 8;
 	private static final int MAP_SQUARE_SIZE = CHUNK_SIZE * CHUNK_SIZE; // 64
 	private static final int CULL_CHUNK_BORDERS_RANGE = 16;
-	private static final int STROKE_WIDTH = 4;
+	private static final int STROKE_WIDTH = 3;
 	private static final int CULL_LINE_OF_SIGHT_RANGE = 10;
 	private static final int INTERACTING_SHIFT = -16;
 
@@ -87,6 +89,8 @@ public class SceneOverlay extends Overlay
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
+		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+
 		if (plugin.getChunkBorders().isActive())
 		{
 			renderChunkBorders(graphics);
@@ -352,7 +356,7 @@ public class SceneOverlay extends Overlay
 		}
 	}
 
-	private void renderTileIfHasLineOfSight(Graphics2D graphics, WorldArea start, int targetX, int targetY)
+	private void renderTileIfHasLineOfSight(Graphics2D graphics, WorldArea start, int targetX, int targetY, boolean outOfRange)
 	{
 		WorldPoint targetLocation = new WorldPoint(targetX, targetY, start.getPlane());
 
@@ -372,22 +376,25 @@ public class SceneOverlay extends Overlay
 				return;
 			}
 
-			OverlayUtil.renderPolygon(graphics, poly, LINE_OF_SIGHT_COLOR);
+			OverlayUtil.renderPolygon(graphics, poly, outOfRange ? Color.CYAN : LINE_OF_SIGHT_COLOR, new BasicStroke(1));
 		}
 	}
 
 	private void renderLineOfSight(Graphics2D graphics)
 	{
 		WorldArea area = client.getLocalPlayer().getWorldArea();
-		for (int x = area.getX() - CULL_LINE_OF_SIGHT_RANGE; x <= area.getX() + CULL_LINE_OF_SIGHT_RANGE; x++)
+		for (int x = area.getX() - 15; x <= area.getX() + 15; x++)
 		{
-			for (int y = area.getY() - CULL_LINE_OF_SIGHT_RANGE; y <= area.getY() + CULL_LINE_OF_SIGHT_RANGE; y++)
+			for (int y = area.getY() - 15; y <= area.getY() + 15; y++)
 			{
 				if (x == area.getX() && y == area.getY())
 				{
 					continue;
 				}
-				renderTileIfHasLineOfSight(graphics, area, x, y);
+
+				boolean outOfRange = Math.abs(area.getX() - x) > CULL_LINE_OF_SIGHT_RANGE || Math.abs(area.getY() - y) > CULL_LINE_OF_SIGHT_RANGE;
+
+				renderTileIfHasLineOfSight(graphics, area, x, y, outOfRange);
 			}
 		}
 	}

@@ -26,7 +26,10 @@ package net.runelite.client.plugins.playerindicators;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Provides;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
+import net.runelite.api.ChatMessageType;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.FriendsChatRank;
@@ -47,15 +50,24 @@ import static net.runelite.api.MenuAction.WIDGET_TARGET_ON_PLAYER;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.Player;
 import net.runelite.api.ScriptID;
+import net.runelite.api.Varbits;
+import net.runelite.api.WorldType;
 import net.runelite.api.events.ClientTick;
+import net.runelite.api.events.GameTick;
+import net.runelite.api.events.PlayerSpawned;
 import net.runelite.api.events.ScriptPostFired;
 import net.runelite.api.widgets.ComponentID;
+import net.runelite.api.events.VarbitChanged;
+import net.runelite.api.events.WorldChanged;
 import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetInfo;
+import net.runelite.client.Notifier;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ProfileChanged;
 import net.runelite.client.game.ChatIconManager;
+import net.runelite.client.party.PartyService;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -99,7 +111,18 @@ public class PlayerIndicatorsPlugin extends Plugin
 	private ClientThread clientThread;
 
 	@Inject
+	private PartyService partyService;
+
+	@Inject
 	private ConfigManager configManager;
+
+	@Inject
+	private Notifier notifier;
+
+	boolean pvpZone;
+	int lastPlayedTick = -1;
+	int range = 0;
+	Widget widget;
 
 	@Provides
 	PlayerIndicatorsConfig provideConfig(ConfigManager configManager)
@@ -110,6 +133,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
+		pvpZone = false;
 		overlayManager.add(playerIndicatorsOverlay);
 		overlayManager.add(playerIndicatorsTileOverlay);
 		overlayManager.add(playerIndicatorsMinimapOverlay);
@@ -122,7 +146,84 @@ public class PlayerIndicatorsPlugin extends Plugin
 		overlayManager.remove(playerIndicatorsOverlay);
 		overlayManager.remove(playerIndicatorsTileOverlay);
 		overlayManager.remove(playerIndicatorsMinimapOverlay);
+		lastPlayedTick = -1;
 	}
+
+	@Subscribe
+	private void onPlayerSpawned(PlayerSpawned event)
+	{
+		if (!config.ding() || !pvpZone) return;
+
+		Player p = event.getPlayer();
+		if (p == client.getLocalPlayer()) return;
+
+		if (config.ding()
+				&& !client.isFriended(p.getName(),false)
+				&& !p.isFriendsChatMember()
+				&& inRange(client, p))
+		{
+			if (lastPlayedTick < client.getTickCount()) // play max once per tick
+			{
+				client.playSoundEffect(3924, config.volume());
+				lastPlayedTick = client.getTickCount();
+			}
+			notifier.notify(p.getName()+" ("+p.getCombatLevel()+")");
+			client.addChatMessage(ChatMessageType.WELCOME,"", "Scary: "+p.getName()+" ("+p.getCombatLevel()+")","");
+		}
+	}
+
+	@Subscribe
+	private void onVarbitChanged(VarbitChanged event)
+	{
+		check(client);
+	}
+
+	@Subscribe
+	private void onWorldChanged(WorldChanged event)
+	{
+		check(client);
+	}
+
+	@Subscribe
+	private void onGameTick(GameTick event){
+		if (!pvpZone)
+		{
+			return;
+		}
+
+		widget = client.getWidget(90,50);
+		if (widget != null && !widget.isHidden())
+		{
+			final Matcher m = Pattern.compile("^Level: (\\d+)(?:<br>\\d+-\\d+)?$").matcher(widget.getText());
+
+			if (m.matches())
+			{
+				range = Integer.parseInt(m.group(1)) + (WorldType.isPvpWorld(client.getWorldType()) ? 15 : 0) + 1;  // add +/- 1 margin for safety
+			}
+		}
+	}
+
+	boolean inRange(Client client, Player player)
+	{
+		if ((widget == null || widget.isHidden()) && !WorldType.isPvpWorld(client.getWorldType()))
+		{
+			return false;
+		}
+
+		final int low = Math.max(3, client.getLocalPlayer().getCombatLevel() - range);
+		final int high = Math.min(126, client.getLocalPlayer().getCombatLevel() + range);
+
+		return player.getCombatLevel() >= low && player.getCombatLevel() <= high;
+	}
+
+	public void check(Client client)
+	{
+		clientThread.invokeLater(() -> {
+			pvpZone = (client.getVarbitValue(Varbits.IN_WILDERNESS) == 1 || WorldType.isPvpWorld(client.getWorldType())
+				|| client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1);
+		});
+	}
+
 
 	@Subscribe
 	public void onProfileChanged(ProfileChanged profileChanged)
@@ -228,6 +329,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 				}
 
 				PlayerIndicatorsService.Decorations decorations = playerIndicatorsService.getDecorations(player);
+
 				if (decorations == null)
 				{
 					continue;

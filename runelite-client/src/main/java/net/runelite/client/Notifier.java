@@ -99,7 +99,7 @@ public class Notifier
 		.build();
 
 	// Notifier properties
-	private static final int MINIMUM_FLASH_DURATION_MILLIS = 2000;
+	private static final int MINIMUM_FLASH_DURATION_MILLIS = 1000;
 	private static final int MINIMUM_FLASH_DURATION_TICKS = MINIMUM_FLASH_DURATION_MILLIS / Constants.CLIENT_TICK_LENGTH;
 
 	private static final File NOTIFICATION_FILE = new File(RuneLite.RUNELITE_DIR, "notification.wav");

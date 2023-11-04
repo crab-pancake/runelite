@@ -44,12 +44,14 @@ public class TileIndicatorsOverlay extends Overlay
 {
 	private final Client client;
 	private final TileIndicatorsConfig config;
+	private final TileIndicatorsPlugin plugin;
 
 	@Inject
-	private TileIndicatorsOverlay(Client client, TileIndicatorsConfig config)
+	private TileIndicatorsOverlay(Client client, TileIndicatorsConfig config, TileIndicatorsPlugin plugin)
 	{
 		this.client = client;
 		this.config = config;
+		this.plugin = plugin;
 		setPosition(OverlayPosition.DYNAMIC);
 		setLayer(OverlayLayer.ABOVE_SCENE);
 		setPriority(OverlayPriority.MED);
@@ -60,16 +62,19 @@ public class TileIndicatorsOverlay extends Overlay
 	{
 		if (config.highlightHoveredTile())
 		{
-			// If we have tile "selected" render it
-			if (client.getSelectedSceneTile() != null)
+			if (plugin.walk || !config.hoverOnWalkOnly())
 			{
-				renderTile(graphics, client.getSelectedSceneTile().getLocalLocation(), config.highlightHoveredColor(), config.hoveredTileBorderWidth(), config.hoveredTileFillColor());
+				// If we have tile "selected" render it
+				if (client.getSelectedSceneTile() != null)
+				{
+					renderTile(graphics, client.getSelectedSceneTile().getLocalLocation(), config.highlightHoveredColor(), config.hoveredTileBorderWidth(), config.hoveredTileFillColor(), config.hoveredTileCornersOnly());
+				}
 			}
 		}
 
 		if (config.highlightDestinationTile())
 		{
-			renderTile(graphics, client.getLocalDestinationLocation(), config.highlightDestinationColor(), config.destinationTileBorderWidth(), config.destinationTileFillColor());
+			renderTile(graphics, client.getLocalDestinationLocation(), config.highlightDestinationColor(), config.destinationTileBorderWidth(), config.destinationTileFillColor(), config.destinationTileCornersOnly());
 		}
 
 		if (config.highlightCurrentTile())
@@ -86,13 +91,13 @@ public class TileIndicatorsOverlay extends Overlay
 				return null;
 			}
 
-			renderTile(graphics, playerPosLocal, config.highlightCurrentColor(), config.currentTileBorderWidth(), config.currentTileFillColor());
+			renderTile(graphics, playerPosLocal, config.highlightCurrentColor(), config.currentTileBorderWidth(), config.currentTileFillColor(), config.currentTileCornersOnly());
 		}
 
 		return null;
 	}
 
-	private void renderTile(final Graphics2D graphics, final LocalPoint dest, final Color color, final double borderWidth, final Color fillColor)
+	private void renderTile(final Graphics2D graphics, final LocalPoint dest, final Color color, final double borderWidth, final Color fillColor, boolean cornersOnly)
 	{
 		if (dest == null)
 		{
@@ -106,6 +111,13 @@ public class TileIndicatorsOverlay extends Overlay
 			return;
 		}
 
-		OverlayUtil.renderPolygon(graphics, poly, color, fillColor, new BasicStroke((float) borderWidth));
+		if (cornersOnly)
+		{
+			OverlayUtil.renderPolygonCorners(graphics, poly, color, fillColor, new BasicStroke((float) borderWidth));
+		}
+		else
+		{
+			OverlayUtil.renderPolygon(graphics, poly, color, fillColor, new BasicStroke((float) borderWidth));
+		}
 	}
 }

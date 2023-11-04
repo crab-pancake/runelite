@@ -296,7 +296,7 @@ public class ItemStatChanges
 		add(combo(boost(MAGIC, coxMinusPotionBoost), boost(DEFENCE, coxMinusPotionBoost)), KODAI_1, KODAI_2, KODAI_3, KODAI_4);
 
 		// Tombs of Amascut consumables
-		final DeltaPercentage nectarDrain = perc(0.2, -5);
+		final DeltaPercentage nectarDrain = perc(0.05, 5);
 		final DeltaPercentage saltBoost = perc(.16, 11);
 		final DeltaPercentage tearsRestore = perc(.25, 3);
 		add(combo(boost(HITPOINTS, 20), prayerPot), HONEY_LOCUST);

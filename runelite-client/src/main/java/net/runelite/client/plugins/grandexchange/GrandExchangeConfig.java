@@ -146,4 +146,15 @@ public interface GrandExchangeConfig extends Config
 	{
 		return GrandExchangeSearchMode.DEFAULT;
 	}
+
+	@ConfigItem(
+		position = 10,
+		keyName = "submitTrades",
+		name = "Submit trades to wiki",
+		description = "Send trade data to osrs wiki to be tracked"
+	)
+	default boolean submitTrades()
+	{
+		return false;
+	}
 }

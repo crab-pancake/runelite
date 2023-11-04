@@ -128,6 +128,7 @@ public class DevToolsPlugin extends Plugin
 	private DevToolsButton graphicsObjects;
 	private DevToolsButton walls;
 	private DevToolsButton decorations;
+	private DevToolsButton inventory;
 	private DevToolsButton projectiles;
 	private DevToolsButton location;
 	private DevToolsButton chunkBorders;
@@ -171,6 +172,7 @@ public class DevToolsPlugin extends Plugin
 		walls = new DevToolsButton("Walls");
 		decorations = new DevToolsButton("Decorations");
 
+		inventory = new DevToolsButton("Inventory");
 		projectiles = new DevToolsButton("Projectiles");
 
 		location = new DevToolsButton("Location");
