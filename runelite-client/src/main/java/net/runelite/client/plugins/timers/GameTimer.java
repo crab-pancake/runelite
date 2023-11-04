@@ -90,7 +90,7 @@ enum GameTimer
 	CORRUPTION_COOLDOWN(SpriteID.SPELL_GREATER_CORRUPTION_DISABLED, GameTimerImageType.SPRITE, "Corruption cooldown", 50, GAME_TICKS),
 	MARK_OF_DARKNESS_COOLDOWN(SpriteID.SPELL_MARK_OF_DARKNESS_DISABLED, GameTimerImageType.SPRITE, "Mark of Darkness cooldown", 90, GAME_TICKS, true),
 	PICKPOCKET_STUN(SpriteID.SKILL_THIEVING, GameTimerImageType.SPRITE, "Stunned", true),
-	FARMERS_AFFINITY(ItemID.GRAIN, GameTimerImageType.ITEM, "Farmer's Affinity", false),
+	FARMERS_AFFINITY(ItemID.BARLEY, GameTimerImageType.ITEM, "Farmer's Affinity", false),
 	SMELLING_SALTS(ItemID.SMELLING_SALTS_2, GameTimerImageType.ITEM, "Smelling salts", true),
 	MENAPHITE_REMEDY(ItemID.MENAPHITE_REMEDY4, GameTimerImageType.ITEM, "Menaphite remedy", true),
 	LIQUID_ADRENALINE(ItemID.LIQUID_ADRENALINE_2, GameTimerImageType.ITEM, "Liquid adrenaline", 250, GAME_TICKS, false),
