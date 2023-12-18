@@ -50,7 +50,6 @@ import net.runelite.api.events.DraggingWidgetChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GrandExchangeSearched;
 import net.runelite.api.events.MenuEntryAdded;
-import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.ScriptCallbackEvent;
 import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
@@ -432,12 +431,6 @@ public class BankTagsPlugin extends Plugin
 					tabInterface.reloadActiveTab();
 				}))
 			.build();
-	}
-
-	@Subscribe
-	public void onMenuOptionClicked(MenuOptionClicked event)
-	{
-		tabInterface.handleClick(event);
 	}
 
 	@Subscribe
