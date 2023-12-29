@@ -45,15 +45,11 @@ import net.runelite.api.ItemContainer;
 import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.VarClientStr;
-import net.runelite.api.Varbits;
-import net.runelite.api.events.DraggingWidgetChanged;
-import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GrandExchangeSearched;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.ScriptCallbackEvent;
 import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
@@ -125,6 +121,9 @@ public class BankTagsPlugin extends Plugin
 
 	@Inject
 	private KeyManager keyManager;
+
+	@Inject
+	private BankTagsConfig config;
 
 	@Provides
 	BankTagsConfig getConfig(ConfigManager configManager)

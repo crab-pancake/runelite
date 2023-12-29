@@ -156,7 +156,6 @@ public class TabInterface
 	@Getter
 	private boolean allTagsTabActive;
 	private int tagTabFirstChildIdx = -1;
-	private int maxTabs;
 	private int currentTabIndex;
 	private Instant startScroll = Instant.now();
 
@@ -604,6 +603,8 @@ public class TabInterface
 				{
 					openTag(tab, true);
 
+					int maxTabs = tabLayer.getHeight() / TAB_HEIGHT;
+
 					int newTab = tabManager.indexOf(clicked.getName());
 					if (newTab > currentTabIndex + maxTabs - 1)
 					{
@@ -976,6 +977,19 @@ public class TabInterface
 		{
 			bankSearch.reset(true);
 		}
+	}
+
+	public void openAllTagsTab()
+	{
+		clientThread.invoke(()->{
+			if (allTagsTabActive && client.getVarbitValue(Varbits.CURRENT_BANK_TAB) == 0){
+				closeTag(true);
+				bankSearch.reset(true);
+				return;
+			}
+			client.setVarbit(Varbits.CURRENT_BANK_TAB, 0);
+			openNamedTag(TAB_MENU_KEY, true);
+		});
 	}
 
 	private void openTag(TagTab tab, boolean relayout)
