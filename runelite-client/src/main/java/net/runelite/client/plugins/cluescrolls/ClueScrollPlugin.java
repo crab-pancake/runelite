@@ -36,6 +36,7 @@ import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -963,6 +964,7 @@ public class ClueScrollPlugin extends Plugin
 
 		final NpcClueScroll npcClueScroll = (NpcClueScroll) clue;
 		final String[] clueNpcs = npcClueScroll.getNpcs(this);
+		final Collection<Integer> clueNpcRegions = npcClueScroll.getNpcRegions();
 
 		if (clueNpcs == null || clueNpcs.length == 0)
 		{
@@ -972,6 +974,11 @@ public class ClueScrollPlugin extends Plugin
 		for (NPC npc : npcs)
 		{
 			if (npc == null || npc.getName() == null)
+			{
+				continue;
+			}
+
+			if (!clueNpcRegions.isEmpty() && !clueNpcRegions.contains(npc.getWorldLocation().getRegionID()))
 			{
 				continue;
 			}
