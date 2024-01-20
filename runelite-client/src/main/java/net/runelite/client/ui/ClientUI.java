@@ -71,6 +71,7 @@ import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -525,11 +526,19 @@ public class ClientUI
 				}
 				else
 				{
+					if (OSType.getOSType() == OSType.Linux)
+					{
+						// FlatLaf explicitly checks this property when checking for custom window decorations on Linux
+						JDialog.setDefaultLookAndFeelDecorated(true);
+						JFrame.setDefaultLookAndFeelDecorated(true);
+					}
+
 					frame.setUndecorated(true);
 					rp.setWindowDecorationStyle(JRootPane.FRAME);
 				}
 
-				content.setBorder(new MatteBorder(0, 4, 4, 4, ColorScheme.DARKER_GRAY_COLOR));
+				frame.addWindowStateListener(_ev -> applyCustomChromeBorder());
+				applyCustomChromeBorder();
 
 				sidebarNavBtn = toolbarPanel.add(NavigationButton
 					.builder()
@@ -555,6 +564,13 @@ public class ClientUI
 				toggleSidebar(false, true);
 			}
 		});
+	}
+
+	private void applyCustomChromeBorder()
+	{
+		content.setBorder((frame.getExtendedState() & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH
+			? null
+			: new MatteBorder(0, 4, 4, 4, ColorScheme.DARKER_GRAY_COLOR));
 	}
 
 	public void show()
@@ -1283,7 +1299,8 @@ public class ClientUI
 			Component client = content.getComponent(0);
 			client.setSize(width, height);
 			// must adjust content height since the client height is derived from the content height
-			content.setSize(content.getWidth(), height);
+			Insets insets = content.getInsets();
+			content.setSize(content.getWidth(), height + insets.top + insets.bottom);
 			layout(content, true);
 		}
 
@@ -1358,7 +1375,7 @@ public class ClientUI
 			if ((OSType.getOSType() != OSType.Windows || (changed & Frame.MAXIMIZED_BOTH) == 0)
 				&& !frame.getPreferredSize().equals(oldSize))
 			{
-				frame.containedSetSize(frame.getPreferredSize());
+				frame.containedSetSize(frame.getPreferredSize(), oldSize);
 			}
 
 			log.trace("finishing layout - content={} client={} sidebar={} frame={}", content.getWidth(), client.getWidth(), sidebar.getWidth(), frame.getWidth());
