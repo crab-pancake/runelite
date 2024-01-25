@@ -994,6 +994,8 @@ public class ClientUI
 
 	private void toggleSidebar(boolean open, boolean pushHistory)
 	{
+		open = true;
+
 		if (sidebar.isVisible() == open)
 		{
 			return;
