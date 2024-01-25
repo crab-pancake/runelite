@@ -227,6 +227,7 @@ public class RuneLiteModule extends AbstractModule
 		Gson gson,
 		@Named("runelite.api.base") HttpUrl apiBase)
 	{
-		return disableTelemetry ? null : new TelemetryClient(okHttpClient, gson, apiBase);
+		return null;
+//		return disableTelemetry ? null : new TelemetryClient(okHttpClient, gson, apiBase);
 	}
 }

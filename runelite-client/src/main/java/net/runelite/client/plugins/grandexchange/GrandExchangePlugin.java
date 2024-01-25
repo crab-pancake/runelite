@@ -478,26 +478,26 @@ public class GrandExchangePlugin extends Plugin
 
 		if (state == GrandExchangeOfferState.CANCELLED_BUY || state == GrandExchangeOfferState.CANCELLED_SELL)
 		{
+			GrandExchangeTrade grandExchangeTrade = new GrandExchangeTrade();
+			grandExchangeTrade.setBuy(state == GrandExchangeOfferState.CANCELLED_BUY);
+			grandExchangeTrade.setCancel(true);
+			grandExchangeTrade.setItemId(offer.getItemId());
+			grandExchangeTrade.setQty(offer.getQuantitySold());
+			grandExchangeTrade.setTotal(offer.getTotalQuantity());
+			grandExchangeTrade.setSpent(offer.getSpent());
+			grandExchangeTrade.setOffer(offer.getPrice());
+			grandExchangeTrade.setSlot(slot);
+			grandExchangeTrade.setWorldType(getGeWorldType());
+			grandExchangeTrade.setLogin(login);
+			grandExchangeTrade.setSeq(tradeSeq++);
+			grandExchangeTrade.setResetTime(getLimitResetTime(offer.getItemId()));
 			if (config.submitTrades())
 			{
-				GrandExchangeTrade grandExchangeTrade = new GrandExchangeTrade();
-				grandExchangeTrade.setBuy(state == GrandExchangeOfferState.CANCELLED_BUY);
-				grandExchangeTrade.setCancel(true);
-				grandExchangeTrade.setItemId(offer.getItemId());
-				grandExchangeTrade.setQty(offer.getQuantitySold());
-				grandExchangeTrade.setTotal(offer.getTotalQuantity());
-				grandExchangeTrade.setSpent(offer.getSpent());
-				grandExchangeTrade.setOffer(offer.getPrice());
-				grandExchangeTrade.setSlot(slot);
-				grandExchangeTrade.setWorldType(getGeWorldType());
-				grandExchangeTrade.setLogin(login);
-				grandExchangeTrade.setSeq(tradeSeq++);
-				grandExchangeTrade.setResetTime(getLimitResetTime(offer.getItemId()));
-
 				log.debug("Submitting cancelled: {}", grandExchangeTrade);
 				grandExchangeClient.submit(grandExchangeTrade);
 				saveTrade(grandExchangeTrade);
 			}
+			saveTrade(grandExchangeTrade);
 			return;
 		}
 
@@ -508,27 +508,26 @@ public class GrandExchangePlugin extends Plugin
 			return;
 		}
 
+		GrandExchangeTrade grandExchangeTrade = new GrandExchangeTrade();
+		grandExchangeTrade.setBuy(state == GrandExchangeOfferState.BUYING);
+		grandExchangeTrade.setItemId(offer.getItemId());
+		grandExchangeTrade.setQty(offer.getQuantitySold());
+		grandExchangeTrade.setDqty(qty);
+		grandExchangeTrade.setTotal(offer.getTotalQuantity());
+		grandExchangeTrade.setDspent(dspent);
+		grandExchangeTrade.setSpent(offer.getSpent());
+		grandExchangeTrade.setOffer(offer.getPrice());
+		grandExchangeTrade.setSlot(slot);
+		grandExchangeTrade.setWorldType(getGeWorldType());
+		grandExchangeTrade.setLogin(login);
+		grandExchangeTrade.setSeq(tradeSeq++);
+		grandExchangeTrade.setResetTime(getLimitResetTime(offer.getItemId()));
 		if (config.submitTrades())
 		{
-			GrandExchangeTrade grandExchangeTrade = new GrandExchangeTrade();
-			grandExchangeTrade.setBuy(state == GrandExchangeOfferState.BUYING);
-			grandExchangeTrade.setItemId(offer.getItemId());
-			grandExchangeTrade.setQty(offer.getQuantitySold());
-			grandExchangeTrade.setDqty(qty);
-			grandExchangeTrade.setTotal(offer.getTotalQuantity());
-			grandExchangeTrade.setDspent(dspent);
-			grandExchangeTrade.setSpent(offer.getSpent());
-			grandExchangeTrade.setOffer(offer.getPrice());
-			grandExchangeTrade.setSlot(slot);
-			grandExchangeTrade.setWorldType(getGeWorldType());
-			grandExchangeTrade.setLogin(login);
-			grandExchangeTrade.setSeq(tradeSeq++);
-			grandExchangeTrade.setResetTime(getLimitResetTime(offer.getItemId()));
-
 			log.debug("Submitting trade: {}", grandExchangeTrade);
 			grandExchangeClient.submit(grandExchangeTrade);
-			saveTrade(grandExchangeTrade);
 		}
+		saveTrade(grandExchangeTrade);
 	}
 
 	private void saveTrade(GrandExchangeTrade trade)
