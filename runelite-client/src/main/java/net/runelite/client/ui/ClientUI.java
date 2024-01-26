@@ -570,7 +570,7 @@ public class ClientUI
 	{
 		content.setBorder((frame.getExtendedState() & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH
 			? null
-			: new MatteBorder(0, 4, 4, 4, ColorScheme.DARKER_GRAY_COLOR));
+			: new MatteBorder(4, 4, 4, 4, ColorScheme.DARKER_GRAY_COLOR));
 	}
 
 	public void show()
@@ -598,6 +598,15 @@ public class ClientUI
 				{
 					frame.setBounds(clientBounds);
 					appliedSize = true;
+
+					// Adjust for insets before performing display test
+					Insets insets = frame.getInsets();
+					clientBounds = new Rectangle(
+						clientBounds.x + insets.left,
+						clientBounds.y + insets.top,
+						clientBounds.width - (insets.left + insets.right),
+						clientBounds.height - (insets.top + insets.bottom)
+					);
 
 					// Check that the bounds are contained inside a valid display
 					GraphicsConfiguration gc = findDisplayFromBounds(clientBounds);
