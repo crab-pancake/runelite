@@ -605,17 +605,15 @@ public class TabInterface
 				{
 					openTag(tab, true);
 
-					int maxTabs = tabLayer.getHeight() / TAB_HEIGHT;
-
 					int newTab = tabManager.indexOf(clicked.getName());
-					if (newTab > currentTabIndex + maxTabs - 1)
+					if (newTab > config.position() + tabCount - 1)
 					{
 						// new tab at the bottom
-						scrollTab(newTab - currentTabIndex - maxTabs + 1);
+						scrollTab(newTab - config.position() - tabCount + 1);
 					}
-					else if (newTab < currentTabIndex){
+					else if (newTab < config.position()){
 						// new tab at the top
-						scrollTab(newTab - currentTabIndex);
+						scrollTab(newTab - config.position());
 					}
 				}
 
