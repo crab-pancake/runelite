@@ -1157,7 +1157,8 @@ public class ClientUI
 			return;
 		}
 
-		if (frame.getGraphicsConfiguration().getDevice().getFullScreenWindow() == null)
+		if (frame.getGraphicsConfiguration().getDevice().getFullScreenWindow() == null
+			&& !safeMode)
 		{
 			frame.setOpacity(config.windowOpacity() / 100.0f);
 		}
