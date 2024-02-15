@@ -309,9 +309,9 @@ public interface PlayerIndicatorsConfig extends Config
 		description = "makes a ding",
 		section = extras
 	)
-	default boolean ding()
+	default DingType ding()
 	{
-		return false;
+		return DingType.IN_RANGE;
 	}
 
 	@Range(min=1, max=50)
@@ -336,5 +336,11 @@ public interface PlayerIndicatorsConfig extends Config
 	default Color inRange()
 	{
 		return new Color(255, 0, 255);
+	}
+
+	enum DingType{
+		NO,
+		IN_RANGE,
+		ALWAYS
 	}
 }

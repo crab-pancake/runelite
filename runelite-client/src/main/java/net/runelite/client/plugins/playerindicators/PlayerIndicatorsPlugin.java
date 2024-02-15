@@ -152,24 +152,31 @@ public class PlayerIndicatorsPlugin extends Plugin
 	@Subscribe
 	private void onPlayerSpawned(PlayerSpawned event)
 	{
-		if (!config.ding() || !pvpZone) return;
+		clientThread.invokeLater(() -> {
+			if (!pvpZone || config.ding() == PlayerIndicatorsConfig.DingType.NO) return;
 
-		Player p = event.getPlayer();
-		if (p == client.getLocalPlayer()) return;
+			Player p = event.getPlayer();
+			if (p == client.getLocalPlayer()) return;
 
-		if (config.ding()
-				&& !client.isFriended(p.getName(),false)
-				&& !p.isFriendsChatMember()
-				&& inRange(client, p))
-		{
-			if (lastPlayedTick < client.getTickCount()) // play max once per tick
+			if (client.isFriended(p.getName(), false)
+				|| p.isFriendsChatMember())
 			{
-				client.playSoundEffect(3924, config.volume());
-				lastPlayedTick = client.getTickCount();
+				// friendly
+				return;
 			}
-			notifier.notify(p.getName()+" ("+p.getCombatLevel()+")");
-			client.addChatMessage(ChatMessageType.WELCOME,"", "Scary: "+p.getName()+" ("+p.getCombatLevel()+")","");
-		}
+
+			if (config.ding() == PlayerIndicatorsConfig.DingType.ALWAYS ||
+				(config.ding() == PlayerIndicatorsConfig.DingType.IN_RANGE && inRange(client, p)))
+			{
+				if (lastPlayedTick < client.getTickCount()) // play max once per tick
+				{
+					client.playSoundEffect(3924, config.volume());
+					lastPlayedTick = client.getTickCount();
+				}
+				notifier.notify(p.getName() + " (" + p.getCombatLevel() + ")");
+				client.addChatMessage(ChatMessageType.WELCOME, "", "Scary: " + p.getName() + " (" + p.getCombatLevel() + ")", "");
+			}
+		});
 	}
 
 	@Subscribe
