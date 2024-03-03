@@ -85,6 +85,19 @@ public class LocationOverlay extends OverlayPanel
 			.right(localPoint.getSceneX() + ", " + localPoint.getSceneY())
 			.build());
 
+		for (int i = 0; i < client.getMapRegions().length; i++)
+		{
+			int region = client.getMapRegions()[i];
+			int mx = region >> 8;
+			int my = region & 0xff;
+
+			panelComponent.getChildren().add(LineComponent.builder()
+				.left((i == 0) ? "Map regions" : " ")
+				.right(mx + ", " + my)
+				.rightColor((region == worldPoint.getRegionID()) ? Color.GREEN : Color.WHITE)
+				.build());
+		}
+
 		if (client.isInInstancedRegion())
 		{
 			int[][][] instanceTemplateChunks = client.getInstanceTemplateChunks();
@@ -119,19 +132,6 @@ public class LocationOverlay extends OverlayPanel
 			panelComponent.getChildren().add(LineComponent.builder()
 				.left("Base")
 				.right(client.getBaseX() + ", " + client.getBaseY())
-				.build());
-		}
-
-		for (int i = 0; i < client.getMapRegions().length; i++)
-		{
-			int region = client.getMapRegions()[i];
-			int mx = region >> 8;
-			int my = region & 0xff;
-
-			panelComponent.getChildren().add(LineComponent.builder()
-				.left((i == 0) ? "Map regions" : " ")
-				.right(mx + ", " + my)
-				.rightColor((region == worldPoint.getRegionID()) ? Color.GREEN : Color.WHITE)
 				.build());
 		}
 
