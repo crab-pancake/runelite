@@ -567,6 +567,10 @@ public class GrandExchangePlugin extends Plugin
 		{
 			return WorldType.FRESH_START_WORLD;
 		}
+		else if (worldTypes.contains(net.runelite.api.WorldType.BETA_WORLD))
+		{
+			return WorldType.BETA_WORLD;
+		}
 		else
 		{
 			return null;
