@@ -170,7 +170,7 @@ public class DevToolsPlugin extends Plugin
 	private DevToolsButton uiDefaultsInspector;
 	private NavigationButton navButton;
 
-	private HotkeyListener swingInspectorHotkeyListener = new HotkeyListener(() -> config.swingInspectorHotkey())
+	private final HotkeyListener swingInspectorHotkeyListener = new HotkeyListener(() -> config.swingInspectorHotkey())
 	{
 		Object inspector;
 
@@ -207,7 +207,7 @@ public class DevToolsPlugin extends Plugin
 		}
 	};
 
-	private AWTEventListener swingInspectorKeyListener = rawEv ->
+	private final AWTEventListener swingInspectorKeyListener = rawEv ->
 	{
 		if (rawEv instanceof KeyEvent)
 		{
