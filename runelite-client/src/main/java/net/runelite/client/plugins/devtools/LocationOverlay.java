@@ -33,6 +33,7 @@ import static net.runelite.api.Constants.CHUNK_SIZE;
 import static net.runelite.api.Constants.SCENE_SIZE;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.LineComponent;
@@ -48,6 +49,7 @@ public class LocationOverlay extends OverlayPanel
 		this.client = client;
 		this.plugin = plugin;
 		setPosition(OverlayPosition.TOP_LEFT);
+		setLayer(OverlayLayer.ALWAYS_ON_TOP);
 	}
 
 	@Override

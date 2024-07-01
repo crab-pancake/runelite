@@ -115,12 +115,17 @@ public class ItemStatChanges
 		add(range(food(5), food(8)), LEAN_SNAIL_MEAT);
 		add(range(food(7), food(9)), FAT_SNAIL_MEAT);
 		add(range(food(7), food(10)), SPIDER_ON_STICK_6297, SPIDER_ON_SHAFT_6299);
-		add(combo(food(8), food(6)), COOKED_GRAAHK);
-		add(combo(food(9), food(8)), COOKED_KYATT);
-		add(combo(food(11), food(8)), COOKED_PYRE_FOX);
-		add(combo(food(13), food(10), heal(RUN_ENERGY, 10)), COOKED_DASHING_KEBBIT);
-		add(combo(food(12), food(9)), COOKED_SUNLIGHT_ANTELOPE);
-		add(combo(food(14), food(12)), COOKED_MOONLIGHT_ANTELOPE);
+
+		// Hunter Foods
+		add(range(food(4), food(8)), COOKED_WILD_KEBBIT);
+		add(range(food(6), food(11)), COOKED_LARUPIA);
+		add(range(food(7), food(12)), COOKED_BARBTAILED_KEBBIT);
+		add(range(food(8), food(15)), COOKED_GRAAHK);
+		add(range(food(9), food(17)), COOKED_KYATT);
+		add(range(food(11), food(19)), COOKED_PYRE_FOX);
+		add(range(food(12), food(21)), COOKED_SUNLIGHT_ANTELOPE);
+		add(combo(range(food(13), food(23)), heal(RUN_ENERGY, 10)), COOKED_DASHING_KEBBIT);
+		add(range(food(14), food(26)), COOKED_MOONLIGHT_ANTELOPE);
 
 		// Dorgeshuun Cuisine
 		add(food(2), BAT_SHISH, COATED_FROGS_LEGS, FILLETS, FINGERS, FROGBURGER, FROGSPAWN_GUMBO, GREEN_GLOOP_SOUP,
@@ -360,23 +365,12 @@ public class ItemStatChanges
 		add(combo(heal(HITPOINTS, perc(.15, 1)), heal(RUN_ENERGY, 100)), BANDAGES_25202);
 		add(combo(boost(ATTACK, perc(.15, 5)), boost(STRENGTH, perc(.15, 5)), boost(DEFENCE, perc(.15, 5)), boost(RANGED, perc(.15, 5)), boost(MAGIC, perc(.15, 5)), heal(PRAYER, perc(.25, 8))), POTION_OF_POWER1, POTION_OF_POWER2, POTION_OF_POWER3, POTION_OF_POWER4);
 
-		// Hunter Foods
-		add(range(food(4), food(8)), COOKED_WILD_KEBBIT);
-		add(range(food(6), food(11)), COOKED_LARUPIA);
-		add(range(food(7), food(12)), COOKED_BARBTAILED_KEBBIT);
-		add(range(food(8), food(14)), COOKED_GRAAHK);
-		add(range(food(9), food(17)), COOKED_KYATT);
-		add(range(food(11), food(19)), COOKED_PYRE_FOX);
-		add(range(food(12), food(21)), COOKED_SUNLIGHT_ANTELOPE);
-		add(combo(range(food(13), food(23)), heal(RUN_ENERGY, 10)), COOKED_DASHING_KEBBIT);
-		add(range(food(14), food(26)), COOKED_MOONLIGHT_ANTELOPE);
-
 		// Butterflies and moths
 		add(boost(ATTACK, perc(.15, 4)), RUBY_HARVEST, RUBY_HARVEST_MIX_1, RUBY_HARVEST_MIX_2);
 		add(boost(DEFENCE, perc(.15, 4)), SAPPHIRE_GLACIALIS, SAPPHIRE_GLACIALIS_MIX_1, SAPPHIRE_GLACIALIS_MIX_2);
 		add(boost(STRENGTH, perc(.15, 4)), BLACK_WARLOCK, BLACK_WARLOCK_MIX_1, BLACK_WARLOCK_MIX_2);
-		add(food(15), SAPPHIRE_GLACIALIS);
-		add(food(8), SAPPHIRE_GLACIALIS_MIX_1, SAPPHIRE_GLACIALIS_MIX_2);
+		add(food(15), SNOWY_KNIGHT);
+		add(food(8), SNOWY_KNIGHT_MIX_1, SNOWY_KNIGHT_MIX_2);
 		add(new SunlightMoth(0.2,6), SUNLIGHT_MOTH_28890, SUNLIGHT_MOTH_MIX_1, SUNLIGHT_MOTH_MIX_2);
 		add(heal(PRAYER, 22), MOONLIGHT_MOTH_28893, MOONLIGHT_MOTH_MIX_1, MOONLIGHT_MOTH_MIX_2);
 
