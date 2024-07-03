@@ -1,17 +1,8 @@
 .id                 277
 .int_stack_count    17
 .string_stack_count 0
-.int_var_count      36
+.int_var_count      37 ; +1
 .string_var_count   1
-; callback "beforeBankLayout"
-;   Fired before the bank starts its layout
-;	Used by the TabInterface to hide fake bank items for tag tabs
-;
-; callback "skipBankLayout"
-;	Fired before bank is built
-;   Used by the TabInterface to show fake bank items for tag tabs
-   sconst                 "beforeBankLayout"
-   runelite_callback     
    get_varbit             5102
    iconst                 1
    if_icmpeq              LABEL4
@@ -265,9 +256,9 @@ LABEL225:
    iload                  3
    iload                  2
    invoke                 231
-   iconst                 1200
+   iconst                 1220
    istore                 20
-   iconst                 1200
+   iconst                 1220
    iconst                 9
    iconst                 3
    multiply              
@@ -332,6 +323,13 @@ LABEL253:
    istore                 31
    sconst                 ""
    sstore                 0
+   iconst                 0           ;
+   sconst "bankBuildTab"              ;
+   runelite_callback                  ;
+   istore                36           ; whether to use the single tab building mode instead of the whole bank
+   iload                 36           ;
+   iconst                    1        ;
+   if_icmpeq                 LABEL750 ;
    get_varbit             4150
    iconst                 0
    if_icmple              LABEL297
@@ -341,7 +339,7 @@ LABEL253:
    jump                   LABEL750
 LABEL297:
    iload                  20
-   iconst                 1200
+   iconst                 1220
    if_icmplt              LABEL301
    jump                   LABEL326
 LABEL301:
@@ -398,18 +396,11 @@ LABEL326:
    if_icmple              LABEL348
    jump                   LABEL352
 LABEL348:
-   iconst                 1200
+   iconst                 1220
    iconst                 1
    sub                   
    istore                 30
 LABEL352:
-   iconst                 0               	; Compare variable
-   iconst                 0               	;
-   sconst                 "skipBankLayout"   ; Show fake bank items for tag tabs
-   runelite_callback     ; If tag tab menu search isn't active
-   if_icmpeq              CONTINUE_SEARCH 	; continue to normal bank search
-   jump                   GetTabRange     	; Skip normal bank layout
-CONTINUE_SEARCH:
    iload                  31
    iload                  30
    iconst                 1
@@ -852,7 +843,6 @@ LABEL754:
    iconst                 1
    iconst                 1
    invoke                 299
-GetTabRange:
 LABEL758:
    iconst                 -1
    istore                 32
@@ -868,7 +858,7 @@ LABEL758:
    istore                 35
 LABEL770:
    iload                  20
-   iconst                 1200
+   iconst                 1220
    if_icmplt              LABEL774
    jump                   LABEL854
 LABEL774:
@@ -893,6 +883,9 @@ LABEL788:
    add                   
    istore                 29
 LABEL792:
+   iload 36                          ; overriding single tab building mode?
+   iconst 1                          ;
+   if_icmpeq              filtertest ;
    iload                  20
    iload                  32
    if_icmpge              LABEL796
@@ -902,6 +895,11 @@ LABEL796:
    iload                  33
    if_icmplt              LABEL800
    jump                   LABEL847
+filtertest:
+   iload 25                         ; obj
+   invoke 279                       ; ~bankmain_filtertest
+   iconst 1                         ;
+   if_icmpne              LABEL847  ;
 LABEL800:
    iconst                 0
    cc_sethide            
@@ -963,6 +961,14 @@ LABEL849:
    istore                 20
    jump                   LABEL770
 LABEL854:
+   iload 36                                      ; overriding single tab building mode?
+   iconst 1                                      ;
+   if_icmpne              tabtitle               ; set normal "Tab" title
+   sconst                 "The Bank of Gielinor" ; bank title
+   iload                  5                      ; bank title component
+   if_settext                                    ;
+   jump FinishBuilding                           ;
+tabtitle:                                        ;
    get_varbit             4170
    iconst                 2
    if_icmpeq              LABEL858

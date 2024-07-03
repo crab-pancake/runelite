@@ -99,25 +99,28 @@ public class HiscorePanel extends PluginPanel
 		BARROWS_CHESTS, BRYOPHYTA, CALLISTO,
 		CALVARION, CERBERUS, CHAMBERS_OF_XERIC,
 		CHAMBERS_OF_XERIC_CHALLENGE_MODE, CHAOS_ELEMENTAL, CHAOS_FANATIC,
-		COMMANDER_ZILYANA, CORPOREAL_BEAST, DAGANNOTH_PRIME,
-		DAGANNOTH_REX, DAGANNOTH_SUPREME, CRAZY_ARCHAEOLOGIST,
-		DERANGED_ARCHAEOLOGIST, GENERAL_GRAARDOR, GIANT_MOLE,
-		GROTESQUE_GUARDIANS, HESPORI, KALPHITE_QUEEN,
-		KING_BLACK_DRAGON, KRAKEN, KREEARRA,
-		KRIL_TSUTSAROTH, MIMIC, NEX,
-		NIGHTMARE, PHOSANIS_NIGHTMARE, OBOR,
-		PHANTOM_MUSPAH, SARACHNIS, SCORPIA,
-		SKOTIZO, SPINDEL, TEMPOROSS,
-		THE_GAUNTLET, THE_CORRUPTED_GAUNTLET, THEATRE_OF_BLOOD,
+		COMMANDER_ZILYANA, CORPOREAL_BEAST, CRAZY_ARCHAEOLOGIST,
+		DAGANNOTH_PRIME, DAGANNOTH_REX, DAGANNOTH_SUPREME,
+		DERANGED_ARCHAEOLOGIST, DUKE_SUCELLUS, GENERAL_GRAARDOR,
+		GIANT_MOLE, GROTESQUE_GUARDIANS, HESPORI,
+		KALPHITE_QUEEN, KING_BLACK_DRAGON, KRAKEN,
+		KREEARRA, KRIL_TSUTSAROTH, LUNAR_CHESTS,
+		MIMIC, NEX, NIGHTMARE,
+		PHOSANIS_NIGHTMARE, OBOR, PHANTOM_MUSPAH,
+		SARACHNIS, SCORPIA, SCURRIUS,
+		SKOTIZO, SOL_HEREDIT, SPINDEL,
+		TEMPOROSS, THE_GAUNTLET, THE_CORRUPTED_GAUNTLET,
+		THE_LEVIATHAN, THE_WHISPERER, THEATRE_OF_BLOOD,
 		THEATRE_OF_BLOOD_HARD_MODE, THERMONUCLEAR_SMOKE_DEVIL, TOMBS_OF_AMASCUT,
 		TOMBS_OF_AMASCUT_EXPERT, TZKAL_ZUK, TZTOK_JAD,
-		VENENATIS, VETION, VORKATH,
-		WINTERTODT, ZALCANO, ZULRAH
+		VARDORVIS, VENENATIS, VETION,
+		VORKATH, WINTERTODT, ZALCANO,
+		ZULRAH
 	);
 
 	private static final HiscoreEndpoint[] ENDPOINTS = {
 		HiscoreEndpoint.NORMAL, HiscoreEndpoint.IRONMAN, HiscoreEndpoint.HARDCORE_IRONMAN, HiscoreEndpoint.ULTIMATE_IRONMAN,
-		HiscoreEndpoint.DEADMAN, HiscoreEndpoint.PURE, HiscoreEndpoint.LEVEL_3_SKILLER, HiscoreEndpoint.FRESH_START_WORLD
+		HiscoreEndpoint.DEADMAN, HiscoreEndpoint.PURE, HiscoreEndpoint.LEVEL_3_SKILLER, HiscoreEndpoint.LEAGUE
 	};
 
 	private final HiscorePlugin plugin;
@@ -275,7 +278,7 @@ public class HiscorePanel extends PluginPanel
 		JPanel minigamePanel = new JPanel();
 		// These aren't all on one row because when there's a label with four or more digits it causes the details
 		// panel to change its size for some reason...
-		minigamePanel.setLayout(new GridLayout(2, 3));
+		minigamePanel.setLayout(new GridLayout(3, 3));
 		minigamePanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
 
 		minigamePanel.add(makeHiscorePanel(CLUE_SCROLL_ALL));
@@ -283,6 +286,7 @@ public class HiscorePanel extends PluginPanel
 		minigamePanel.add(makeHiscorePanel(LAST_MAN_STANDING));
 		minigamePanel.add(makeHiscorePanel(SOUL_WARS_ZEAL));
 		minigamePanel.add(makeHiscorePanel(RIFTS_CLOSED));
+		minigamePanel.add(makeHiscorePanel(COLOSSEUM_GLORY));
 		minigamePanel.add(makeHiscorePanel(BOUNTY_HUNTER_ROGUE));
 		minigamePanel.add(makeHiscorePanel(BOUNTY_HUNTER_HUNTER));
 		minigamePanel.add(makeHiscorePanel(PVP_ARENA_RANK));
@@ -334,12 +338,17 @@ public class HiscorePanel extends PluginPanel
 		{
 			directory = "/skill_icons/";
 		}
-		else if (skill.getType() == HiscoreSkillType.BOSS)
+		else if (skillType == HiscoreSkillType.BOSS)
 		{
 			directory = "bosses/";
 		}
+		else if (skillType == HiscoreSkillType.ACTIVITY)
+		{
+			directory = "activities/";
+		}
 		else
 		{
+			assert skillType == HiscoreSkillType.SKILL;
 			directory = "/skill_icons_small/";
 		}
 
@@ -556,6 +565,7 @@ public class HiscorePanel extends PluginPanel
 				case LAST_MAN_STANDING:
 				case SOUL_WARS_ZEAL:
 				case RIFTS_CLOSED:
+				case COLOSSEUM_GLORY:
 				{
 					content += buildMinigameTooltip(result.getSkill(skill), skill);
 					break;

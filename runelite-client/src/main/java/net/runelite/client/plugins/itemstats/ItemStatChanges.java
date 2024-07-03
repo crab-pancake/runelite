@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import static net.runelite.api.ItemID.*;
+import static net.runelite.api.ItemID.SUNLIGHT_MOTH_MIX_2;
 import static net.runelite.client.plugins.itemstats.Builders.*;
 import net.runelite.client.plugins.itemstats.delta.DeltaPercentage;
 import net.runelite.client.plugins.itemstats.food.Anglerfish;
@@ -40,6 +41,7 @@ import net.runelite.client.plugins.itemstats.potions.MixedPotion;
 import net.runelite.client.plugins.itemstats.potions.PrayerPotion;
 import net.runelite.client.plugins.itemstats.potions.SaradominBrew;
 import net.runelite.client.plugins.itemstats.potions.StaminaPotion;
+import net.runelite.client.plugins.itemstats.potions.SunlightMoth;
 import net.runelite.client.plugins.itemstats.potions.SuperRestore;
 import net.runelite.client.plugins.itemstats.special.CastleWarsBandage;
 import net.runelite.client.plugins.itemstats.special.CaveNightshade;
@@ -72,12 +74,12 @@ public class ItemStatChanges
 		add(food(5), BREAD, HERRING, CHOCOLATE_CAKE, _23_CHOCOLATE_CAKE, CHOCOLATE_SLICE, COOKED_RABBIT, CHILLI_CON_CARNE,
 			FRIED_MUSHROOMS, FRIED_ONIONS, REDBERRY_PIE, HALF_A_REDBERRY_PIE, CAVIAR, PYSK_FISH_0, COOKED_MYSTERY_MEAT,
 			SCRAMBLED_EGG, MONKEY_BAR, TCHIKI_MONKEY_NUTS, TCHIKI_NUT_PASTE, RED_BANANA, SLICED_RED_BANANA);
-		add(food(6), CHOCICE, MACKEREL, MEAT_PIE, HALF_A_MEAT_PIE, GUANIC_BAT_0, ROAST_BIRD_MEAT, SQUARE_SANDWICH,
+		add(food(6), MACKEREL, MEAT_PIE, HALF_A_MEAT_PIE, GUANIC_BAT_0, ROAST_BIRD_MEAT, SQUARE_SANDWICH,
 			ROLL, BAGUETTE, TRIANGLE_SANDWICH, GIANT_CARP, MOONLIGHT_MEADM, MOONLIGHT_MEADM4, MOONLIGHT_MEADM3, MOONLIGHT_MEADM2,
 			MOONLIGHT_MEADM1, STEAK_SANDWICH, GIANT_FROG_LEGS, ANTIFIRE_MIX1, ANTIFIRE_MIX2, EXTENDED_ANTIFIRE_MIX1,
 			EXTENDED_ANTIFIRE_MIX2, SUPER_ANTIFIRE_MIX1, SUPER_ANTIFIRE_MIX2, EXTENDED_SUPER_ANTIFIRE_MIX1,
 			EXTENDED_SUPER_ANTIFIRE_MIX2, ANTIPOISON_SUPERMIX1, ANTIPOISON_SUPERMIX2, ANTIDOTE_MIX1, ANTIDOTE_MIX2);
-		add(food(7), TROUT, COD, PLAIN_PIZZA, _12_PLAIN_PIZZA, APPLE_PIE, HALF_AN_APPLE_PIE, ROAST_RABBIT,
+		add(food(7), CHOCICE, TROUT, COD, PLAIN_PIZZA, _12_PLAIN_PIZZA, APPLE_PIE, HALF_AN_APPLE_PIE, ROAST_RABBIT,
 			PREMADE_CH_CRUNCH, CHOCCHIP_CRUNCHIES, PREMADE_SY_CRUNCH, SPICY_CRUNCHIES);
 		add(food(8), PIKE, ROAST_BEAST_MEAT, MEAT_PIZZA, _12_MEAT_PIZZA, PREMADE_WM_CRUN, WORM_CRUNCHIES, PREMADE_TD_CRUNCH,
 			TOAD_CRUNCHIES, EGG_AND_TOMATO, PRAEL_BAT_1, PEACH, SUPHI_FISH_1);
@@ -113,6 +115,17 @@ public class ItemStatChanges
 		add(range(food(5), food(8)), LEAN_SNAIL_MEAT);
 		add(range(food(7), food(9)), FAT_SNAIL_MEAT);
 		add(range(food(7), food(10)), SPIDER_ON_STICK_6297, SPIDER_ON_SHAFT_6299);
+
+		// Hunter Foods
+		add(range(food(4), food(8)), COOKED_WILD_KEBBIT);
+		add(range(food(6), food(11)), COOKED_LARUPIA);
+		add(range(food(7), food(12)), COOKED_BARBTAILED_KEBBIT);
+		add(range(food(8), food(15)), COOKED_GRAAHK);
+		add(range(food(9), food(17)), COOKED_KYATT);
+		add(range(food(11), food(19)), COOKED_PYRE_FOX);
+		add(range(food(12), food(21)), COOKED_SUNLIGHT_ANTELOPE);
+		add(combo(range(food(13), food(23)), heal(RUN_ENERGY, 10)), COOKED_DASHING_KEBBIT);
+		add(range(food(14), food(26)), COOKED_MOONLIGHT_ANTELOPE);
 
 		// Dorgeshuun Cuisine
 		add(food(2), BAT_SHISH, COATED_FROGS_LEGS, FILLETS, FINGERS, FROGBURGER, FROGSPAWN_GUMBO, GREEN_GLOOP_SOUP,
@@ -224,10 +237,10 @@ public class ItemStatChanges
 		// Mixed combat potions
 		add(new MixedPotion(3, attackPot), ATTACK_MIX1, ATTACK_MIX2);
 		add(new MixedPotion(3, strengthPot), STRENGTH_MIX1, STRENGTH_MIX2);
+		add(new MixedPotion(3, combatPot), COMBAT_MIX1, COMBAT_MIX2);
 		add(new MixedPotion(6, defencePot), DEFENCE_MIX1, DEFENCE_MIX2);
 		add(new MixedPotion(6, magicPot), MAGIC_MIX1, MAGIC_MIX2);
 		add(new MixedPotion(6, rangingPot), RANGING_MIX1, RANGING_MIX2);
-		add(new MixedPotion(6, combatPot), COMBAT_MIX1, COMBAT_MIX2);
 		add(new MixedPotion(6, superAttackPot), SUPERATTACK_MIX1, SUPERATTACK_MIX2);
 		add(new MixedPotion(6, superStrengthPot), SUPER_STR_MIX1, SUPER_STR_MIX2);
 		add(new MixedPotion(6, superDefencePot), SUPER_DEF_MIX1, SUPER_DEF_MIX2);
@@ -266,7 +279,7 @@ public class ItemStatChanges
 
 		// Mixed recovery potions
 		add(new MixedPotion(3, restorePot), RESTORE_MIX1, RESTORE_MIX2);
-		add(new MixedPotion(6, energyPot), ENERGY_MIX1, ENERGY_MIX2);
+		add(new MixedPotion(3, energyPot), ENERGY_MIX1, ENERGY_MIX2);
 		add(new MixedPotion(6, prayerPot), PRAYER_MIX1, PRAYER_MIX2);
 		add(new MixedPotion(6, superEnergyPot), SUPER_ENERGY_MIX1, SUPER_ENERGY_MIX2);
 		add(new MixedPotion(6, superRestorePot), SUPER_RESTORE_MIX1, SUPER_RESTORE_MIX2);
@@ -296,7 +309,7 @@ public class ItemStatChanges
 		add(combo(boost(MAGIC, coxMinusPotionBoost), boost(DEFENCE, coxMinusPotionBoost)), KODAI_1, KODAI_2, KODAI_3, KODAI_4);
 
 		// Tombs of Amascut consumables
-		final DeltaPercentage nectarDrain = perc(0.2, -5);
+		final DeltaPercentage nectarDrain = perc(0.05, 5);
 		final DeltaPercentage saltBoost = perc(.16, 11);
 		final DeltaPercentage tearsRestore = perc(.25, 3);
 		add(combo(boost(HITPOINTS, 20), prayerPot), HONEY_LOCUST);
@@ -351,6 +364,15 @@ public class ItemStatChanges
 		// Soul Wars
 		add(combo(heal(HITPOINTS, perc(.15, 1)), heal(RUN_ENERGY, 100)), BANDAGES_25202);
 		add(combo(boost(ATTACK, perc(.15, 5)), boost(STRENGTH, perc(.15, 5)), boost(DEFENCE, perc(.15, 5)), boost(RANGED, perc(.15, 5)), boost(MAGIC, perc(.15, 5)), heal(PRAYER, perc(.25, 8))), POTION_OF_POWER1, POTION_OF_POWER2, POTION_OF_POWER3, POTION_OF_POWER4);
+
+		// Butterflies and moths
+		add(boost(ATTACK, perc(.15, 4)), RUBY_HARVEST, RUBY_HARVEST_MIX_1, RUBY_HARVEST_MIX_2);
+		add(boost(DEFENCE, perc(.15, 4)), SAPPHIRE_GLACIALIS, SAPPHIRE_GLACIALIS_MIX_1, SAPPHIRE_GLACIALIS_MIX_2);
+		add(boost(STRENGTH, perc(.15, 4)), BLACK_WARLOCK, BLACK_WARLOCK_MIX_1, BLACK_WARLOCK_MIX_2);
+		add(food(15), SNOWY_KNIGHT);
+		add(food(8), SNOWY_KNIGHT_MIX_1, SNOWY_KNIGHT_MIX_2);
+		add(new SunlightMoth(0.2,6), SUNLIGHT_MOTH_28890, SUNLIGHT_MOTH_MIX_1, SUNLIGHT_MOTH_MIX_2);
+		add(heal(PRAYER, 22), MOONLIGHT_MOTH_28893, MOONLIGHT_MOTH_MIX_1, MOONLIGHT_MOTH_MIX_2);
 
 		log.debug("{} items; {} behaviours loaded", effects.size(), new HashSet<>(effects.values()).size());
 	}

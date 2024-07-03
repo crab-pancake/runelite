@@ -216,6 +216,16 @@ public interface TimersConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "showHealGroup",
+		name = "Heal Group timer",
+		description = "Configures whether heal group timer is displayed"
+	)
+	default boolean showHealGroup()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "showTeleblock",
 		name = "Teleblock timer",
 		description = "Configures whether teleblock timer is displayed"
@@ -351,6 +361,16 @@ public interface TimersConfig extends Config
 		description = "Configures whether Farmer's Affinity (Puro-Puro) timer is displayed"
 	)
 	default boolean showFarmersAffinity()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "showSpellbookSwap",
+		name = "Spellbook Swap timer",
+		description = "Configures whether Spellbook Swap timer is displayed"
+	)
+	default boolean showSpellbookSwap()
 	{
 		return true;
 	}

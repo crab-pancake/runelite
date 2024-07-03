@@ -53,7 +53,6 @@ import net.runelite.api.GameState;
 import net.runelite.api.ItemComposition;
 import static net.runelite.api.ItemID.*;
 import net.runelite.api.SpritePixels;
-import net.runelite.api.WorldType;
 import net.runelite.api.widgets.ItemQuantityMode;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.RuneLiteConfig;
@@ -88,10 +87,12 @@ public class ItemManager
 
 	@Inject(optional = true)
 	@Named("activePriceThreshold")
+	@SuppressWarnings("PMD.ImmutableField")
 	private double activePriceThreshold = 5;
 
 	@Inject(optional = true)
 	@Named("lowPriceThreshold")
+	@SuppressWarnings("PMD.ImmutableField")
 	private int lowPriceThreshold = 1000;
 
 	private Map<Integer, ItemPrice> itemPrices = Collections.emptyMap();
@@ -195,7 +196,7 @@ public class ItemManager
 		itemImages = CacheBuilder.newBuilder()
 			.maximumSize(128L)
 			.expireAfterAccess(1, TimeUnit.HOURS)
-			.build(new CacheLoader<ImageKey, AsyncBufferedImage>()
+			.build(new CacheLoader<>()
 			{
 				@Override
 				public AsyncBufferedImage load(ImageKey key) throws Exception
@@ -207,7 +208,7 @@ public class ItemManager
 		itemOutlines = CacheBuilder.newBuilder()
 			.maximumSize(128L)
 			.expireAfterAccess(1, TimeUnit.HOURS)
-			.build(new CacheLoader<OutlineKey, BufferedImage>()
+			.build(new CacheLoader<>()
 			{
 				@Override
 				public BufferedImage load(OutlineKey key) throws Exception
@@ -325,12 +326,6 @@ public class ItemManager
 	 */
 	public int getWikiPrice(ItemPrice itemPrice)
 	{
-		if (client.getWorldType().contains(WorldType.FRESH_START_WORLD))
-		{
-			// thresholds don't apply to fsw pricing.
-			return itemPrice.getWikiPriceFsw() <= 0 ? itemPrice.getPrice() : itemPrice.getWikiPriceFsw();
-		}
-
 		final int wikiPrice = itemPrice.getWikiPrice();
 		final int jagPrice = itemPrice.getPrice();
 		if (wikiPrice <= 0)
@@ -424,7 +419,7 @@ public class ItemManager
 	 */
 	private AsyncBufferedImage loadImage(int itemId, int quantity, boolean stackable)
 	{
-		AsyncBufferedImage img = new AsyncBufferedImage(Constants.ITEM_SPRITE_WIDTH, Constants.ITEM_SPRITE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		AsyncBufferedImage img = new AsyncBufferedImage(clientThread, Constants.ITEM_SPRITE_WIDTH, Constants.ITEM_SPRITE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 		clientThread.invoke(() ->
 		{
 			if (client.getGameState().ordinal() < GameState.LOGIN_SCREEN.ordinal())

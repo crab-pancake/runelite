@@ -51,11 +51,13 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatClient;
 import net.runelite.client.chat.ChatCommandManager;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.config.Notification;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.npcoverlay.NpcOverlayService;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -70,7 +72,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -180,13 +181,9 @@ public class SlayerPluginTest
 	{
 		ChatMessage chatMessageEvent = new ChatMessage(null, GAMEMESSAGE, "Superior", SUPERIOR_MESSAGE, null, 0);
 
-		when(slayerConfig.showSuperiorNotification()).thenReturn(true);
+		when(slayerConfig.showSuperiorNotification()).thenReturn(Notification.ON);
 		slayerPlugin.onChatMessage(chatMessageEvent);
-		verify(notifier).notify(SUPERIOR_MESSAGE);
-
-		when(slayerConfig.showSuperiorNotification()).thenReturn(false);
-		slayerPlugin.onChatMessage(chatMessageEvent);
-		verifyNoMoreInteractions(notifier);
+		verify(notifier).notify(Notification.ON, SUPERIOR_MESSAGE);
 	}
 
 	@Test
@@ -297,5 +294,61 @@ public class SlayerPluginTest
 
 		slayerPlugin.setTask(task.getName(), 0, 0);
 		return slayerPlugin.isTarget(npc);
+	}
+
+	@Test
+	public void testDisconnect()
+	{
+		when(client.getVarpValue(VarPlayer.SLAYER_TASK_SIZE)).thenReturn(42);
+		when(client.getVarpValue(VarPlayer.SLAYER_TASK_CREATURE)).thenReturn(1);
+		when(client.getEnum(EnumID.SLAYER_TASK_CREATURE))
+			.thenAnswer(a ->
+			{
+				EnumComposition e = mock(EnumComposition.class);
+				when(e.getStringValue(anyInt())).thenReturn("mocked npc");
+				return e;
+			});
+
+		// initial amount is fetched from config at sync
+		when(configManager.getRSProfileConfiguration("slayer", "initialAmount", int.class)).thenReturn(99);
+
+		slayerPlugin.setTaskName("mocked npc");
+		slayerPlugin.setAmount(42);
+		slayerPlugin.setInitialAmount(99);
+
+		// Disconnect looks like:
+		// gs connection_lost
+		// gs logged_in
+		// varp=0
+		// varp=value
+
+		GameStateChanged connectionLost = new GameStateChanged();
+		connectionLost.setGameState(GameState.CONNECTION_LOST);
+		slayerPlugin.onGameStateChanged(connectionLost);
+
+		GameStateChanged loggedIn = new GameStateChanged();
+		loggedIn.setGameState(GameState.LOGGED_IN);
+		slayerPlugin.onGameStateChanged(loggedIn);
+
+		when(client.getVarpValue(VarPlayer.SLAYER_TASK_SIZE)).thenReturn(0);
+		when(client.getVarpValue(VarPlayer.SLAYER_TASK_CREATURE)).thenReturn(0);
+
+		VarbitChanged taskSizeChanged = new VarbitChanged();
+		taskSizeChanged.setVarpId(VarPlayer.SLAYER_TASK_SIZE);
+		slayerPlugin.onVarbitChanged(taskSizeChanged);
+
+		VarbitChanged taskCreatureChanged = new VarbitChanged();
+		taskCreatureChanged.setVarpId(VarPlayer.SLAYER_TASK_CREATURE);
+		slayerPlugin.onVarbitChanged(taskCreatureChanged);
+
+		when(client.getVarpValue(VarPlayer.SLAYER_TASK_SIZE)).thenReturn(42);
+		when(client.getVarpValue(VarPlayer.SLAYER_TASK_CREATURE)).thenReturn(1);
+
+		slayerPlugin.onVarbitChanged(taskSizeChanged);
+		slayerPlugin.onVarbitChanged(taskCreatureChanged);
+
+		assertEquals("mocked npc", slayerPlugin.getTaskName());
+		assertEquals(42, slayerPlugin.getAmount());
+		assertEquals(99, slayerPlugin.getInitialAmount());
 	}
 }

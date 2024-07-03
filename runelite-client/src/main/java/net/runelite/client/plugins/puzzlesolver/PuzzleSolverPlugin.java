@@ -34,19 +34,10 @@ import net.runelite.api.Client;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.WidgetLoaded;
+import net.runelite.api.widgets.ComponentID;
+import net.runelite.api.widgets.InterfaceID;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetID;
-import net.runelite.api.widgets.WidgetInfo;
-import static net.runelite.api.widgets.WidgetInfo.LIGHT_BOX_BUTTON_A;
-import static net.runelite.api.widgets.WidgetInfo.LIGHT_BOX_BUTTON_B;
-import static net.runelite.api.widgets.WidgetInfo.LIGHT_BOX_BUTTON_C;
-import static net.runelite.api.widgets.WidgetInfo.LIGHT_BOX_BUTTON_D;
-import static net.runelite.api.widgets.WidgetInfo.LIGHT_BOX_BUTTON_E;
-import static net.runelite.api.widgets.WidgetInfo.LIGHT_BOX_BUTTON_F;
-import static net.runelite.api.widgets.WidgetInfo.LIGHT_BOX_BUTTON_G;
-import static net.runelite.api.widgets.WidgetInfo.LIGHT_BOX_BUTTON_H;
-import static net.runelite.api.widgets.WidgetInfo.TO_GROUP;
-import net.runelite.client.config.ConfigItem;
+import net.runelite.api.widgets.WidgetUtil;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
@@ -77,13 +68,10 @@ public class PuzzleSolverPlugin extends Plugin
 	private PuzzleSolverOverlay overlay;
 
 	@Inject
-	private PuzzleSolverConfig config;
-
-	@Inject
 	private Client client;
 
 	private LightboxState lightbox;
-	private LightboxState[] changes = new LightboxState[LightBox.COMBINATIONS_POWER];
+	private final LightboxState[] changes = new LightboxState[LightBox.COMBINATIONS_POWER];
 	private Combination lastClick;
 	private boolean lastClickInvalid;
 
@@ -108,12 +96,12 @@ public class PuzzleSolverPlugin extends Plugin
 	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded widget)
 	{
-		if (widget.getGroupId() != WidgetID.VARROCK_MUSEUM_QUIZ_GROUP_ID)
+		if (widget.getGroupId() != InterfaceID.VARROCK_MUSEUM)
 		{
 			return;
 		}
 
-		final Widget questionWidget = client.getWidget(WidgetInfo.VARROCK_MUSEUM_QUESTION);
+		final Widget questionWidget = client.getWidget(ComponentID.VARROCK_MUSEUM_QUESTION);
 
 		if (questionWidget == null)
 		{
@@ -123,9 +111,9 @@ public class PuzzleSolverPlugin extends Plugin
 		final Widget answerWidget = VarrockMuseumAnswer.findCorrect(
 			client,
 			questionWidget.getText(),
-			WidgetInfo.VARROCK_MUSEUM_FIRST_ANSWER,
-			WidgetInfo.VARROCK_MUSEUM_SECOND_ANSWER,
-			WidgetInfo.VARROCK_MUSEUM_THIRD_ANSWER);
+			ComponentID.VARROCK_MUSEUM_FIRST_ANSWER,
+			ComponentID.VARROCK_MUSEUM_SECOND_ANSWER,
+			ComponentID.VARROCK_MUSEUM_THIRD_ANSWER);
 
 		if (answerWidget == null)
 		{
@@ -142,151 +130,145 @@ public class PuzzleSolverPlugin extends Plugin
 	@Subscribe
 	public void onMenuOptionClicked(MenuOptionClicked menuOptionClicked)
 	{
-		if (config.displayLightbox())
+		int widgetId = menuOptionClicked.getParam1();
+		if (WidgetUtil.componentToInterface(widgetId) != InterfaceID.LIGHT_BOX)
 		{
-			int widgetId = menuOptionClicked.getParam1();
-			if (TO_GROUP(widgetId) != WidgetID.LIGHT_BOX_GROUP_ID)
-			{
-				return;
-			}
+			return;
+		}
 
-			Combination combination;
-			if (widgetId == LIGHT_BOX_BUTTON_A.getId())
-			{
-				combination = Combination.A;
-			}
-			else if (widgetId == LIGHT_BOX_BUTTON_B.getId())
-			{
-				combination = Combination.B;
-			}
-			else if (widgetId == LIGHT_BOX_BUTTON_C.getId())
-			{
-				combination = Combination.C;
-			}
-			else if (widgetId == LIGHT_BOX_BUTTON_D.getId())
-			{
-				combination = Combination.D;
-			}
-			else if (widgetId == LIGHT_BOX_BUTTON_E.getId())
-			{
-				combination = Combination.E;
-			}
-			else if (widgetId == LIGHT_BOX_BUTTON_F.getId())
-			{
-				combination = Combination.F;
-			}
-			else if (widgetId == LIGHT_BOX_BUTTON_G.getId())
-			{
-				combination = Combination.G;
-			}
-			else if (widgetId == LIGHT_BOX_BUTTON_H.getId())
-			{
-				combination = Combination.H;
-			}
-			else
-			{
-				return;
-			}
+		Combination combination;
+		if (widgetId == ComponentID.LIGHT_BOX_BUTTON_A)
+		{
+			combination = Combination.A;
+		}
+		else if (widgetId == ComponentID.LIGHT_BOX_BUTTON_B)
+		{
+			combination = Combination.B;
+		}
+		else if (widgetId == ComponentID.LIGHT_BOX_BUTTON_C)
+		{
+			combination = Combination.C;
+		}
+		else if (widgetId == ComponentID.LIGHT_BOX_BUTTON_D)
+		{
+			combination = Combination.D;
+		}
+		else if (widgetId == ComponentID.LIGHT_BOX_BUTTON_E)
+		{
+			combination = Combination.E;
+		}
+		else if (widgetId == ComponentID.LIGHT_BOX_BUTTON_F)
+		{
+			combination = Combination.F;
+		}
+		else if (widgetId == ComponentID.LIGHT_BOX_BUTTON_G)
+		{
+			combination = Combination.G;
+		}
+		else if (widgetId == ComponentID.LIGHT_BOX_BUTTON_H)
+		{
+			combination = Combination.H;
+		}
+		else
+		{
+			return;
+		}
 
-			if (lastClick != null)
-			{
-				lastClickInvalid = true;
-			}
-			else
-			{
-				lastClick = combination;
-			}
+		if (lastClick != null)
+		{
+			lastClickInvalid = true;
+		}
+		else
+		{
+			lastClick = combination;
 		}
 	}
 
 	@Subscribe
 	public void onGameTick(GameTick event)
 	{
-		if (config.displayLightbox())
+		Widget lightboxWidget = client.getWidget(ComponentID.LIGHT_BOX_LIGHT_BULB_CONTAINER);
+		if (lightboxWidget == null)
 		{
-			Widget lightboxWidget = client.getWidget(WidgetInfo.LIGHT_BOX_CONTENTS);
-			if (lightboxWidget == null)
-			{
-				if (lightbox != null)
-				{
-					lastClick = null;
-					lastClickInvalid = false;
-					lightbox = null;
-					Arrays.fill(changes, null);
-				}
-				return;
-			}
-
-			// get current state from widget
-			LightboxState lightboxState = new LightboxState();
-			int index = 0;
-			for (Widget light : lightboxWidget.getDynamicChildren())
-			{
-				boolean lit = light.getItemId() == LightBox.LIGHT_BULB_ON;
-				lightboxState.setState(index / LightBox.WIDTH, index % LightBox.HEIGHT, lit);
-				index++;
-			}
-
-			if (lightboxState.equals(lightbox))
-			{
-				return; // no change
-			}
-
-			log.debug("Lightbox changed!");
-
-			LightboxState prev = lightbox;
-			lightbox = lightboxState;
-
-			if (lastClick == null || lastClickInvalid)
+			if (lightbox != null)
 			{
 				lastClick = null;
 				lastClickInvalid = false;
-				return;
+				lightbox = null;
+				Arrays.fill(changes, null);
 			}
+			return;
+		}
 
-			LightboxState diff = lightboxState.diff(prev);
-			changes[lastClick.ordinal()] = diff;
+		// get current state from widget
+		LightboxState lightboxState = new LightboxState();
+		int index = 0;
+		for (Widget light : lightboxWidget.getDynamicChildren())
+		{
+			boolean lit = light.getItemId() == LightBox.LIGHT_BULB_ON;
+			lightboxState.setState(index / LightBox.WIDTH, index % LightBox.HEIGHT, lit);
+			index++;
+		}
 
-			log.debug("Recorded diff for {}", lastClick);
+		if (lightboxState.equals(lightbox))
+		{
+			return; // no change
+		}
+
+		log.debug("Lightbox changed!");
+
+		LightboxState prev = lightbox;
+		lightbox = lightboxState;
+
+		if (lastClick == null || lastClickInvalid)
+		{
 			lastClick = null;
+			lastClickInvalid = false;
+			return;
+		}
 
-			// try to solve
-			LightboxSolver solver = new LightboxSolver();
-			solver.setInitial(lightbox);
-			int idx = 0;
-			for (LightboxState state : changes)
+		LightboxState diff = lightboxState.diff(prev);
+		changes[lastClick.ordinal()] = diff;
+
+		log.debug("Recorded diff for {}", lastClick);
+		lastClick = null;
+
+		// try to solve
+		LightboxSolver solver = new LightboxSolver();
+		solver.setInitial(lightbox);
+		int idx = 0;
+		for (LightboxState state : changes)
+		{
+			if (state != null)
 			{
-				if (state != null)
-				{
-					Combination combination = Combination.values()[idx];
-					solver.setSwitchChange(combination, state);
-				}
-				++idx;
+				Combination combination = Combination.values()[idx];
+				solver.setSwitchChange(combination, state);
 			}
+			++idx;
+		}
 
-			LightboxSolution solution = solver.solve();
-			if (solution != null)
+		LightboxSolution solution = solver.solve();
+		if (solution != null)
+		{
+			log.debug("Got solution: {}", solution);
+		}
+
+		// Set solution to title
+		Widget lightbox = client.getWidget(ComponentID.LIGHT_BOX_LIGHT_BOX);
+		if (lightbox != null)
+		{
+			Widget title = lightbox.getChild(1);
+			if (solution != null && solution.numMoves() > 0)
 			{
-				log.debug("Got solution: {}", solution);
+				title.setText("Light box - Solution: " + solution);
 			}
-
-			// Set solution to title
-			Widget lightbox = client.getWidget(WidgetInfo.LIGHT_BOX);
-			if (lightbox != null)
+			else if (solution != null)
 			{
-				Widget title = lightbox.getChild(1);
-				if (solution != null && solution.numMoves() > 0)
-				{
-					title.setText("Light box - Solution: " + solution);
-				}
-				else if (solution != null)
-				{
-					title.setText("Light box - Solution: solved!");
-				}
-				else
-				{
-					title.setText("Light box - Solution: unknown");
-				}
+				title.setText("Light box - Solution: solved!");
+			}
+			else
+			{
+				title.setText("Light box - Solution: unknown");
 			}
 		}
 	}

@@ -34,6 +34,7 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import java.applet.Applet;
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -67,52 +68,52 @@ public class RuneLiteModule extends AbstractModule
 {
 	private final OkHttpClient okHttpClient;
 	private final Supplier<Applet> clientLoader;
-	private final Supplier<RuntimeConfig> configSupplier;
+	private final RuntimeConfigLoader configLoader;
 	private final boolean developerMode;
 	private final boolean safeMode;
 	private final boolean disableTelemetry;
 	private final File sessionfile;
 	private final String profile;
+	private final boolean insecureWriteCredentials;
+	private final boolean noupdate;
 
 	@Override
 	protected void configure()
 	{
-		// bind properties
 		Properties properties = RuneLiteProperties.getProperties();
-		for (String key : properties.stringPropertyNames())
-		{
-			String value = properties.getProperty(key);
-			bindConstant().annotatedWith(Names.named(key)).to(value);
-		}
+		Map<Object, Object> props = new HashMap<>(properties);
 
-		// bind runtime config
-		RuntimeConfig runtimeConfig = configSupplier.get();
+		RuntimeConfig runtimeConfig = configLoader.get();
 		if (runtimeConfig != null && runtimeConfig.getProps() != null)
 		{
-			for (Map.Entry<String, ?> entry : runtimeConfig.getProps().entrySet())
+			props.putAll(runtimeConfig.getProps());
+		}
+
+		// bind runelite.properties & runtime config
+		for (Map.Entry<?, ?> entry : props.entrySet())
+		{
+			String key = (String) entry.getKey();
+			if (entry.getValue() instanceof String)
 			{
-				if (entry.getValue() instanceof String)
+				ConstantBindingBuilder binder = bindConstant().annotatedWith(Names.named(key));
+				binder.to((String) entry.getValue());
+			}
+			else if (entry.getValue() instanceof Double)
+			{
+				ConstantBindingBuilder binder = bindConstant().annotatedWith(Names.named(key));
+				if (DoubleMath.isMathematicalInteger((double) entry.getValue()))
 				{
-					ConstantBindingBuilder binder = bindConstant().annotatedWith(Names.named(entry.getKey()));
-					binder.to((String) entry.getValue());
+					binder.to((int) (double) entry.getValue());
 				}
-				else if (entry.getValue() instanceof Double)
+				else
 				{
-					ConstantBindingBuilder binder = bindConstant().annotatedWith(Names.named(entry.getKey()));
-					if (DoubleMath.isMathematicalInteger((double) entry.getValue()))
-					{
-						binder.to((int) (double) entry.getValue());
-					}
-					else
-					{
-						binder.to((double) entry.getValue());
-					}
+					binder.to((double) entry.getValue());
 				}
-				else if (entry.getValue() instanceof Boolean)
-				{
-					ConstantBindingBuilder binder = bindConstant().annotatedWith(Names.named(entry.getKey()));
-					binder.to((boolean) entry.getValue());
-				}
+			}
+			else if (entry.getValue() instanceof Boolean)
+			{
+				ConstantBindingBuilder binder = bindConstant().annotatedWith(Names.named(key));
+				binder.to((boolean) entry.getValue());
 			}
 		}
 
@@ -121,8 +122,13 @@ public class RuneLiteModule extends AbstractModule
 		bindConstant().annotatedWith(Names.named("disableTelemetry")).to(disableTelemetry);
 		bind(File.class).annotatedWith(Names.named("sessionfile")).toInstance(sessionfile);
 		bind(String.class).annotatedWith(Names.named("profile")).toProvider(Providers.of(profile));
+		bindConstant().annotatedWith(Names.named("insecureWriteCredentials")).to(insecureWriteCredentials);
+		bindConstant().annotatedWith(Names.named("noupdate")).to(noupdate);
+		bind(File.class).annotatedWith(Names.named("runeLiteDir")).toInstance(RuneLite.RUNELITE_DIR);
 		bind(ScheduledExecutorService.class).toInstance(new ExecutorServiceExceptionLogger(Executors.newSingleThreadScheduledExecutor()));
 		bind(OkHttpClient.class).toInstance(okHttpClient);
+		bind(RuntimeConfigLoader.class).toInstance(configLoader);
+		bind(RuntimeConfigRefresher.class).asEagerSingleton();
 		bind(MenuManager.class);
 		bind(ChatMessageManager.class);
 		bind(ItemManager.class);
@@ -160,7 +166,7 @@ public class RuneLiteModule extends AbstractModule
 	@Singleton
 	RuntimeConfig provideRuntimeConfig()
 	{
-		return configSupplier.get();
+		return configLoader.get();
 	}
 
 	@Provides
@@ -210,12 +216,20 @@ public class RuneLiteModule extends AbstractModule
 	}
 
 	@Provides
+	@Named("runelite.pluginhub.url")
+	HttpUrl providePluginHubBase(@Named("runelite.pluginhub.url") String s)
+	{
+		return HttpUrl.get(System.getProperty("runelite.pluginhub.url", s));
+	}
+
+	@Provides
 	@Singleton
 	TelemetryClient provideTelemetry(
 		OkHttpClient okHttpClient,
 		Gson gson,
 		@Named("runelite.api.base") HttpUrl apiBase)
 	{
-		return disableTelemetry ? null : new TelemetryClient(okHttpClient, gson, apiBase);
+		return null;
+//		return disableTelemetry ? null : new TelemetryClient(okHttpClient, gson, apiBase);
 	}
 }

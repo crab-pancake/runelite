@@ -24,6 +24,7 @@
  */
 package net.runelite.client.plugins.playerindicators;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Provides;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,6 +56,7 @@ import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.PlayerSpawned;
 import net.runelite.api.events.ScriptPostFired;
+import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WorldChanged;
 import net.runelite.api.widgets.Widget;
@@ -150,23 +152,31 @@ public class PlayerIndicatorsPlugin extends Plugin
 	@Subscribe
 	private void onPlayerSpawned(PlayerSpawned event)
 	{
-		if (!config.ding() || !pvpZone) return;
+		clientThread.invokeLater(() -> {
+			if (!pvpZone || config.ding() == PlayerIndicatorsConfig.DingType.NO) return;
 
-		Player p = event.getPlayer();
-		if (p == client.getLocalPlayer()) return;
+			Player p = event.getPlayer();
+			if (p == client.getLocalPlayer()) return;
 
-		if (config.ding()
-				&& !client.isFriended(p.getName(),false)
-				&& inRange(client, p))
-		{
-			if (lastPlayedTick < client.getTickCount()) // play max once per tick
+			if (client.isFriended(p.getName(), false)
+				|| p.isFriendsChatMember())
 			{
-				client.playSoundEffect(3924, config.volume());
-				lastPlayedTick = client.getTickCount();
+				// friendly
+				return;
 			}
-			notifier.notify(p.getName()+" ("+p.getCombatLevel()+")");
-			client.addChatMessage(ChatMessageType.WELCOME,"", "Scary: "+p.getName()+" ("+p.getCombatLevel()+")","");
-		}
+
+			if (config.ding() == PlayerIndicatorsConfig.DingType.ALWAYS ||
+				(config.ding() == PlayerIndicatorsConfig.DingType.IN_RANGE && inRange(client, p)))
+			{
+				if (lastPlayedTick < client.getTickCount()) // play max once per tick
+				{
+					client.playSoundEffect(3924, config.volume());
+					lastPlayedTick = client.getTickCount();
+				}
+				notifier.notify(p.getName() + " (" + p.getCombatLevel() + ")");
+				client.addChatMessage(ChatMessageType.WELCOME, "", "Scary: " + p.getName() + " (" + p.getCombatLevel() + ")", "");
+			}
+		});
 	}
 
 	@Subscribe
@@ -340,20 +350,27 @@ public class PlayerIndicatorsPlugin extends Plugin
 		}
 	}
 
-	private String decorateTarget(String oldTarget, PlayerIndicatorsService.Decorations decorations)
+	@VisibleForTesting
+	String decorateTarget(String oldTarget, PlayerIndicatorsService.Decorations decorations)
 	{
 		String newTarget = oldTarget;
 
 		if (decorations.getColor() != null && config.colorPlayerMenu())
 		{
-			// strip out existing <col...
-			int idx = oldTarget.indexOf('>');
+			String prefix = "";
+			int idx = oldTarget.indexOf("->");
 			if (idx != -1)
 			{
-				newTarget = oldTarget.substring(idx + 1);
+				prefix = oldTarget.substring(0, idx + 3); // <col=ff9040>Earth rune</col><col=ff> ->
+				oldTarget = oldTarget.substring(idx + 3);
 			}
 
-			newTarget = ColorUtil.prependColorTag(newTarget, decorations.getColor());
+			// <col=ff0000>title0RuneLitetitle1<col=ff>  (level-126)title2
+			idx = oldTarget.indexOf('>');
+			// remove leading <col>
+			oldTarget = oldTarget.substring(idx + 1);
+
+			newTarget = prefix + ColorUtil.prependColorTag(oldTarget, decorations.getColor());
 		}
 
 		FriendsChatRank rank = decorations.getFriendsChatRank();
@@ -382,7 +399,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 		{
 			clientThread.invokeLater(() ->
 			{
-				Widget tradeTitle = client.getWidget(WidgetInfo.TRADE_WINDOW_HEADER);
+				Widget tradeTitle = client.getWidget(ComponentID.TRADE_HEADER);
 				String header = tradeTitle.getText();
 				String playerName = header.substring(TRADING_WITH_TEXT.length());
 

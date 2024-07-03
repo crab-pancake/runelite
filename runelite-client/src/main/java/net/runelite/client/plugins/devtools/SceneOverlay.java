@@ -63,7 +63,7 @@ public class SceneOverlay extends Overlay
 	private static final int CHUNK_SIZE = 8;
 	private static final int MAP_SQUARE_SIZE = CHUNK_SIZE * CHUNK_SIZE; // 64
 	private static final int CULL_CHUNK_BORDERS_RANGE = 16;
-	private static final int STROKE_WIDTH = 4;
+	private static final int STROKE_WIDTH = 3;
 	private static final int CULL_LINE_OF_SIGHT_RANGE = 10;
 	private static final int INTERACTING_SHIFT = -16;
 
@@ -99,6 +99,11 @@ public class SceneOverlay extends Overlay
 		if (plugin.getMapSquares().isActive())
 		{
 			renderMapSquares(graphics);
+		}
+
+		if (plugin.getLoadingLines().isActive())
+		{
+			renderLoadingLines(graphics);
 		}
 
 		if (plugin.getLineOfSight().isActive())
@@ -184,6 +189,35 @@ public class SceneOverlay extends Overlay
 		graphics.draw(path);
 	}
 
+	private void renderLoadingLines(Graphics2D graphics)
+	{
+		graphics.setStroke(new BasicStroke(STROKE_WIDTH));
+		graphics.setColor(CHUNK_BORDER_COLOR);
+
+		int off = 16 * Perspective.LOCAL_TILE_SIZE;
+		int max = Perspective.SCENE_SIZE * Perspective.LOCAL_TILE_SIZE;
+		LocalPoint[] points =
+		{
+			new LocalPoint(off, off),
+			new LocalPoint(off, max - off),
+			new LocalPoint(max - off, max - off),
+			new LocalPoint(max - off, off),
+		};
+
+		for (int i = 0; i < 4; ++i)
+		{
+			LocalPoint lp0 = points[i];
+			LocalPoint lp1 = points[(i + 1) % 4];
+
+			Point p0 = Perspective.localToCanvas(client, lp0, client.getPlane());
+			Point p1 = Perspective.localToCanvas(client, lp1, client.getPlane());
+			if (p0 != null && p1 != null)
+			{
+				graphics.drawLine(p0.getX(), p0.getY(), p1.getX(), p1.getY());
+			}
+		}
+	}
+
 	private void renderMapSquares(Graphics2D graphics)
 	{
 		WorldPoint wp = client.getLocalPlayer().getWorldLocation();
@@ -257,7 +291,7 @@ public class SceneOverlay extends Overlay
 			return;
 		}
 
-		if (area.canTravelInDirection(client, dx, dy))
+		if (area.canTravelInDirection(client.getTopLevelWorldView(), dx, dy))
 		{
 			LocalPoint lp = actor.getLocalLocation();
 			if (lp == null)
@@ -328,7 +362,7 @@ public class SceneOverlay extends Overlay
 
 		// Running the line of sight algorithm 100 times per frame doesn't
 		// seem to use much CPU time, however rendering 100 tiles does
-		if (start.hasLineOfSightTo(client, targetLocation))
+		if (start.hasLineOfSightTo(client.getTopLevelWorldView(), targetLocation))
 		{
 			LocalPoint lp = LocalPoint.fromWorld(client, targetLocation);
 			if (lp == null)

@@ -31,6 +31,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import lombok.Getter;
 import net.runelite.api.ItemID;
+import net.runelite.api.NullItemID;
 
 @Getter
 enum Task
@@ -80,6 +81,7 @@ enum Task
 	DERANGED_ARCHAEOLOGIST("Deranged Archaeologist", ItemID.ARCHAEOLOGISTS_DIARY),
 	DOGS("Dogs", ItemID.GUARD_DOG, "Jackal"),
 	DRAKES("Drakes", ItemID.DRAKE),
+	DUKE_SUCELLUS("Duke Sucellus", ItemID.BARON),
 	DUST_DEVILS("Dust devils", ItemID.DUST_DEVIL, "Choke devil"),
 	DWARVES("Dwarves", ItemID.DWARVEN_HELMET, "Dwarf", "Black Guard"),
 	EARTH_WARRIORS("Earth warriors", ItemID.BRONZE_FULL_HELM_T),
@@ -121,6 +123,7 @@ enum Task
 	KURASK("Kurask", ItemID.KURASK),
 	LAVA_DRAGONS("Lava Dragons", ItemID.LAVA_SCALE, "Lava dragon"),
 	LESSER_DEMONS("Lesser demons", ItemID.LESSER_DEMON_MASK),
+	LESSER_NAGUA("Lesser Nagua", ItemID.LESSER_NAGUA, "Sulphur Nagua"),
 	LIZARDMEN("Lizardmen", ItemID.LIZARDMAN_FANG, "Lizardman"),
 	LIZARDS("Lizards", ItemID.DESERT_LIZARD, "Desert lizard", "Sulphur lizard", "Small lizard", "Lizard"),
 	MAGIC_AXES("Magic axes", ItemID.IRON_BATTLEAXE, "Magic axe"),
@@ -136,7 +139,7 @@ enum Task
 	NECHRYAEL("Nechryael", ItemID.NECHRYAEL, "Nechryarch"),
 	OGRES("Ogres", ItemID.ENSOULED_OGRE_HEAD, "Mogre", "Ogress", "Skogre", "Zogre"),
 	OTHERWORLDLY_BEING("Otherworldly beings", ItemID.GHOSTLY_HOOD),
-	PHANTOM_MUSPAH("Phantom Muspah", ItemID.MUPHIN),
+	PHANTOM_MUSPAH("The Phantom Muspah", ItemID.MUPHIN),
 	PIRATES("Pirates", ItemID.PIRATE_HAT, "Pirate"),
 	PYREFIENDS("Pyrefiends", ItemID.PYREFIEND, "Flaming pyrelord"),
 	RATS("Rats", ItemID.RATS_TAIL),
@@ -160,15 +163,19 @@ enum Task
 	STEEL_DRAGONS("Steel dragons", ItemID.STEEL_DRAGON),
 	SUQAHS("Suqahs", ItemID.SUQAH_TOOTH),
 	TERROR_DOGS("Terror dogs", ItemID.TERROR_DOG),
+	THE_LEVIATHAN("The Leviathan", ItemID.LILVIATHAN),
+	THE_WHISPERER("The Whisperer", ItemID.WISP),
 	THERMONUCLEAR_SMOKE_DEVIL("The Thermonuclear Smoke Devil", ItemID.PET_SMOKE_DEVIL),
 	TROLLS("Trolls", ItemID.TROLL_GUARD, "Dad", "Arrg"),
 	TUROTH("Turoth", ItemID.TUROTH),
 	TZHAAR("Tzhaar", ItemID.ENSOULED_TZHAAR_HEAD),
 	VAMPYRES("Vampyres", ItemID.STAKE, "Vyrewatch", "Vampire"),
+	VARDORVIS("Vardorvis", ItemID.BUTCH),
 	VENENATIS("Venenatis", ItemID.VENENATIS_SPIDERLING),
 	VETION("Vet'ion", ItemID.VETION_JR),
 	VORKATH("Vorkath", ItemID.VORKI),
 	WALL_BEASTS("Wall beasts", ItemID.SWAMP_WALLBEAST),
+	WARPED_CREATURES("Warped Creatures", NullItemID.NULL_28582, "Warped terrorbird", "Warped tortoise", "Mutated terrorbird", "Mutated tortoise"),
 	WATERFIENDS("Waterfiends", ItemID.WATER_ORB),
 	WEREWOLVES("Werewolves", ItemID.WOLFBANE, "Werewolf"),
 	WOLVES("Wolves", ItemID.GREY_WOLF_FUR, "Wolf"),

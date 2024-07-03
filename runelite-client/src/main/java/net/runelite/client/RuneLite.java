@@ -65,6 +65,7 @@ import javax.swing.SwingUtilities;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import joptsimple.ValueConversionException;
 import joptsimple.ValueConverter;
 import joptsimple.util.EnumConverter;
@@ -169,6 +170,7 @@ public class RuneLite
 		final OptionParser parser = new OptionParser(false);
 		parser.accepts("developer-mode", "Enable developer tools");
 		parser.accepts("debug", "Show extra debugging output");
+		parser.accepts("trace", "Show extra extra debugging output");
 		parser.accepts("safe-mode", "Disables external plugins and the GPU plugin");
 		parser.accepts("insecure-skip-tls-verification", "Disables TLS verification");
 		parser.accepts("jav_config", "jav_config url")
@@ -176,6 +178,7 @@ public class RuneLite
 			.defaultsTo(RuneLiteProperties.getJavConfig());
 		parser.accepts("disable-telemetry", "Disable telemetry");
 		parser.accepts("profile", "Configuration profile to use").withRequiredArg();
+		parser.accepts("noupdate", "Skips the launcher update");
 
 		final ArgumentAcceptingOptionSpec<File> sessionfile = parser.accepts("sessionfile", "Use a specified session file")
 			.withRequiredArg()
@@ -187,7 +190,7 @@ public class RuneLite
 			.withRequiredArg()
 			.ofType(ClientUpdateCheckMode.class)
 			.defaultsTo(ClientUpdateCheckMode.AUTO)
-			.withValuesConvertedBy(new EnumConverter<ClientUpdateCheckMode>(ClientUpdateCheckMode.class)
+			.withValuesConvertedBy(new EnumConverter<>(ClientUpdateCheckMode.class)
 			{
 				@Override
 				public ClientUpdateCheckMode convert(String v)
@@ -195,6 +198,8 @@ public class RuneLite
 					return super.convert(v.toUpperCase());
 				}
 			});
+
+		final OptionSpec<Void> insecureWriteCredentials = parser.accepts("insecure-write-credentials", "Dump authentication tokens from the Jagex Launcher to a text file to be used for development");
 
 		parser.accepts("help", "Show this text").forHelp();
 		OptionSet options = parser.parse(args);
@@ -209,6 +214,12 @@ public class RuneLite
 		{
 			final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 			logger.setLevel(Level.DEBUG);
+		}
+
+		if (options.has("trace"))
+		{
+			final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+			logger.setLevel(Level.TRACE);
 		}
 
 		Thread.setDefaultUncaughtExceptionHandler((thread, throwable) ->
@@ -272,7 +283,9 @@ public class RuneLite
 				options.has("safe-mode"),
 				options.has("disable-telemetry"),
 				options.valueOf(sessionfile),
-				(String) options.valueOf("profile")
+				(String) options.valueOf("profile"),
+				options.has(insecureWriteCredentials),
+				options.has("noupdate")
 			));
 
 			injector.getInstance(RuneLite.class).start();
@@ -317,17 +330,9 @@ public class RuneLite
 			applet.setSize(Constants.GAME_FIXED_SIZE);
 
 			System.setProperty("jagex.disableBouncyCastle", "true");
-			// Change user.home so the client places jagexcache in the .runelite directory
-			String oldHome = System.setProperty("user.home", RUNELITE_DIR.getAbsolutePath());
-			try
-			{
-				applet.init();
-			}
-			finally
-			{
-				System.setProperty("user.home", oldHome);
-			}
+			System.setProperty("jagex.userhome", RUNELITE_DIR.getAbsolutePath());
 
+			applet.init();
 			applet.start();
 		}
 
@@ -341,6 +346,10 @@ public class RuneLite
 
 		// Tell the plugin manager if client is outdated or not
 		pluginManager.setOutdated(isOutdated);
+
+		// Update check requires ConfigManager to be ready before it runs
+		Updater updater = injector.getInstance(Updater.class);
+		updater.update(); // will exit if an update is in progress
 
 		// Load the plugins, but does not start them yet.
 		// This will initialize configuration
@@ -389,10 +398,11 @@ public class RuneLite
 
 		clientUI.show();
 
-		if (telemetryClient != null)
-		{
-			telemetryClient.submitTelemetry();
-		}
+//		if (telemetryClient != null)
+//		{
+//			telemetryClient.submitTelemetry();
+//			telemetryClient.submitVmErrors(LOGS_DIR);
+//		}
 
 		ReflectUtil.queueInjectorAnnotationCacheInvalidation(injector);
 		ReflectUtil.invalidateAnnotationCaches();

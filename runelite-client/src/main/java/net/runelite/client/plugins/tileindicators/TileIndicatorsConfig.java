@@ -106,6 +106,18 @@ public interface TileIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "destinationTileCornersOnly",
+		name = "Corners only",
+		description = "Draw only the corners of the destination tile.",
+		position = 5,
+		section = destinationTile
+	)
+	default boolean destinationTileCornersOnly()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "highlightHoveredTile",
 		name = "Highlight hovered tile",
 		description = "Highlights tile player is hovering with mouse",
@@ -156,6 +168,30 @@ public interface TileIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "hoveredTileCornersOnly",
+		name = "Corners only",
+		description = "Draw only the corners of the hovered tile.",
+		position = 5,
+		section = hoveredTile
+	)
+	default boolean hoveredTileCornersOnly()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "hoverOnWalkOnly",
+		name = "Walk only",
+		description = "Shows hovered tile only when the selected option is 'Walk here' or 'Take' (items)",
+		position = 6,
+		section = hoveredTile
+	)
+	default boolean hoverOnWalkOnly()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "highlightCurrentTile",
 		name = "Highlight true tile",
 		description = "Highlights true tile player is on as seen by server",
@@ -203,5 +239,17 @@ public interface TileIndicatorsConfig extends Config
 	default double currentTileBorderWidth()
 	{
 		return 2;
+	}
+
+	@ConfigItem(
+		keyName = "currentTileCornersOnly",
+		name = "Corners only",
+		description = "Draw only the corners of the current tile.",
+		position = 5,
+		section = currentTile
+	)
+	default boolean currentTileCornersOnly()
+	{
+		return false;
 	}
 }

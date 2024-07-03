@@ -25,13 +25,16 @@
  */
 package net.runelite.client.plugins.devtools;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.Shape;
+import java.util.Arrays;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
@@ -57,11 +60,12 @@ import net.runelite.api.TileItem;
 import net.runelite.api.TileObject;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
-import net.runelite.client.ui.overlay.OverlayPriority;
 import net.runelite.client.ui.overlay.OverlayUtil;
 import net.runelite.client.ui.overlay.tooltip.Tooltip;
 import net.runelite.client.ui.overlay.tooltip.TooltipManager;
@@ -91,7 +95,7 @@ class DevToolsOverlay extends Overlay
 	{
 		setPosition(OverlayPosition.DYNAMIC);
 		setLayer(OverlayLayer.ABOVE_WIDGETS);
-		setPriority(OverlayPriority.HIGHEST);
+		setPriority(PRIORITY_HIGHEST);
 		this.client = client;
 		this.plugin = plugin;
 		this.toolTipManager = toolTipManager;
@@ -115,6 +119,11 @@ class DevToolsOverlay extends Overlay
 		if (plugin.getGroundItems().isActive() || plugin.getGroundObjects().isActive() || plugin.getGameObjects().isActive() || plugin.getWalls().isActive() || plugin.getDecorations().isActive() || plugin.getTileLocation().isActive() || plugin.getMovementFlags().isActive())
 		{
 			renderTileObjects(graphics);
+		}
+
+		if (plugin.getInventory().isActive())
+		{
+			renderInventory(graphics);
 		}
 
 		if (plugin.getProjectiles().isActive())
@@ -211,6 +220,26 @@ class DevToolsOverlay extends Overlay
 
 			String text = composition.getName() + " (ID:" + composition.getId() + ")" +
 				" (A: " + npc.getAnimation() + ") (P: " + npc.getPoseAnimation() + ") (G: " + npc.getGraphic() + ")";
+			if (npc.getModelOverrides() != null)
+			{
+				var mo = npc.getModelOverrides();
+				if (mo.getModelIds() != null)
+				{
+					text += " (M: " + Arrays.toString(mo.getModelIds()) + ")";
+				}
+				if (mo.getColorToReplaceWith() != null)
+				{
+					text += " (C: " + Arrays.toString(mo.getColorToReplaceWith()) + ")";
+				}
+				if (mo.getTextureToReplaceWith() != null)
+				{
+					text += " (T: " + Arrays.toString(mo.getTextureToReplaceWith()) + ")";
+				}
+				if (mo.useLocalPlayer())
+				{
+					text += " (LocalPlayer)";
+				}
+			}
 			OverlayUtil.renderActorOverlay(graphics, npc, text, color);
 		}
 	}
@@ -283,11 +312,12 @@ class DevToolsOverlay extends Overlay
 		Polygon poly = Perspective.getCanvasTilePoly(client, tileLocalLocation);
 		if (poly != null && poly.contains(client.getMouseCanvasPosition().getX(), client.getMouseCanvasPosition().getY()))
 		{
-			WorldPoint worldLocation = tile.getWorldLocation();
+			WorldPoint worldLocation = WorldPoint.fromLocalInstance(client, tileLocalLocation);
+			byte flags = client.getTileSettings()[tile.getRenderLevel()][tile.getSceneLocation().getX()][tile.getSceneLocation().getY()];
 			String tooltip = String.format("World location: %d, %d, %d</br>" +
-					"Region ID: %d location: %d, %d",
+					"Flags: %d",
 				worldLocation.getX(), worldLocation.getY(), worldLocation.getPlane(),
-				(client.isInInstancedRegion() ? WorldPoint.fromLocalInstance(client, tileLocalLocation).getRegionID() : worldLocation.getRegionID()), worldLocation.getRegionX(), worldLocation.getRegionY());
+				flags);
 			toolTipManager.add(new Tooltip(tooltip));
 			OverlayUtil.renderPolygon(graphics, poly, GREEN);
 		}
@@ -329,7 +359,7 @@ class DevToolsOverlay extends Overlay
 		{
 			if (player.getLocalLocation().distanceTo(itemLayer.getLocalLocation()) <= MAX_DISTANCE)
 			{
-				Node current = itemLayer.getBottom();
+				Node current = itemLayer.getTop();
 				while (current instanceof TileItem)
 				{
 					TileItem item = (TileItem) current;
@@ -401,6 +431,42 @@ class DevToolsOverlay extends Overlay
 			{
 				graphics.draw(p);
 			}
+		}
+	}
+
+	private void renderInventory(Graphics2D graphics)
+	{
+		Widget inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
+		if (inventoryWidget == null || inventoryWidget.isHidden())
+		{
+			return;
+		}
+
+		for (Widget item : inventoryWidget.getDynamicChildren())
+		{
+			Rectangle slotBounds = item.getBounds();
+			int itemId = item.getItemId();
+
+			if (itemId == 6512)
+			{
+				continue;
+			}
+
+			String idText = "" + itemId;
+
+			FontMetrics fm = graphics.getFontMetrics();
+			Rectangle2D textBounds = fm.getStringBounds(idText, graphics);
+
+			int textX = (int) (slotBounds.getX() + (slotBounds.getWidth() / 2) - (textBounds.getWidth() / 2));
+			int textY = (int) (slotBounds.getY() + (slotBounds.getHeight() / 2) + (textBounds.getHeight() / 2));
+
+			graphics.setColor(new Color(255, 255, 255, 65));
+			graphics.fill(slotBounds);
+
+			graphics.setColor(Color.BLACK);
+			graphics.drawString(idText, textX + 1, textY + 1);
+			graphics.setColor(YELLOW);
+			graphics.drawString(idText, textX, textY);
 		}
 	}
 

@@ -45,12 +45,37 @@ public interface GpuPluginConfig extends Config
 	@ConfigItem(
 		keyName = "drawDistance",
 		name = "Draw Distance",
-		description = "Draw distance. Requires compute shaders to be enabled.",
+		description = "Draw distance.",
 		position = 1
 	)
 	default int drawDistance()
 	{
-		return 25;
+		return 50;
+	}
+
+	@ConfigItem(
+		keyName = "hideUnrelatedMaps",
+		name = "Hide unrelated maps",
+		description = "Hide unrelated map areas you shouldn't see.",
+		position = 2
+	)
+	default boolean hideUnrelatedMaps()
+	{
+		return true;
+	}
+
+	@Range(
+		max = 5
+	)
+	@ConfigItem(
+		keyName = "expandedMapLoadingChunks",
+		name = "Extended map loading",
+		description = "Extra map area to load, in 8 tile chunks.",
+		position = 1
+	)
+	default int expandedMapLoadingChunks()
+	{
+		return 3;
 	}
 
 	@ConfigItem(
@@ -61,7 +86,7 @@ public interface GpuPluginConfig extends Config
 	)
 	default boolean smoothBanding()
 	{
-		return false;
+		return true;
 	}
 
 	@ConfigItem(
@@ -72,7 +97,7 @@ public interface GpuPluginConfig extends Config
 	)
 	default AntiAliasingMode antiAliasingMode()
 	{
-		return AntiAliasingMode.DISABLED;
+		return AntiAliasingMode.MSAA_2;
 	}
 
 	@ConfigItem(
@@ -103,7 +128,7 @@ public interface GpuPluginConfig extends Config
 	@ConfigItem(
 		keyName = "useComputeShaders",
 		name = "Compute Shaders",
-		description = "Offloads face sorting to GPU, enabling extended draw distance. Requires plugin restart.",
+		description = "Offloads face sorting to GPU. Requires plugin restart.",
 		warning = "This feature requires OpenGL 4.3 to use. Please check that your GPU supports this.\nRestart the plugin for changes to take effect.",
 		position = 6
 	)
@@ -124,7 +149,7 @@ public interface GpuPluginConfig extends Config
 	)
 	default int anisotropicFilteringLevel()
 	{
-		return 0;
+		return 1;
 	}
 
 	@ConfigItem(
@@ -157,7 +182,7 @@ public interface GpuPluginConfig extends Config
 	)
 	default boolean unlockFps()
 	{
-		return false;
+		return true;
 	}
 
 	enum SyncMode
@@ -175,7 +200,7 @@ public interface GpuPluginConfig extends Config
 	)
 	default SyncMode syncMode()
 	{
-		return SyncMode.ADAPTIVE;
+		return SyncMode.OFF;
 	}
 
 	@ConfigItem(
@@ -191,5 +216,16 @@ public interface GpuPluginConfig extends Config
 	default int fpsTarget()
 	{
 		return 60;
+	}
+
+	@ConfigItem(
+		keyName = "removeVertexSnapping",
+		name = "Remove vertex snapping",
+		description = "Removes vertex snapping from most animations",
+		position = 13
+	)
+	default boolean removeVertexSnapping()
+	{
+		return true;
 	}
 }

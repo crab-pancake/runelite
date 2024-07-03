@@ -26,6 +26,7 @@
 package net.runelite.client.plugins.slayer;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.inject.Binder;
 import com.google.inject.Provides;
 import java.awt.Color;
@@ -43,7 +44,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
-import joptsimple.internal.Strings;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,6 +58,7 @@ import net.runelite.api.MenuAction;
 import net.runelite.api.MessageNode;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
+import net.runelite.api.ParamID;
 import net.runelite.api.VarPlayer;
 import net.runelite.api.Varbits;
 import net.runelite.api.events.ChatMessage;
@@ -257,11 +258,15 @@ public class SlayerPlugin extends Plugin
 	{
 		switch (event.getGameState())
 		{
+			// client (or with CONNECTION_LOST, the server...) will soon zero the slayer varps.
+			// zero task/amount so that this doesn't cause the plugin to reset the task, which
+			// would forget the initial amount. The vars are then resynced shortly after
 			case HOPPING:
 			case LOGGING_IN:
+			case CONNECTION_LOST:
 				taskName = "";
 				amount = 0;
-				loginFlag = true;
+				loginFlag = true; // to reinitialize initialAmount and avoid re-adding the infobox
 				targets.clear();
 				break;
 		}
@@ -270,10 +275,11 @@ public class SlayerPlugin extends Plugin
 	@Subscribe
 	public void onCommandExecuted(CommandExecuted commandExecuted)
 	{
-		if (developerMode && commandExecuted.getCommand().equals("task"))
+		if (developerMode && commandExecuted.getCommand().equalsIgnoreCase("task"))
 		{
-			setTask(commandExecuted.getArguments()[0], 42, 42);
-			log.debug("Set task to {}", commandExecuted.getArguments()[0]);
+			var task = String.join(" ", commandExecuted.getArguments());
+			setTask(task, 42, 42);
+			log.debug("Set task to {}", task);
 		}
 	}
 
@@ -328,7 +334,8 @@ public class SlayerPlugin extends Plugin
 		int varbitId = varbitChanged.getVarbitId();
 		if (varpId == VarPlayer.SLAYER_TASK_SIZE
 			|| varpId == VarPlayer.SLAYER_TASK_LOCATION
-			|| varpId == VarPlayer.SLAYER_TASK_CREATURE)
+			|| varpId == VarPlayer.SLAYER_TASK_CREATURE
+			|| varbitId == Varbits.SLAYER_TASK_BOSS)
 		{
 			clientThread.invokeLater(this::updateTask);
 		}
@@ -365,8 +372,10 @@ public class SlayerPlugin extends Plugin
 			String taskName;
 			if (taskId == 98 /* Bosses, from [proc,helper_slayer_current_assignment] */)
 			{
-				taskName = client.getEnum(EnumID.SLAYER_TASK_BOSS)
-					.getStringValue(client.getVarbitValue(Varbits.SLAYER_TASK_BOSS));
+				int structId = client.getEnum(EnumID.SLAYER_TASK)
+					.getIntValue(client.getVarbitValue(Varbits.SLAYER_TASK_BOSS));
+				taskName = client.getStructComposition(structId)
+					.getStringValue(ParamID.SLAYER_TASK_NAME);
 			}
 			else
 			{
@@ -397,7 +406,7 @@ public class SlayerPlugin extends Plugin
 			else if (!Objects.equals(taskName, this.taskName) || !Objects.equals(taskLocation, this.taskLocation))
 			{
 				log.debug("Task change: {}x {} at {}", amount, taskName, taskLocation);
-				setTask(taskName, amount, initialAmount, taskLocation, true);
+				setTask(taskName, amount, amount, taskLocation, true);
 			}
 			else if (amount != this.amount)
 			{
@@ -450,9 +459,9 @@ public class SlayerPlugin extends Plugin
 
 		String chatMsg = Text.removeTags(event.getMessage()); //remove color and linebreaks
 
-		if (chatMsg.equals(CHAT_SUPERIOR_MESSAGE) && config.showSuperiorNotification())
+		if (chatMsg.equals(CHAT_SUPERIOR_MESSAGE))
 		{
-			notifier.notify(CHAT_SUPERIOR_MESSAGE);
+			notifier.notify(config.showSuperiorNotification(), CHAT_SUPERIOR_MESSAGE);
 		}
 	}
 
@@ -596,7 +605,7 @@ public class SlayerPlugin extends Plugin
 	{
 		taskName = name;
 		amount = amt;
-		initialAmount = Math.max(amt, initAmt);
+		initialAmount = initAmt;
 		taskLocation = location;
 		save();
 		removeCounter();

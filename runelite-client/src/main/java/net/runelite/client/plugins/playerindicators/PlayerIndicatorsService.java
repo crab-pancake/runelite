@@ -87,6 +87,10 @@ class PlayerIndicatorsService
 			return null;
 		}
 
+		if (!plugin.pvpZone && client.getIgnoreContainer().findByName(player.getName()) != null){
+			return null;
+		}
+
 		final Predicate<PlayerIndicatorsConfig.HighlightSetting> isEnabled = (hs) -> hs == PlayerIndicatorsConfig.HighlightSetting.ENABLED ||
 			(hs == PlayerIndicatorsConfig.HighlightSetting.PVP && (client.getVarbitValue(Varbits.IN_WILDERNESS) == 1 ||
 				WorldType.isPvpWorld(client.getWorldType()) || client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1));
