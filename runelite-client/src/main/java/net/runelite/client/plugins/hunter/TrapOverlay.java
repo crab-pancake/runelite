@@ -39,6 +39,8 @@ import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.ProgressPieComponent;
 import net.runelite.client.util.ColorUtil;
 
+import static net.runelite.client.plugins.hunter.HunterTrap.State.OPEN;
+
 /**
  * Represents the overlay that shows timers on traps that are placed by the
  * player.
@@ -58,6 +60,7 @@ public class TrapOverlay extends Overlay
 	private Color colorEmpty, colorEmptyBorder;
 	private Color colorFull, colorFullBorder;
 	private Color colorTrans, colorTransBorder;
+	private Color colorIdle, colorIdleBorder;
 
 	@Inject
 	TrapOverlay(Client client, HunterPlugin plugin, HunterConfig config)
@@ -89,6 +92,8 @@ public class TrapOverlay extends Overlay
 		colorOpen = ColorUtil.colorWithAlpha(colorOpenBorder, (int)(colorOpenBorder.getAlpha() / 2.5));
 		colorTransBorder = config.getTransTrapColor();
 		colorTrans = ColorUtil.colorWithAlpha(colorTransBorder, (int)(colorTransBorder.getAlpha() / 2.5));
+		colorIdleBorder = config.getIdleTrapColor();
+		colorIdle = ColorUtil.colorWithAlpha(colorIdleBorder, (int)(colorIdleBorder.getAlpha() / 2.5));
 	}
 
 	/**
@@ -152,6 +157,15 @@ public class TrapOverlay extends Overlay
 		double timeLeft = 1 - trap.getTrapTimeRelative();
 
 		ProgressPieComponent pie = new ProgressPieComponent();
+		if (trap.getState() == OPEN && timeLeft > (1 - TIMER_LOW)){
+			pie.setFill(colorIdle);
+			pie.setBorderColor(colorIdleBorder);
+			pie.setPosition(loc);
+			pie.setProgress(timeLeft);
+			pie.render(graphics);
+			return;
+		}
+
 		pie.setFill(timeLeft > TIMER_LOW ? fill : fillTimeLow);
 		pie.setBorderColor(timeLeft > TIMER_LOW ? border : borderTimeLow);
 		pie.setPosition(loc);
