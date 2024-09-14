@@ -143,6 +143,15 @@ public class ChatCommandsPlugin extends Plugin
 	private static final String SOUL_WARS_ZEAL_COMMAND = "!sw";
 	private static final String PET_LIST_COMMAND = "!pets";
 
+	private static final String TOTAL_LEVEL_OTHER_COMMAND_STRING = "!totalother";
+	private static final String LEVEL_OTHER_COMMAND_STRING = "!lvlother";
+	private static final String BOUNTY_HUNTER_OTHER_HUNTER_COMMAND = "!bhother";
+	private static final String BOUNTY_HUNTER_OTHER_ROGUE_COMMAND = "!bhrogueother";
+	private static final String CLUES_OTHER_COMMAND_STRING = "!cluesother";
+	private static final String LAST_MAN_STANDING_OTHER_COMMAND = "!lmsother";
+	private static final String CMB_OTHER_COMMAND_STRING = "!cmb";
+	private static final String LEAGUE_POINTS_OTHER_COMMAND = "!lp";
+
 	@VisibleForTesting
 	static final int ADV_LOG_EXPLOITS_TEXT_INDEX = 1;
 	static final int COL_LOG_ENTRY_HEADER_TITLE_INDEX = 0;
