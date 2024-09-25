@@ -118,7 +118,7 @@ public class KourendLibraryPlugin extends Plugin
 	private boolean buttonAttached = false;
 	private WorldPoint lastBookcaseClick = null;
 	private WorldPoint lastBookcaseAnimatedOn = null;
-	private EnumSet<Book> playerBooks = null;
+	private EnumSet<Book> playerBooks = EnumSet.noneOf(Book.class);
 	private QuestState depthsOfDespairState = QuestState.FINISHED;
 
 	@Getter(AccessLevel.PACKAGE)
@@ -173,7 +173,7 @@ public class KourendLibraryPlugin extends Plugin
 		buttonAttached = false;
 		lastBookcaseClick = null;
 		lastBookcaseAnimatedOn = null;
-		playerBooks = null;
+		playerBooks = EnumSet.noneOf(Book.class);
 		npcsToMark.clear();
 	}
 
@@ -352,7 +352,10 @@ public class KourendLibraryPlugin extends Plugin
 	@Subscribe
 	public void onItemContainerChanged(ItemContainerChanged itemContainerChangedEvent)
 	{
-		updatePlayerBooks();
+		if (itemContainerChangedEvent.getContainerId() == InventoryID.INVENTORY.getId())
+		{
+			updatePlayerBooks();
+		}
 	}
 
 	@Subscribe
@@ -394,6 +397,7 @@ public class KourendLibraryPlugin extends Plugin
 		}
 
 		playerBooks = books;
+		updateBooksPanel();
 	}
 
 	private void updateBooksPanel()
