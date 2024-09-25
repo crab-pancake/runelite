@@ -245,7 +245,7 @@ public class TabInterface
 		}
 		else if (event.getScriptId() == ScriptID.BANKMAIN_SEARCH_TOGGLE)
 		{
-			if (activeTab != null || tagTabActive)
+			if (activeTab != null || allTagsTabActive)
 			{
 				// close the active tab when search is pressed
 				closeTag(false);
