@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Adam <Adam@sigterm.info>
+ * Copyright (c) 2024 Macweese
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,34 +22,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.timers;
+package net.runelite.client.plugins.itemstats.food;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import net.runelite.client.plugins.Plugin;
-import net.runelite.client.ui.overlay.infobox.InfoBoxPriority;
-import net.runelite.client.ui.overlay.infobox.Timer;
+import net.runelite.api.Client;
+import net.runelite.client.plugins.itemstats.FoodBase;
+import static net.runelite.client.plugins.itemstats.stats.Stats.COOKING;
+import static net.runelite.client.plugins.itemstats.stats.Stats.HUNTER;
 
-class TimerTimer extends Timer
+public class CookedMossLizard extends FoodBase
 {
-	private final GameTimer timer;
-	int ticks;
-
-	TimerTimer(GameTimer timer, Duration duration, Plugin plugin)
-	{
-		super(duration.toMillis(), ChronoUnit.MILLIS, null, plugin);
-		this.timer = timer;
-		setPriority(InfoBoxPriority.MED);
-	}
-
-	public GameTimer getTimer()
-	{
-		return timer;
-	}
-
 	@Override
-	public String getName()
+	public int heals(Client client)
 	{
-		return timer.name();
+		int cooking = COOKING.getValue(client) / 3;
+		int hunter = HUNTER.getValue(client) / 2;
+		return Math.min(cooking, hunter);
 	}
 }

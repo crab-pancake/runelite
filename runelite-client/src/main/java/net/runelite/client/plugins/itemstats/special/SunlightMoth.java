@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Adam <Adam@sigterm.info>
+ * Copyright (c) 2024, Macweese
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,58 +22,59 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.itemstats.potions;
+package net.runelite.client.plugins.itemstats.special;
 
-import com.google.common.annotations.VisibleForTesting;
-import java.util.Comparator;
-import java.util.stream.Stream;
-import lombok.RequiredArgsConstructor;
 import net.runelite.api.Client;
-import static net.runelite.client.plugins.itemstats.Builders.food;
-import static net.runelite.client.plugins.itemstats.Builders.perc;
 import net.runelite.client.plugins.itemstats.Effect;
 import net.runelite.client.plugins.itemstats.SimpleStatBoost;
-import net.runelite.client.plugins.itemstats.SingleEffect;
 import net.runelite.client.plugins.itemstats.StatChange;
 import net.runelite.client.plugins.itemstats.StatsChanges;
 import net.runelite.client.plugins.itemstats.stats.Stat;
+import java.util.Comparator;
+import java.util.stream.Stream;
+import static net.runelite.client.plugins.itemstats.Builders.perc;
 import static net.runelite.client.plugins.itemstats.stats.Stats.*;
 
-@RequiredArgsConstructor
 public class SunlightMoth implements Effect
 {
-	private static final Stat[] mothRestoreStats = {
+	private static final Stat[] RESTORED_STATS = {
 		ATTACK, DEFENCE, STRENGTH, RANGED, MAGIC, COOKING,
 		WOODCUTTING, FLETCHING, FISHING, FIREMAKING, CRAFTING, SMITHING, MINING,
 		HERBLORE, AGILITY, THIEVING, SLAYER, FARMING, RUNECRAFT, HUNTER,
 		CONSTRUCTION
 	};
 
-	@VisibleForTesting
-	public final double percR; //percentage restored
+	public final double percentRestored;
 	private final int delta;
+
+	public SunlightMoth(double percentRestored, int delta)
+	{
+		this.percentRestored = percentRestored;
+		this.delta = delta;
+	}
 
 	@Override
 	public StatsChanges calculate(Client client)
 	{
 		StatsChanges changes = new StatsChanges(0);
 
-		SimpleStatBoost calc = new SimpleStatBoost(null, false, perc(percR, delta));
-		SingleEffect hp = food(8);
+		SimpleStatBoost calcRestore = new SimpleStatBoost(null, false, perc(percentRestored, delta));
+		SimpleStatBoost calcHeal = new SimpleStatBoost(HITPOINTS, false, perc(0, 8));
+
 		changes.setStatChanges(Stream.concat(
-			Stream.of(hp.effect(client)),
-			Stream.of(mothRestoreStats)
+			Stream.of(new Stat[]{HITPOINTS})
+				.map(stat -> calcHeal.effect(client)),
+			Stream.of(RESTORED_STATS)
 				.filter(stat -> stat.getValue(client) < stat.getMaximum(client))
 				.map(stat ->
 				{
-					calc.setStat(stat);
-					return calc.effect(client);
+					calcRestore.setStat(stat);
+					return calcRestore.effect(client);
 				})
-			).toArray(StatChange[]::new));
+		).toArray(StatChange[]::new));
 		changes.setPositivity(Stream.of(changes.getStatChanges())
-			.map(sc -> sc.getPositivity())
-			.max(Comparator.naturalOrder()).get());
+				.map(StatChange::getPositivity)
+				.max(Comparator.naturalOrder()).orElse(null));
 		return changes;
 	}
-
 }

@@ -59,6 +59,7 @@ import net.runelite.api.events.ScriptPostFired;
 import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WorldChanged;
+import net.runelite.api.widgets.InterfaceID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.Notifier;
@@ -198,7 +199,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 			return;
 		}
 
-		widget = client.getWidget(90,50);
+		widget = client.getWidget(InterfaceID.PVP,50);
 		if (widget != null && !widget.isHidden())
 		{
 			final Matcher m = Pattern.compile("^Level: (\\d+)(?:<br>\\d+-\\d+)?$").matcher(widget.getText());
@@ -207,6 +208,9 @@ public class PlayerIndicatorsPlugin extends Plugin
 			{
 				range = Integer.parseInt(m.group(1)) + (WorldType.isPvpWorld(client.getWorldType()) ? 15 : 0) + 1;  // add +/- 1 margin for safety
 			}
+		}
+		else if (WorldType.isPvpWorld(client.getWorldType())){
+			range = 15;
 		}
 	}
 
@@ -226,8 +230,9 @@ public class PlayerIndicatorsPlugin extends Plugin
 	public void check(Client client)
 	{
 		clientThread.invokeLater(() -> {
-			pvpZone = (client.getVarbitValue(Varbits.IN_WILDERNESS) == 1 || WorldType.isPvpWorld(client.getWorldType())
-				|| client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1);
+			pvpZone = client.getVarbitValue(Varbits.IN_WILDERNESS) == 1 ||
+					WorldType.isPvpWorld(client.getWorldType()) ||
+					client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1;
 		});
 	}
 
