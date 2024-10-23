@@ -82,8 +82,20 @@ public interface HunterConfig extends Config
 		return Color.ORANGE;
 	}
 
+	@Alpha
 	@ConfigItem(
-		position = 5,
+			position = 5,
+			keyName = "hexColorIdleTrap",
+			name = "Idle trap",
+			description = "Color of idle trap timer"
+	)
+	default Color getIdleTrapColor()
+	{
+		return Color.GRAY;
+	}
+
+	@ConfigItem(
+		position = 6,
 		keyName = "maniacalMonkeyNotify",
 		name = "Maniacal monkey notification",
 		description = "Send notification when maniacal monkey is caught or you fail to catch."
