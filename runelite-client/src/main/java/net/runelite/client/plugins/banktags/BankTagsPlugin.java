@@ -238,7 +238,7 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 		@Override
 		public void hotkeyPressed()
 		{
-			tabInterface.openAllTagsTab();
+			tabInterface.openTag("tagtabs", null, 0, true);
 		}
 	};
 

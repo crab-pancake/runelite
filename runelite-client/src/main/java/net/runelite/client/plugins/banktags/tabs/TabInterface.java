@@ -114,7 +114,7 @@ public class TabInterface
 	private static final String TAG_GEAR = "Tag-equipment";
 	private static final String TAG_INVENTORY = "Tag-inventory";
 	private static final String TAGTABS = "tagtabs";
-	private static final String OPEN_TAB_MENU = "View tag tabs";
+	private static final String OPEN_TAB_MENU = "View all tag tabs";
 	static final String ENABLE_LAYOUT = "Enable layout";
 	static final String DISABLE_LAYOUT = "Disable layout";
 	static final String REMOVE_LAYOUT = "Remove-layout";
