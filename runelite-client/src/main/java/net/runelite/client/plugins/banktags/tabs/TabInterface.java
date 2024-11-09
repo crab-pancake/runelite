@@ -522,7 +522,7 @@ public class TabInterface
 					return;
 				}
 				client.setVarbit(Varbits.CURRENT_BANK_TAB, 0);
-				openTag(TAGTABS, null, 0, true);
+				plugin.openTag(TAGTABS, null, 0);
 				break;
 		}
 	}
@@ -813,11 +813,12 @@ public class TabInterface
 			}
 			else
 			{
+				boolean hidden = tagManager.isHidden(activeTag);
 				client.createMenuEntry(-1)
 					.setParam0(event.getActionParam0())
 					.setParam1(event.getActionParam1())
 					.setTarget(event.getTarget())
-					.setOption((activeOptions & BankTagsService.OPTION_HIDE_REMOVE_TAG_NAME) == 0 ? REMOVE_TAG + " (" + activeTag + ")" : REMOVE_TAG)
+					.setOption(!hidden && (activeOptions & BankTagsService.OPTION_HIDE_REMOVE_TAG_NAME) == 0 ? REMOVE_TAG + " (" + activeTag + ")" : REMOVE_TAG)
 					.setType(MenuAction.RUNELITE)
 					.setIdentifier(event.getIdentifier())
 					.setItemId(event.getItemId())
