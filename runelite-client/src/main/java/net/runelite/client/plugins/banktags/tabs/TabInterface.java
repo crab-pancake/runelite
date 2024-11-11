@@ -262,7 +262,7 @@ public class TabInterface
 
 			repositionButtons();
 			rebuildTabs();
-			int tagTabHeight = rebuildTagTabTab();
+			int tagTabHeight = rebuildAllTagsTab();
 
 			// Apply our own title
 			if (allTagsTabActive)
@@ -472,7 +472,7 @@ public class TabInterface
 
 							repositionButtons();
 							rebuildTabs();
-							rebuildTagTabTab();
+							rebuildAllTagsTab();
 						}
 					}))
 					.build();
@@ -500,7 +500,7 @@ public class TabInterface
 
 					repositionButtons();
 					rebuildTabs();
-					rebuildTagTabTab();
+					rebuildAllTagsTab();
 
 					if (tab.getTag().equals(activeTag))
 					{
@@ -516,9 +516,8 @@ public class TabInterface
 				}
 				break;
 			case NEWTAB_OP_OPEN_TAB_MENU:
-				if (allTagsTabActive && client.getVarbitValue(Varbits.CURRENT_BANK_TAB) == 0){
+				if (allTagsTabActive){
 					closeTag(true);
-					bankSearch.reset(true);
 					return;
 				}
 				client.setVarbit(Varbits.CURRENT_BANK_TAB, 0);
@@ -663,14 +662,15 @@ public class TabInterface
 					Layout layout = layoutManager.loadLayout(tag);
 					plugin.openTag(tag, layout);
 
+					// scroll sidebar to the right position (when selected from all tags tab)
 					int newTab = tabManager.indexOf(clicked.getName());
 					if (newTab > config.position() + tabCount - 1)
 					{
-						// new tab at the bottom
+						// put selected tab at the bottom
 						scrollTab(newTab - config.position() - tabCount + 1);
 					}
 					else if (newTab < config.position()){
-						// new tab at the top
+						// put selected tab at the top
 						scrollTab(newTab - config.position());
 					}
 				}
@@ -691,7 +691,7 @@ public class TabInterface
 							tab.setIconItemId(itemId);
 							tabManager.save();
 							rebuildTabs();
-							rebuildTagTabTab();
+							rebuildAllTagsTab();
 						}
 					})
 					.build();
@@ -1020,7 +1020,7 @@ public class TabInterface
 
 		tabManager.save();
 		rebuildTabs();
-		rebuildTagTabTab();
+		rebuildAllTagsTab();
 	}
 
 	private void addTabActions(TagTab tab, Widget w)
@@ -1029,7 +1029,7 @@ public class TabInterface
 		w.setAction(TAB_OP_CHANGE_ICON, CHANGE_ICON);
 		if (!TAGTABS.equals(tab.getTag()))
 		{
-			w.setAction(TAB_OP_LAYOUT, activeLayout != null ? DISABLE_LAYOUT : ENABLE_LAYOUT);
+			w.setAction(TAB_OP_LAYOUT, activeLayout == null ? ENABLE_LAYOUT : DISABLE_LAYOUT);
 		}
 		w.setAction(TAB_OP_EXPORT_TAB, EXPORT_TAB);
 		w.setAction(TAB_OP_RENAME_TAB, RENAME_TAB);
@@ -1070,7 +1070,7 @@ public class TabInterface
 
 		repositionButtons();
 		rebuildTabs();
-		rebuildTagTabTab();
+		rebuildAllTagsTab();
 		scrollTab(0);
 	}
 
@@ -1109,7 +1109,7 @@ public class TabInterface
 						tagManager.renameTag(oldTag, newTag); // rename tag on items
 
 						rebuildTabs();
-						rebuildTagTabTab();
+						rebuildAllTagsTab();
 
 						reloadActiveTab();
 					}
@@ -1327,7 +1327,7 @@ public class TabInterface
 		}
 	}
 
-	private int rebuildTagTabTab()
+	private int rebuildAllTagsTab()
 	{
 		int itemX = BANK_ITEM_START_X;
 		int itemY = BANK_ITEM_START_Y;
