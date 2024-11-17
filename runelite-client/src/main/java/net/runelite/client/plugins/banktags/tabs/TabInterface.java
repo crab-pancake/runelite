@@ -663,15 +663,15 @@ public class TabInterface
 					plugin.openTag(tag, layout);
 
 					// scroll sidebar to the right position (when selected from all tags tab)
-					int newTab = tabManager.indexOf(clicked.getName());
-					if (newTab > config.position() + tabCount - 1)
+					int scrollPosition = tabManager.indexOf(clicked.getName());
+					if (scrollPosition > config.position() + tabCount - 1)
 					{
 						// put selected tab at the bottom
-						scrollTab(newTab - config.position() - tabCount + 1);
+						scrollTab(scrollPosition - config.position() - tabCount + 1);
 					}
-					else if (newTab < config.position()){
+					else if (scrollPosition < config.position()){
 						// put selected tab at the top
-						scrollTab(newTab - config.position());
+						scrollTab(scrollPosition - config.position());
 					}
 				}
 

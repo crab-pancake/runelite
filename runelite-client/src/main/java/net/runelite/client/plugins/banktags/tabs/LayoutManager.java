@@ -304,6 +304,7 @@ public class LayoutManager
 			modified = true;
 		}
 
+		// TODO: what happens if i remove this?
 		// Fill the remaining slots with -1 so that items can be dragged to them
 		while (true)
 		{
@@ -364,8 +365,8 @@ public class LayoutManager
 			else if (qty == 0)
 			{
 				c.setOpacity(120);
-				c.setItemQuantity(Integer.MAX_VALUE);
-				c.setItemQuantityMode(ItemQuantityMode.NEVER);
+				c.setItemQuantity(0);
+				c.setItemQuantityMode(ItemQuantityMode.ALWAYS);
 
 				if ((plugin.getOptions() & BankTagsService.OPTION_ALLOW_MODIFICATIONS) != 0)
 				{
@@ -483,6 +484,15 @@ public class LayoutManager
 			log.debug("Insert {} -> {}", sidx, tidx);
 			l.insert(sidx, tidx);
 		}
+
+		// TODO: scroll stuff in here
+//		int maxIndex = l.size();  // MIGHT NOT WORK: PROBABLY NEED TO MANUALLY FIND THE LAST FILLED ITEM SPOT
+//		int height = getYForIndex(maxIndex) + BANK_ITEM_HEIGHT + 8;
+//		if (setScroll && layoutable.equals(lastLayoutable) && height != lastHeight)
+//		{
+//			resizeBankContainerScrollbar(height, lastHeight);
+//		}
+//		lastHeight = height;
 
 		saveLayout(l);
 		bankSearch.layoutBank();
@@ -722,6 +732,25 @@ public class LayoutManager
 			w.setScrollY(scrollY);
 			client.setVarcIntValue(VarClientInt.BANK_SCROLL, scrollY);
 		}
+	}
+
+	private void resizeBankContainerScrollbar(int height, int lastHeight) {
+		Widget container = client.getWidget(ComponentID.BANK_ITEM_CONTAINER);
+
+		container.setScrollHeight(height); // This change requires the script below to run to take effect.
+
+		int itemContainerScroll = (height > lastHeight) ? height : container.getScrollY();
+
+//		clientThread.invokeLater(() ->
+//			client.runScript(ScriptID.UPDATE_SCROLLBAR,
+//				ComponentID.BANK_SCROLLBAR,
+//				ComponentID.BANK_ITEM_CONTAINER,
+//				itemContainerScroll)
+//		);
+	}
+
+	static int getYForIndex(int index) {
+		return (index / 8) * BANK_ITEM_WIDTH;
 	}
 
 	private class DefaultLayout implements AutoLayout
