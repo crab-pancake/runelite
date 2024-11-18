@@ -63,6 +63,7 @@ import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.ItemQuantityMode;
 import net.runelite.api.widgets.JavaScriptCallback;
 import net.runelite.api.widgets.Widget;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
@@ -93,6 +94,7 @@ import net.runelite.client.util.Text;
 public class LayoutManager
 {
 	private final Client client;
+	private final ClientThread clientThread;
 	private final ItemManager itemManager;
 	private final BankTagsPlugin plugin;
 	private final ChatboxPanelManager chatboxPanelManager;
@@ -105,11 +107,12 @@ public class LayoutManager
 	private final List<PluginAutoLayout> autoLayouts = new ArrayList<>();
 
 	@Inject
-	LayoutManager(Client client, ItemManager itemManager, BankTagsPlugin plugin, ChatboxPanelManager chatboxPanelManager,
-		BankSearch bankSearch, ChatMessageManager chatMessageManager,
-		PotionStorage potionStorage, EventBus eventBus, ConfigManager configManager)
+	LayoutManager(Client client, ClientThread clientThread, ItemManager itemManager, BankTagsPlugin plugin, ChatboxPanelManager chatboxPanelManager,
+				  BankSearch bankSearch, ChatMessageManager chatMessageManager,
+				  PotionStorage potionStorage, EventBus eventBus, ConfigManager configManager)
 	{
 		this.client = client;
+		this.clientThread = clientThread;
 		this.itemManager = itemManager;
 		this.plugin = plugin;
 		this.chatboxPanelManager = chatboxPanelManager;
@@ -304,7 +307,6 @@ public class LayoutManager
 			modified = true;
 		}
 
-		// TODO: what happens if i remove this?
 		// Fill the remaining slots with -1 so that items can be dragged to them
 		while (true)
 		{
@@ -319,7 +321,6 @@ public class LayoutManager
 			{
 				break;
 			}
-
 			drawItem(l, c, -1, 0, lastEmptySlot);
 		}
 
@@ -356,7 +357,7 @@ public class LayoutManager
 			// Jagex Placeholder
 			if (def.getPlaceholderTemplateId() >= 0 && def.getPlaceholderId() >= 0)
 			{
-				c.setItemQuantity(qty);
+				c.setItemQuantity(0);
 				c.setOpacity(120);
 				c.setAction(8 - 1, "Release");
 				c.setAction(10 - 1, "Examine");
@@ -485,14 +486,10 @@ public class LayoutManager
 			l.insert(sidx, tidx);
 		}
 
-		// TODO: scroll stuff in here
-//		int maxIndex = l.size();  // MIGHT NOT WORK: PROBABLY NEED TO MANUALLY FIND THE LAST FILLED ITEM SPOT
-//		int height = getYForIndex(maxIndex) + BANK_ITEM_HEIGHT + 8;
-//		if (setScroll && layoutable.equals(lastLayoutable) && height != lastHeight)
-//		{
-//			resizeBankContainerScrollbar(height, lastHeight);
-//		}
-//		lastHeight = height;
+		l.minimize();  // remove trailing -1 entries
+
+		// resize the bank scrollbar
+		resizeBankContainerScrollbar(0,0);
 
 		saveLayout(l);
 		bankSearch.layoutBank();
@@ -610,6 +607,13 @@ public class LayoutManager
 				{
 					layout(layout);
 					scrollLayout(layout);
+
+					// TODO: figure out how to dynamically change when dragging happens. drag listener?
+					int height = getYForIndex(layout.getLayout().length) + BANK_ITEM_HEIGHT + BANK_ITEM_HEIGHT/2;
+
+					// This is prior to bankmain_finishbuilding running, so the arguments are still on the stack. Overwrite
+					// argument int12 (7 from the end) which is the height passed to if_setscrollsize
+					client.getIntStack()[client.getIntStackSize() - 7] = height;
 				}
 			}
 		}
@@ -741,16 +745,16 @@ public class LayoutManager
 
 		int itemContainerScroll = (height > lastHeight) ? height : container.getScrollY();
 
-//		clientThread.invokeLater(() ->
-//			client.runScript(ScriptID.UPDATE_SCROLLBAR,
-//				ComponentID.BANK_SCROLLBAR,
-//				ComponentID.BANK_ITEM_CONTAINER,
-//				itemContainerScroll)
-//		);
+		clientThread.invokeLater(() ->
+			client.runScript(ScriptID.UPDATE_SCROLLBAR,
+				ComponentID.BANK_SCROLLBAR,
+				ComponentID.BANK_ITEM_CONTAINER,
+				itemContainerScroll)
+		);
 	}
 
 	static int getYForIndex(int index) {
-		return (index / 8) * BANK_ITEM_WIDTH;
+		return ((index-1) / 8) * BANK_ITEM_WIDTH;
 	}
 
 	private class DefaultLayout implements AutoLayout

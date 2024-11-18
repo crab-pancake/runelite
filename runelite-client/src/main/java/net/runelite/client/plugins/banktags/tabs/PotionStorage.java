@@ -189,7 +189,7 @@ class PotionStorage
 
 				if (log.isDebugEnabled())
 				{
-					log.debug("Item {} matches a potion from potion store {}", itemId, itemManager.getItemComposition(potionStoreItem).getName());
+					log.debug("Item {} matches a potion from potion store: {}", itemId, itemManager.getItemComposition(potionStoreItem).getName());
 				}
 
 				return potionStoreItem;
