@@ -489,6 +489,7 @@ public class LayoutManager
 		l.minimize();  // remove trailing -1 entries
 
 		// resize the bank scrollbar
+		// TODO: eventually i want it to update while the item is still being dragged. does this mean i have to use onDragHandler?
 		resizeBankContainerScrollbar(0,0);
 
 		saveLayout(l);
@@ -608,7 +609,6 @@ public class LayoutManager
 					layout(layout);
 					scrollLayout(layout);
 
-					// TODO: figure out how to dynamically change when dragging happens. drag listener?
 					int height = getYForIndex(layout.getLayout().length) + BANK_ITEM_HEIGHT + BANK_ITEM_HEIGHT/2;
 
 					// This is prior to bankmain_finishbuilding running, so the arguments are still on the stack. Overwrite
