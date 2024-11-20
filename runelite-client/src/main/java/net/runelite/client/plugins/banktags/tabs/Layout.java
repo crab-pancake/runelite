@@ -197,4 +197,13 @@ public class Layout
 		}
 		layout = n;
 	}
+
+	public void minimize(){
+		int index = layout.length;
+		while (layout[--index] == -1 && index > 0){
+//			System.out.println("item at index "+index+" is -1");
+		}
+//		System.out.println("item at index "+index+" is "+layout[index]);
+		resize(index+1);
+	}
 }

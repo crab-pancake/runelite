@@ -47,6 +47,7 @@ import net.runelite.api.ItemComposition;
 import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.VarClientStr;
+import net.runelite.api.Varbits;
 import net.runelite.api.events.GrandExchangeSearched;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.ScriptCallbackEvent;
@@ -251,7 +252,12 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 		@Override
 		public void hotkeyPressed()
 		{
-			tabInterface.openTag("tagtabs", null, 0, true);
+			if (tabInterface.isAllTagsTabActive()){
+				tabInterface.closeTag(true);
+				return;
+			}
+			clientThread.invoke(() -> client.setVarbit(Varbits.CURRENT_BANK_TAB, 0));
+			openTag("tagtabs", null, 0);
 		}
 	};
 
@@ -406,7 +412,7 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 			case "bankBuildTab":
 				// Use the per-tab view when we want to hide the separators to avoid having to reposition items &
 				// recomputing the scroll height.
-				if (activeTag != null && (tabInterface.isAllTagsTabActive() || config.removeSeparators() || activeLayout != null))
+				if (activeBankTag != null && (tabInterface.isAllTagsTabActive() || config.removeSeparators() || activeLayout != null))
 				{
 					var stack = client.getIntStack();
 					var sz = client.getIntStackSize();

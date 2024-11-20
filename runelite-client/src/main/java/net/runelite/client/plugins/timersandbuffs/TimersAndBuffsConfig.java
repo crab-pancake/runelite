@@ -43,7 +43,7 @@ public interface TimersAndBuffsConfig extends Config
 	String bossesSection = "bossesSection";
 
 	@ConfigSection(
-		name = "Potions & Consumables",
+		name = "Potions & consumables",
 		description = "Timers and buffs related to potions/consumables/boosts",
 		position = 1
 	)
@@ -87,7 +87,7 @@ public interface TimersAndBuffsConfig extends Config
 
 	@ConfigItem(
 		keyName = "showAntipoison",
-		name = "Antipoison/Venom timers",
+		name = "Antipoison/venom timers",
 		description = "Configures whether timers for poison and venom protection are displayed",
 		section = consumablesSection
 	)
@@ -285,7 +285,7 @@ public interface TimersAndBuffsConfig extends Config
 
 	@ConfigItem(
 		keyName = "showHealGroup",
-		name = "Heal Group timer",
+		name = "Heal group timer",
 		description = "Configures whether heal group timer is displayed",
 		section = spellsSection
 	)
@@ -329,7 +329,7 @@ public interface TimersAndBuffsConfig extends Config
 
 	@ConfigItem(
 		keyName = "showTzhaarTimers",
-		name = "Fight Caves and Inferno timers",
+		name = "Fight caves and inferno timers",
 		description = "Display elapsed time in the Fight Caves and Inferno",
 		section = bossesSection
 	)
@@ -370,7 +370,7 @@ public interface TimersAndBuffsConfig extends Config
 
 	@ConfigItem(
 		keyName = "showStaffOfTheDead",
-		name = "Staff of the Dead timer",
+		name = "Staff of the dead timer",
 		description = "Configures whether staff of the dead timer is displayed",
 		section = miscellaneousSection
 	)
@@ -381,7 +381,7 @@ public interface TimersAndBuffsConfig extends Config
 
 	@ConfigItem(
 		keyName = "showAbyssalSireStun",
-		name = "Abyssal Sire stun timer",
+		name = "Abyssal sire stun timer",
 		description = "Configures whether Abyssal Sire stun timer is displayed",
 		section = bossesSection
 	)
@@ -392,7 +392,7 @@ public interface TimersAndBuffsConfig extends Config
 
 	@ConfigItem(
 		keyName = "showDfsSpecial",
-		name = "Dragonfire Shield special timer",
+		name = "Dragonfire shield special timer",
 		description = "Configures whether the special attack cooldown timer for the Dragonfire Shield is displayed",
 		section = miscellaneousSection
 	)
@@ -436,7 +436,7 @@ public interface TimersAndBuffsConfig extends Config
 
 	@ConfigItem(
 		keyName = "showFarmersAffinity",
-		name = "Farmer's Affinity",
+		name = "Farmer's affinity",
 		description = "Configures whether Farmer's Affinity (Puro-Puro) timer is displayed",
 		section = miscellaneousSection
 	)
@@ -447,7 +447,7 @@ public interface TimersAndBuffsConfig extends Config
 
 	@ConfigItem(
 		keyName = "showSpellbookSwap",
-		name = "Spellbook Swap timer",
+		name = "Spellbook swap timer",
 		description = "Configures whether Spellbook Swap timer is displayed",
 		section = spellsSection
 	)
@@ -458,7 +458,7 @@ public interface TimersAndBuffsConfig extends Config
 
 	@ConfigItem(
 		keyName = "showCurseOfTheMoons",
-		name = "Curse of the Moons buff",
+		name = "Curse of the moons buff",
 		description = "Configures whether Curse of the Moons buff is displayed",
 		section = bossesSection
 	)
@@ -469,7 +469,7 @@ public interface TimersAndBuffsConfig extends Config
 
 	@ConfigItem(
 		keyName = "showColosseumDoom",
-		name = "Colosseum Doom buff",
+		name = "Colosseum doom buff",
 		description = "Configures whether Fortis Colosseum Doom buff is displayed",
 		section = bossesSection
 	)
