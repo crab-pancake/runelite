@@ -29,6 +29,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Collection;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Varbits;
@@ -113,12 +114,13 @@ public class WidgetOverlay extends Overlay
 
 	protected final Client client;
 	@Component
+	@Getter
 	protected final int componentId;
 	protected final String name;
 	private final Rectangle parentBounds = new Rectangle();
 	private boolean revalidate;
 
-	private WidgetOverlay(final Client client, @Component final int componentId, final String name, final OverlayPosition overlayPosition)
+	public WidgetOverlay(final Client client, @Component final int componentId, final String name, final OverlayPosition overlayPosition)
 	{
 		this(client, componentId, name, overlayPosition, Overlay.PRIORITY_HIGHEST);
 	}
