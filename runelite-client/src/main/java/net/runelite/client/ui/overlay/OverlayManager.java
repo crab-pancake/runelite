@@ -188,6 +188,11 @@ public class OverlayManager
 		return true;
 	}
 
+	public synchronized WidgetOverlay get(final int componentId)
+	{
+		return (WidgetOverlay) overlays.stream().filter(o -> o instanceof WidgetOverlay && componentId == ((WidgetOverlay) o).getComponentId()).findFirst().orElse(null);
+	}
+
 	/**
 	 * Remove overlay.
 	 *

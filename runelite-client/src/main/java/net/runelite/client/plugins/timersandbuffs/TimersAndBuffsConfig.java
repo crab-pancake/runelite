@@ -488,4 +488,15 @@ public interface TimersAndBuffsConfig extends Config
 	{
 		return true;
 	}
+
+	@ConfigItem(
+		keyName = "showScurriusFoodPile",
+		name = "Scurrius food pile",
+		description = "Configures whether Scurrius food pile timer is displayed",
+		section = bossesSection
+	)
+	default boolean showScurriusFoodPile()
+	{
+		return true;
+	}
 }
