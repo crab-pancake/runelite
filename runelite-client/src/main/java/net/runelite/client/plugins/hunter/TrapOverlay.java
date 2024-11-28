@@ -157,7 +157,7 @@ public class TrapOverlay extends Overlay
 		double timeLeft = 1 - trap.getTrapTimeRelative();
 
 		ProgressPieComponent pie = new ProgressPieComponent();
-		if (trap.getState() == OPEN && timeLeft > (1 - TIMER_LOW)){
+		if (trap.getState() == OPEN && timeLeft > 0.84){
 			pie.setFill(colorIdle);
 			pie.setBorderColor(colorIdleBorder);
 			pie.setPosition(loc);
