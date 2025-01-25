@@ -95,7 +95,7 @@ public class Clodern extends Plugin
 
 	@Subscribe
 	private void onScriptPostFired(ScriptPostFired e){
-		if (e.getScriptId() != 907)
+		if (e.getScriptId() != 907 && e.getScriptId() != 6010)
 			return;
 
 		clientThread.invoke(this::checkLogoutDoor);
