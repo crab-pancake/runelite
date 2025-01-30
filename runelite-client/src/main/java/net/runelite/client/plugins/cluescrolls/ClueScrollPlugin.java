@@ -38,7 +38,6 @@ import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -71,6 +70,7 @@ import net.runelite.api.Scene;
 import net.runelite.api.ScriptID;
 import net.runelite.api.Tile;
 import net.runelite.api.TileObject;
+import net.runelite.api.VarClientStr;
 import net.runelite.api.Varbits;
 import net.runelite.api.annotations.Component;
 import net.runelite.api.coords.LocalPoint;
@@ -89,6 +89,7 @@ import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
+import net.runelite.api.events.VarClientStrChanged;
 import net.runelite.api.events.WallObjectDespawned;
 import net.runelite.api.events.WallObjectSpawned;
 import net.runelite.api.events.WidgetLoaded;
@@ -125,6 +126,7 @@ import net.runelite.client.plugins.cluescrolls.clues.NpcClueScroll;
 import net.runelite.client.plugins.cluescrolls.clues.ObjectClueScroll;
 import net.runelite.client.plugins.cluescrolls.clues.SkillChallengeClue;
 import net.runelite.client.plugins.cluescrolls.clues.ThreeStepCrypticClue;
+import net.runelite.client.plugins.cluescrolls.clues.emote.Emote;
 import net.runelite.client.plugins.cluescrolls.clues.item.ItemRequirement;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.OverlayUtil;
@@ -239,6 +241,9 @@ public class ClueScrollPlugin extends Plugin
 	private EmoteClue activeSTASHClue;
 	private EmoteClue clickedSTASHClue;
 
+	private String previousChatboxText;
+	private String nextString = "";
+
 	@Provides
 	ClueScrollConfig getConfig(ConfigManager configManager)
 	{
@@ -264,6 +269,30 @@ public class ClueScrollPlugin extends Plugin
 		tagManager.registerTag(ARMOUR_CASE_TAG_NAME, this::testArmourCase);
 		tagManager.registerTag(CAPE_RACK_TAG_NAME, this::testCapeRack);
 		tagManager.registerTag(TOY_BOX_TAG_NAME, this::testToyBox);
+	}
+
+	@Subscribe
+	public void onVarClientStrChanged(VarClientStrChanged e){
+		if (e.getIndex() != VarClientStr.CHATBOX_TYPED_TEXT)
+			return;
+
+		if (clue != null && this.clue instanceof EmoteClue){
+			Emote emote = ((EmoteClue) this.clue).getFirstEmote();
+			String previousCommand = "!"+emote.getName().replace(" ","").toLowerCase();
+			if (emote.getSpriteId() != -1 && "".equals(client.getVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT)) && previousCommand.equals(previousChatboxText))
+			{
+				Emote emote2 = ((EmoteClue) this.clue).getSecondEmote();
+				if (emote2 != null)
+				{
+					clientThread.invokeLater(() -> {
+						client.setVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT, "!" + emote2.getName().replace(" ", "").toLowerCase());
+						client.runScript(73, -2147483640, -2147483639);
+					});
+				}
+			}
+		}
+
+		previousChatboxText = client.getVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT);
 	}
 
 	@Override
@@ -758,6 +787,7 @@ public class ClueScrollPlugin extends Plugin
 		}
 
 		clue = null;
+		nextString = "";
 		worldMapPointManager.removeIf(ClueScrollWorldMapPoint.class::isInstance);
 		worldMapPointsSet = false;
 		npcsToMark.clear();
@@ -1099,6 +1129,16 @@ public class ClueScrollPlugin extends Plugin
 		// If we have a clue, save that knowledge
 		// so the clue window doesn't have to be open.
 		this.clue = clue;
+
+		if (this.clue instanceof EmoteClue)
+		{
+			Emote emote = ((EmoteClue) this.clue).getFirstEmote();
+			if (emote.getSpriteId() != -1)
+			{
+				client.setVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT, "!"+emote.getName().replace(" ","").toLowerCase());
+				client.runScript(73, -2147483640, -2147483639);
+			}
+		}
 
 		updateOverlayMenuEntries();
 	}
