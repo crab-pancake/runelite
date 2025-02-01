@@ -8,9 +8,13 @@ import java.util.Map;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
+import net.runelite.api.GameState;
 import net.runelite.api.ScriptID;
 import net.runelite.api.VarClientInt;
+import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.ScriptPostFired;
+import net.runelite.api.events.ScriptPreFired;
 import net.runelite.api.events.VarClientIntChanged;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.widgets.ComponentID;
@@ -56,6 +60,9 @@ public class Clodern extends Plugin
 
 	private WidgetOverlay logoutDoor;
 
+	private int lastInventoryTab;
+	private int lastClickedATab;
+
 	private final int TAB_X_OFFSET_SIZE = 33;
 
 	private static final Map<Integer, Integer> offsets = Map.ofEntries(
@@ -78,6 +85,9 @@ public class Clodern extends Plugin
 
 		topBarOverlay = null;
 		inventoryBoxOverlay = null;
+
+		lastInventoryTab = -1;
+		lastClickedATab = -1;
 	}
 
 	@Subscribe
@@ -91,6 +101,14 @@ public class Clodern extends Plugin
 //		else if ("moveTopBar".equals(e.getKey())){
 //			// if turned OFF: return to original positions? TODO
 //		}
+	}
+
+	@Subscribe
+	private void onGameStateChanged(GameStateChanged e){
+		if (e.getGameState() == GameState.LOGGING_IN || e.getGameState() == GameState.HOPPING){
+			// don't block the change on logging in & default tab plugin on hopping
+			lastClickedATab = client.getTickCount();
+		}
 	}
 
 	@Subscribe
@@ -119,8 +137,7 @@ public class Clodern extends Plugin
 				button.setRelativeX(offset * TAB_X_OFFSET_SIZE);
 			});
 
-			// unhide logout door
-			// TODO: need to add a new overlay for this i think
+			// todo: make my own widget/thing which changes varclientint when clicked (and turns red?)
 		}
 		else {
 			Widget bottomBarButtonContainer = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE,37);
@@ -141,6 +158,8 @@ public class Clodern extends Plugin
 	private void onVarClientIntChanged(VarClientIntChanged e){
 		if (e.getIndex() != VarClientInt.INVENTORY_TAB || !config.moveTopBar())
 			return;
+
+		clientThread.invokeAtTickEnd(() -> lastInventoryTab = client.getVarcIntValue(VarClientInt.INVENTORY_TAB));
 
 		// make sure all the stuff exists
 		if (bottomBar == null)
@@ -174,6 +193,17 @@ public class Clodern extends Plugin
 
 		// snap top bar to bottom bar when inventory box is hidden
 		if (client.getVarcIntValue(VarClientInt.INVENTORY_TAB) == -1){
+			// block varcint change if enabled, inventory not currently collapsed AND we clicked after the collapse window
+			if (config.collapseTimeout() != -1 && lastInventoryTab != -1
+				&& client.getGameCycle() > lastClickedATab + config.collapseTimeout())
+			{
+				log.debug("block invy collapse");
+				client.setVarcIntValue(VarClientInt.INVENTORY_TAB, lastInventoryTab);
+				lastClickedATab = client.getGameCycle();
+				return;
+			}
+
+			lastClickedATab = -1;
 
 			inventoryWasHidden = true;
 //			log.debug("inventory is hidden, move top bar");
