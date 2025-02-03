@@ -2,21 +2,18 @@ package net.runelite.client.plugins.clodern;
 
 import com.google.inject.Provides;
 import java.awt.Point;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
-import net.runelite.api.ScriptID;
 import net.runelite.api.VarClientInt;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.ScriptPostFired;
-import net.runelite.api.events.ScriptPreFired;
 import net.runelite.api.events.VarClientIntChanged;
-import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.InterfaceID;
 import net.runelite.api.widgets.Widget;
@@ -27,8 +24,8 @@ import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import static net.runelite.client.plugins.clodern.ClodernConfig.GROUP;
+import net.runelite.client.plugins.clodern.Stuff.FakeDoor;
 import net.runelite.client.ui.overlay.OverlayManager;
-import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.WidgetOverlay;
 
 @Slf4j
@@ -38,10 +35,10 @@ import net.runelite.client.ui.overlay.WidgetOverlay;
 public class Clodern extends Plugin
 {
 	@Inject
-	private Client client;
+	public Client client;
 
 	@Inject
-	private ClientThread clientThread;
+	public ClientThread clientThread;
 
 	@Inject
 	private ClodernConfig config;
@@ -51,6 +48,9 @@ public class Clodern extends Plugin
 
 	private boolean inventoryWasHidden;
 
+	private FakeDoor fakeDoor;
+
+	@Getter
 	private Widget bottomBar;
 	private Widget topBar;
 	private Widget inventoryBox;
@@ -58,9 +58,6 @@ public class Clodern extends Plugin
 	private WidgetOverlay topBarOverlay;
 	private WidgetOverlay inventoryBoxOverlay;
 
-	private WidgetOverlay logoutDoor;
-
-	private int lastInventoryTab;
 	private int lastClickedATab;
 
 	private final int TAB_X_OFFSET_SIZE = 33;
@@ -77,7 +74,7 @@ public class Clodern extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
-		inventoryWasHidden = false;
+		inventoryWasHidden = true;
 
 		bottomBar = null;
 		topBar = null;
@@ -86,8 +83,14 @@ public class Clodern extends Plugin
 		topBarOverlay = null;
 		inventoryBoxOverlay = null;
 
-		lastInventoryTab = -1;
 		lastClickedATab = -1;
+		clientThread.invoke(this::moveComponents);
+	}
+
+	@Override
+	protected void shutDown() throws Exception
+	{
+		resetPositions();
 	}
 
 	@Subscribe
@@ -96,16 +99,94 @@ public class Clodern extends Plugin
 			return;
 
 		if ("logoutDoor".equals(e.getKey())){
-			clientThread.invoke(this::checkLogoutDoor);
+			clientThread.invoke(this::shuffleButtons);
 		}
-//		else if ("moveTopBar".equals(e.getKey())){
-//			// if turned OFF: return to original positions? TODO
+		else if ("moveTopBar".equals(e.getKey())){
+			if (!config.moveTopBar()){
+				resetPositions();
+			}
+		}
+	}
+
+	@Subscribe
+	private void onMenuOptionClicked(MenuOptionClicked e){
+		if (config.collapseTimeout() == -1 || !"".equals(e.getMenuTarget()))
+			return;
+
+		// check that this widget is one of the inventory tabs!
+//		if (e.getWidget().getParent()){
+//
 //		}
+
+		List<String> currentTabOptionName;
+
+		switch (client.getVarcIntValue(VarClientInt.INVENTORY_TAB)){
+			case 0:
+				currentTabOptionName = List.of("Combat Options");
+				break;
+			case 1:
+				currentTabOptionName = List.of("Skills");
+				break;
+			case 2:
+				currentTabOptionName = List.of("Character Summary","Quest List","Achievement Diaries");
+				break;
+			case 3:
+				currentTabOptionName = List.of("Inventory");
+				break;
+			case 4:
+				currentTabOptionName = List.of("Worn Equipment");
+				break;
+			case 5:
+				currentTabOptionName = List.of("Prayer");
+				break;
+			case 6:
+				currentTabOptionName = List.of("Magic");
+				break;
+			case 7:
+				currentTabOptionName = List.of("Grouping","Chat-channel","Your Clan","View another clan");
+				break;
+			case 8:
+				currentTabOptionName = List.of("Account Management");
+				break;
+			case 9:
+				currentTabOptionName = List.of("Friends List","Ignore list");
+				break;
+			case 10:
+				currentTabOptionName = List.of("Logout");
+				break;
+			case 11:
+				currentTabOptionName = List.of("Settings");
+				break;
+			case 12:
+				currentTabOptionName = List.of("Emotes");
+				break;
+			case 13:
+				currentTabOptionName = List.of("Music Player");
+				break;
+			default:
+				// includes -1 (inventory hidden)
+				return;
+		}
+
+		if (currentTabOptionName.stream().noneMatch(str -> str.equalsIgnoreCase(e.getMenuOption())))
+			return;
+
+		// block varcint change if enabled, inventory not currently collapsed AND we clicked after the collapse window
+		if (client.getGameCycle() > lastClickedATab + config.collapseTimeout())
+		{
+			e.consume();
+			log.debug("blocked invy collapse!");
+			lastClickedATab = client.getGameCycle();
+			return;
+		}
+
+		lastClickedATab = -1;
 	}
 
 	@Subscribe
 	private void onGameStateChanged(GameStateChanged e){
 		if (e.getGameState() == GameState.LOGGING_IN || e.getGameState() == GameState.HOPPING){
+			inventoryWasHidden = true;
 			// don't block the change on logging in & default tab plugin on hopping
 			lastClickedATab = client.getTickCount();
 		}
@@ -116,41 +197,28 @@ public class Clodern extends Plugin
 		if (e.getScriptId() != 907 && e.getScriptId() != 6010)
 			return;
 
-		clientThread.invoke(this::checkLogoutDoor);
+		clientThread.invoke(this::shuffleButtons);
 	}
 
-	private void checkLogoutDoor()
+	private void shuffleButtons()
 	{
 		if (config.logoutDoor()){
-			// move tabs, unhide the classic logout door and put it in the right spot (also set parent? (unset parent when changing interface style?))
+			// shuffle buttons and icons to the left
 			Widget bottomBarButtonContainer = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE,37);
 			if (bottomBarButtonContainer == null || bottomBarButtonContainer.isHidden())
 				return;
 			bottomBarButtonContainer.setRelativeX(0);
 			bottomBarButtonContainer.setWidth(231);
-
-			// shuffle all (?) the buttons and icons to the left
 			offsets.forEach((id, offset) -> {
 				Widget button = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE,id);
-				if (button == null)
-					return;
-				button.setRelativeX(offset * TAB_X_OFFSET_SIZE);
+				if (button != null)
+					button.setRelativeX(offset * TAB_X_OFFSET_SIZE);
 			});
 
-			// todo: make my own widget/thing which changes varclientint when clicked (and turns red?)
+			addFakeDoor();
 		}
 		else {
-			Widget bottomBarButtonContainer = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE,37);
-			if (bottomBarButtonContainer == null)
-				return;
-			bottomBarButtonContainer.revalidate();
-
-			offsets.forEach((id, offset) -> {
-				Widget button = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE,id);
-				if (button == null)
-					return;
-				button.revalidate();
-			});
+			removeFakeDoor();
 		}
 	}
 
@@ -159,13 +227,21 @@ public class Clodern extends Plugin
 		if (e.getIndex() != VarClientInt.INVENTORY_TAB || !config.moveTopBar())
 			return;
 
-		clientThread.invokeAtTickEnd(() -> lastInventoryTab = client.getVarcIntValue(VarClientInt.INVENTORY_TAB));
+		moveComponents();
+	}
 
+	@Provides
+	ClodernConfig provideConfig(ConfigManager configManager)
+	{
+		return configManager.getConfig(ClodernConfig.class);
+	}
+
+	private void moveComponents(){
 		// make sure all the stuff exists
 		if (bottomBar == null)
 			bottomBar = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_TABS1);
 		if (topBar == null)
-			topBar = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_TABS1);
+			topBar = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_TABS2);
 		if (inventoryBox == null)
 			inventoryBox = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_INVENTORY_PARENT);
 		if (topBarOverlay == null)
@@ -173,7 +249,7 @@ public class Clodern extends Plugin
 			topBarOverlay = overlayManager.get(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_TABS2);
 			if (topBarOverlay == null)
 			{
-//				log.warn("couldn't find top bar widgetoverlay");
+				log.info("couldn't find top bar widgetoverlay");
 				return;
 			}
 		}
@@ -183,7 +259,7 @@ public class Clodern extends Plugin
 			inventoryBoxOverlay = overlayManager.get(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_INVENTORY_PARENT);
 			if (inventoryBoxOverlay == null)
 			{
-//				log.warn("couldn't find inventory box widgetoverlay");
+				log.info("couldn't find inventory box widgetoverlay");
 				return;
 			}
 		}
@@ -193,22 +269,11 @@ public class Clodern extends Plugin
 
 		// snap top bar to bottom bar when inventory box is hidden
 		if (client.getVarcIntValue(VarClientInt.INVENTORY_TAB) == -1){
-			// block varcint change if enabled, inventory not currently collapsed AND we clicked after the collapse window
-			if (config.collapseTimeout() != -1 && lastInventoryTab != -1
-				&& client.getGameCycle() > lastClickedATab + config.collapseTimeout())
-			{
-				log.debug("block invy collapse");
-				client.setVarcIntValue(VarClientInt.INVENTORY_TAB, lastInventoryTab);
-				lastClickedATab = client.getGameCycle();
-				return;
-			}
-
-			lastClickedATab = -1;
-
 			inventoryWasHidden = true;
-//			log.debug("inventory is hidden, move top bar");
+			log.debug("inventory is hidden, snap top bar");
 
 			topBarOverlay.setPreferredLocation(new Point(bottomBar.getRelativeX(), bottomBar.getRelativeY() - topBar.getHeight()));
+			topBarOverlay.revalidate();
 		}
 
 		// snap invy to bottom bar, top bar to invy when invy is unhidden
@@ -216,12 +281,12 @@ public class Clodern extends Plugin
 			if (!inventoryWasHidden)
 			{
 				if (config.logoutDoor())
-					clientThread.invoke(this::checkLogoutDoor);
+					clientThread.invoke(this::shuffleButtons);
 				return;
 			}
 
 			inventoryWasHidden = false;
-//			log.debug("inventory un-hidden, move inventory box and top bar");
+			log.debug("inventory un-hidden, move inventory box and top bar");
 
 			// snap inventory to bottom bar
 			if (bottomBar.isHidden() || inventoryBox == null)
@@ -240,16 +305,62 @@ public class Clodern extends Plugin
 			}
 
 			inventoryBoxOverlay.setPreferredLocation(new Point(snapToX, bottomBar.getRelativeY() - inventoryBox.getHeight()));
+			inventoryBoxOverlay.revalidate();
 
 			// snap top bar to top of inventory
 
 			topBarOverlay.setPreferredLocation(new Point(bottomBar.getRelativeX(), bottomBar.getRelativeY() - inventoryBox.getHeight() - topBar.getHeight()));
+			topBarOverlay.revalidate();
 		}
 	}
 
-	@Provides
-	ClodernConfig provideConfig(ConfigManager configManager)
-	{
-		return configManager.getConfig(ClodernConfig.class);
+	private void addFakeDoor(){
+//		log.debug("adding door");
+//		// unhide the classic logout door and put it in the right spot (also set parent? (unset parent when changing interface style?))
+//		fakeDoor = new FakeDoor(this);
+//		fakeDoor.create();
+//		System.out.println("fake door widget exists?: "+ (fakeDoor.logoutButton == null));
+//		fakeDoor.info();
+	}
+
+	private void removeFakeDoor(){
+//		log.debug("removing door");
+//		fakeDoor.destroy();
+//		fakeDoor = null;
+//
+//		offsets.forEach((id, offset) -> {
+//			Widget button = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE,id);
+//			if (button == null)
+//				return;
+//			button.revalidate();
+//		});
+	}
+
+	private void resetPositions(){
+		log.debug("resetting widgets to default position");
+
+		inventoryBoxOverlay.setPreferredLocation(null);
+		inventoryBoxOverlay.revalidate();
+		topBarOverlay.setPreferredLocation(null);
+		topBarOverlay.revalidate();
+
+		Widget bottomBarButtonContainer = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE,37);
+		if (bottomBarButtonContainer != null)
+			clientThread.invoke(() -> {
+				bottomBarButtonContainer.revalidate();
+
+				offsets.forEach((id, offset) -> {
+					Widget button = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE, id);
+					if (button != null)
+						button.revalidate();
+				});
+			});
+
+		WidgetOverlay bottomBarOverlay = overlayManager.get(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_TABS1);
+		if (bottomBarOverlay != null)
+		{
+			bottomBarOverlay.setPreferredLocation(null);
+			bottomBarOverlay.revalidate();
+		}
 	}
 }

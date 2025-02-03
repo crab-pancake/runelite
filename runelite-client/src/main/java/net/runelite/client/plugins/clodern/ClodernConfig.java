@@ -33,8 +33,8 @@ public interface ClodernConfig extends Config
 
 	@ConfigItem(
 		keyName = "logoutDoor",
-		name = "Replace log-out door",
-		description = "Add the log-out door back to the bottom tab",
+		name = "Return logout door",
+		description = "Add the logout door back to the bottom tab",
 		position = 3
 	)
 	default boolean logoutDoor()
@@ -51,7 +51,7 @@ public interface ClodernConfig extends Config
 	)
 	default int collapseTimeout()
 	{
-		return 8;
+		return -1;
 	}
 
 	enum Position{
@@ -60,5 +60,5 @@ public interface ClodernConfig extends Config
 		RIGHT
 	}
 
-	final String GROUP = "clodern";
+	String GROUP = "clodern";
 }
