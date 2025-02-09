@@ -138,6 +138,9 @@ public final class Varbits
 	public static final int RUNE_POUCH_AMOUNT5 = 15375;
 	public static final int RUNE_POUCH_AMOUNT6 = 15376;
 
+	public static final int PRAYER_DEADEYE_UNLOCKED = 16097;
+	public static final int PRAYER_MYSTIC_VIGOUR_UNLOCKED = 16098;
+
 	/**
 	 * Prayers
 	 */
@@ -966,6 +969,8 @@ public final class Varbits
 	public static final int COMBAT_TASK_ELITE = 12888;
 	public static final int COMBAT_TASK_MASTER = 12889;
 	public static final int COMBAT_TASK_GRANDMASTER = 12890;
+
+	public static final int LEPRECHAUNS_LUCK = 15344;
 
 	public static final int LEAGUES_MELEE_COMBAT_MASTERY_LEVEL = 11580;
 	public static final int LEAGUES_RANGED_COMBAT_MASTERY_LEVEL = 11581;
