@@ -435,7 +435,7 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 			Collection<String> tags = tagManager.getTags(itemId, false);
 			tags.addAll(tagManager.getTags(itemId, true));
 			int tagCount = (int) tags.stream()
-				.filter(tag -> !developerMode && !tagManager.isHidden(tag))
+				.filter(tag -> developerMode || !tagManager.isHidden(tag))
 				.count();
 
 			String text = EDIT_TAGS_MENU_OPTION;
@@ -464,11 +464,11 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 
 		// Get both tags and vartags and append * to end of vartags name
 		List<String> tags = tagManager.getTags(itemId, false).stream()
-			.filter(tag -> !developerMode && !tagManager.isHidden(tag))
+			.filter(tag -> developerMode || !tagManager.isHidden(tag))
 			.collect(Collectors.toList());
 
 		tagManager.getTags(itemId, true).stream()
-			.filter(tag -> !developerMode && !tagManager.isHidden(tag))
+			.filter(tag -> developerMode || !tagManager.isHidden(tag))
 			.map(tag -> tag + "*")
 			.forEach(tags::add);
 

@@ -690,8 +690,11 @@ public class TabInterface
 						{
 							tab.setIconItemId(itemId);
 							tabManager.save();
-							rebuildTabs();
-							rebuildAllTagsTab();
+							clientThread.invokeLater(() ->
+							{
+								rebuildTabs();
+								rebuildAllTagsTab();
+							});
 						}
 					})
 					.build();
