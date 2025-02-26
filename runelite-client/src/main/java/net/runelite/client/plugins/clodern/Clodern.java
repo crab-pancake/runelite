@@ -190,6 +190,10 @@ public class Clodern extends Plugin
 			// don't block the change on logging in & default tab plugin on hopping
 			lastClickedATab = client.getTickCount();
 		}
+		if (e.getGameState() == GameState.LOGGED_IN){
+			clientThread.invoke(this::moveComponents);
+			clientThread.invoke(this::shuffleButtons);
+		}
 	}
 
 	@Subscribe
