@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Adam <Adam@sigterm.info>
+ * Copyright (c) 2021, Hydrox6 <ikada@protonmail.ch>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,43 +22,55 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.runelite.client.plugins.clodern.Stuff;
 
-package net.runelite.cache;
+import java.util.Arrays;
+import javax.inject.Inject;
+import net.runelite.api.SpriteID;
+import net.runelite.api.widgets.Widget;
+import net.runelite.client.plugins.clodern.Clodern;
 
-public enum IndexType
+public class FakeDoor
 {
-	ANIMATIONS(0),
-	SKELETONS(1),
-	CONFIGS(2),
-	INTERFACES(3),
-	SOUNDEFFECTS(4),
-	MAPS(5),
-	MUSIC_TRACKS(6),
-	MODELS(7),
-	SPRITES(8),
-	TEXTURES(9),
-	BINARY(10),
-	MUSIC_JINGLES(11),
-	CLIENTSCRIPT(12),
-	FONTS(13),
-	MUSIC_SAMPLES(14),
-	MUSIC_PATCHES(15),
-	WORLDMAP_GEOGRAPHY(18),
-	WORLDMAP(19),
-	WORLDMAP_GROUND(20),
-	DBTABLEINDEX(21),
-	ANIMAYAS(22),
-	GAMEVALS(24);
+	private final Clodern plugin;
+	public CustomWidgetToggleButton logoutButton = null;
 
-	private int id;
-
-	IndexType(int id)
+	@Inject
+	public FakeDoor(Clodern plugin)
 	{
-		this.id = id;
+		this.plugin = plugin;
 	}
 
-	public int getNumber()
-	{
-		return id;
+	public void create(){
+		final Widget parent = plugin.getBottomBar();
+		if (parent == null)
+			return;
+
+		logoutButton = new CustomWidgetToggleButton(
+			plugin.client,
+			parent,
+			"",
+			SpriteID.RESIZEABLE_MODE_TAB_STONE_MIDDLE_SELECTED,
+			SpriteID.RESIZEABLE_MODE_TAB_STONE_MIDDLE_SELECTED,
+			SpriteID.RS2_TAB_LOGOUT,
+			() ->
+			{
+				System.out.println("logout button clicked!");
+				plugin.clientThread.invoke(() -> plugin.client.runScript(915, 10));
+			});
+//		logoutButton.setAction("Logout");
+		logoutButton.create();
+//		logoutButton.setSize(33, 36);
+//		logoutButton.setIconSize(33, 36);
+//		logoutButton.layout(4 * 33, 0);
+	}
+
+	public void info(){
+		System.out.println("pos: "+logoutButton.base.getBounds().getX()+", "+logoutButton.base.getBounds().getY());
+		System.out.println("actions: "+ Arrays.toString(logoutButton.base.getActions()));
+	}
+
+	public void destroy(){
+
 	}
 }

@@ -38,7 +38,6 @@ import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -72,6 +71,7 @@ import net.runelite.api.Scene;
 import net.runelite.api.ScriptID;
 import net.runelite.api.Tile;
 import net.runelite.api.TileObject;
+import net.runelite.api.VarClientStr;
 import net.runelite.api.Varbits;
 import net.runelite.api.annotations.Component;
 import net.runelite.api.coords.LocalPoint;
@@ -90,6 +90,7 @@ import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
+import net.runelite.api.events.VarClientStrChanged;
 import net.runelite.api.events.WallObjectDespawned;
 import net.runelite.api.events.WallObjectSpawned;
 import net.runelite.api.events.WidgetLoaded;
@@ -126,6 +127,7 @@ import net.runelite.client.plugins.cluescrolls.clues.NpcClueScroll;
 import net.runelite.client.plugins.cluescrolls.clues.ObjectClueScroll;
 import net.runelite.client.plugins.cluescrolls.clues.SkillChallengeClue;
 import net.runelite.client.plugins.cluescrolls.clues.ThreeStepCrypticClue;
+import net.runelite.client.plugins.cluescrolls.clues.emote.Emote;
 import net.runelite.client.plugins.cluescrolls.clues.item.ItemRequirement;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.OverlayUtil;
@@ -240,6 +242,10 @@ public class ClueScrollPlugin extends Plugin
 	private EmoteClue activeSTASHClue;
 	private EmoteClue clickedSTASHClue;
 
+	private String previousChatboxText;
+
+	private final List<Integer> inventoryClues = new ArrayList<>();
+
 	@Provides
 	ClueScrollConfig getConfig(ConfigManager configManager)
 	{
@@ -265,6 +271,30 @@ public class ClueScrollPlugin extends Plugin
 		tagManager.registerTag(ARMOUR_CASE_TAG_NAME, this::testArmourCase);
 		tagManager.registerTag(CAPE_RACK_TAG_NAME, this::testCapeRack);
 		tagManager.registerTag(TOY_BOX_TAG_NAME, this::testToyBox);
+	}
+
+	@Subscribe
+	public void onVarClientStrChanged(VarClientStrChanged e){
+		if (e.getIndex() != VarClientStr.CHATBOX_TYPED_TEXT)
+			return;
+
+		if (clue != null && this.clue instanceof EmoteClue){
+			Emote emote = ((EmoteClue) this.clue).getFirstEmote();
+			String previousCommand = "!"+emote.getName().replace(" ","").toLowerCase();
+			if (emote.getSpriteId() != -1 && "".equals(client.getVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT)) && previousCommand.equals(previousChatboxText))
+			{
+				Emote emote2 = ((EmoteClue) this.clue).getSecondEmote();
+				if (emote2 != null)
+				{
+					clientThread.invokeLater(() -> {
+						client.setVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT, "!" + emote2.getName().replace(" ", "").toLowerCase());
+						client.runScript(73, -2147483640, -2147483639);
+					});
+				}
+			}
+		}
+
+		previousChatboxText = client.getVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT);
 	}
 
 	@Override
@@ -408,6 +438,10 @@ public class ClueScrollPlugin extends Plugin
 			}
 		}
 
+		// TODO: compare new inventory to old inventory
+		// if anything changed, set that clue item as the current clue
+		// need to make findClueScroll(id) - clue details plugin?
+
 		// Check if item was removed from inventory
 		if (clue != null && clueItemId != null)
 		{
@@ -434,6 +468,8 @@ public class ClueScrollPlugin extends Plugin
 				checkClueNPCs(clue, client.getTopLevelWorldView().npcs());
 			}
 		}
+
+		// TODO: update inventoryClues with new inventory
 	}
 
 	private List<Item> getRunepouchContents()
@@ -1084,6 +1120,10 @@ public class ClueScrollPlugin extends Plugin
 		}
 	}
 
+	private void getInventoryClues(ItemContainer e){
+
+	}
+
 	private void updateClue(final ClueScroll clue)
 	{
 		if (clue == null || clue == this.clue)
@@ -1097,6 +1137,16 @@ public class ClueScrollPlugin extends Plugin
 		// If we have a clue, save that knowledge
 		// so the clue window doesn't have to be open.
 		this.clue = clue;
+
+		if (this.clue instanceof EmoteClue)
+		{
+			Emote emote = ((EmoteClue) this.clue).getFirstEmote();
+			if (emote.getSpriteId() != -1)
+			{
+				client.setVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT, "!"+emote.getName().replace(" ","").toLowerCase());
+				client.runScript(73, -2147483640, -2147483639);
+			}
+		}
 
 		updateOverlayMenuEntries();
 	}

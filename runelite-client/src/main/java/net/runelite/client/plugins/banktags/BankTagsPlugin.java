@@ -30,6 +30,7 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Shorts;
 import com.google.inject.Binder;
 import com.google.inject.Provides;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -55,6 +56,7 @@ import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.config.Keybind;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -62,6 +64,7 @@ import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.ItemVariationMapping;
 import net.runelite.client.game.SpriteManager;
 import net.runelite.client.game.chatbox.ChatboxPanelManager;
+import net.runelite.client.input.KeyListener;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -71,7 +74,6 @@ import net.runelite.client.plugins.banktags.tabs.LayoutManager;
 import net.runelite.client.plugins.banktags.tabs.TabInterface;
 import static net.runelite.client.plugins.banktags.tabs.TabInterface.FILTERED_CHARS;
 import net.runelite.client.plugins.banktags.tabs.TabSprites;
-import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.Text;
 
 @PluginDescriptor(
@@ -216,7 +218,7 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 		eventBus.register(tabInterface);
 		layoutManager.register();
 		clientThread.invokeLater(this::reinitBank);
-		keyManager.registerKeyListener(hotkeyListener);
+		keyManager.registerKeyListener(tabKeyListener);
 	}
 
 	@Override
@@ -232,7 +234,7 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 			reinitBank();
 		});
 		spriteManager.removeSpriteOverrides(TabSprites.values());
-		keyManager.unregisterKeyListener(hotkeyListener);
+		keyManager.unregisterKeyListener(tabKeyListener);
 	}
 
 	private void reinitBank()
@@ -247,17 +249,38 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 		}
 	}
 
-	private final HotkeyListener hotkeyListener = new HotkeyListener(() -> config.toggleKeybind())
+	private final KeyListener tabKeyListener = new KeyListener()
 	{
 		@Override
-		public void hotkeyPressed()
+		public void keyTyped(KeyEvent e)
 		{
-			if (tabInterface.isAllTagsTabActive()){
-				tabInterface.closeTag(true);
-				return;
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e)
+		{
+			Keybind keybind = config.toggleKeybind();
+			if (keybind.matches(e))
+			{
+				Widget bankContainer = client.getWidget(ComponentID.BANK_ITEM_CONTAINER);
+				if (bankContainer != null && !bankContainer.isSelfHidden())
+				{
+					log.debug("All tags tab hotkey pressed");
+					if (tabInterface.isAllTagsTabActive())
+					{
+						tabInterface.closeTag(true);
+						return;
+					}
+					clientThread.invoke(() -> client.setVarbit(Varbits.CURRENT_BANK_TAB, 0));
+					openTag("tagtabs", null, 0);
+					e.consume();
+				}
 			}
-			clientThread.invoke(() -> client.setVarbit(Varbits.CURRENT_BANK_TAB, 0));
-			openTag("tagtabs", null, 0);
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e)
+		{
 		}
 	};
 

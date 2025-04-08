@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Adam <Adam@sigterm.info>
+ * Copyright (c) 2020, Hydrox6 <ikada@protonmail.ch>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,44 +22,58 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.cache.definitions;
+package net.runelite.client.plugins.clodern.Stuff;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import lombok.Data;
-import lombok.Value;
+import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetType;
 
-@Data
-public class SequenceDefinition
+public abstract class CustomWidget
 {
-	private final int id;
-	public String debugName;
-	public int[] frameIDs; // top 16 bits are FrameDefinition ids
-	public int[] chatFrameIds;
-	public int[] frameLengths;
-	public int frameStep = -1;
-	public int[] interleaveLeave;
-	public boolean stretches = false;
-	public int forcedPriority = 5;
-	public int leftHandItem = -1;
-	public int rightHandItem = -1;
-	public int maxLoops = 99;
-	public int precedenceAnimating = -1;
-	public int priority = -1;
-	public int replyMode = 2;
-	public int animMayaID = -1;
-	public Multimap<Integer, Sound> frameSounds = ArrayListMultimap.create();
-	public int animMayaStart;
-	public int animMayaEnd;
-	public boolean[] animMayaMasks;
+	protected final Widget parent;
+	private final String name;
 
-	@Value
-	public static class Sound
+	protected int x;
+	protected int y;
+	protected int width;
+	protected int height;
+
+	protected Widget base;
+
+	public static final String ORANGE_COLOUR_WIDGET_NAME = "<col=ff981f>";
+
+	public CustomWidget(final Widget parent, final String name)
 	{
-		public int id;
-		public int loops;
-		public int location;
-		public int retain;
-		public int weight;
+		this.parent = parent;
+		this.name = name;
+	}
+
+	public void setSize(int width, int height)
+	{
+		this.width = width;
+		this.height = height;
+	}
+
+	public void layout(int x, int y)
+	{
+		this.x = x;
+		this.y = y;
+	}
+
+	public abstract void create();
+
+	protected Widget createSpriteWidget(int width, int height)
+	{
+		final Widget w = parent.createChild(-1, WidgetType.GRAPHIC);
+		w.setOriginalWidth(width);
+		w.setOriginalHeight(height);
+		w.setName(ORANGE_COLOUR_WIDGET_NAME + this.name);
+		return w;
+	}
+
+	protected static void layoutWidget(Widget w, int x, int y)
+	{
+		w.setOriginalX(x);
+		w.setOriginalY(y);
+		w.revalidate();
 	}
 }

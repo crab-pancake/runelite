@@ -28,7 +28,7 @@
 
 	<groupId>net.runelite</groupId>
 	<artifactId>runelite-parent</artifactId>
-	<version>1.11.2</version>
+	<version>1.11.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>RuneLite</name>
@@ -61,7 +61,7 @@
 		<url>https://github.com/runelite/runelite</url>
 		<connection>scm:git:git://github.com/runelite/runelite</connection>
 		<developerConnection>scm:git:git@github.com:runelite/runelite</developerConnection>
-		<tag>runelite-parent-1.11.2</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<developers>
@@ -237,6 +237,8 @@
 				<configuration>
 					<!-- Javadoc the delombok sources -->
 					<sourcepath>${project.build.directory}/delombok</sourcepath>
+					<!-- default bottom uses outputTimestamp for the year and generates 2014-1970 otherwise -->
+					<bottom>Copyright &#169; {inceptionYear}</bottom>
 				</configuration>
 				<!-- maven-release-plugin runs maven-javadoc-plugin:jar as one of its
 				     release steps, so we will run it as well for the CI. Note this

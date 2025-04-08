@@ -119,6 +119,8 @@ public final class NpcID
 	public static final int WOLF_116 = 116;
 	public static final int WOLF_117 = 117;
 	public static final int IGNATIUS_VULCAN = 118;
+	public static final int AGGIE = 120;
+	public static final int AGGIE_121 = 121;
 	public static final int LEFT_HEAD = 125;
 	public static final int MIDDLE_HEAD = 126;
 	public static final int RIGHT_HEAD = 127;
@@ -3985,7 +3987,6 @@ public final class NpcID
 	public static final int JAIL_GUARD_4278 = 4278;
 	public static final int JAIL_GUARD_4279 = 4279;
 	public static final int NED = 4280;
-	public static final int AGGIE = 4284;
 	public static final int CHANCELLOR_HASSAN = 4285;
 	public static final int OSMAN_4286 = 4286;
 	public static final int BORDER_GUARD = 4287;
@@ -11878,7 +11879,6 @@ public final class NpcID
 	public static final int ICICLES = 14153;
 	public static final int PIRATE_14155 = 14155;
 	public static final int PIRATE_14156 = 14156;
-	public static final int DEVILED_DAVE = 14157;
 	public static final int CRAWLING_HAND_14158 = 14158;
 	public static final int CRAWLING_HAND_14159 = 14159;
 	public static final int CRAWLING_HAND_14160 = 14160;

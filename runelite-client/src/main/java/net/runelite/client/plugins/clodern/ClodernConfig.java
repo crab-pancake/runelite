@@ -3,6 +3,7 @@ package net.runelite.client.plugins.clodern;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.Range;
 import static net.runelite.client.plugins.clodern.ClodernConfig.GROUP;
 
 @ConfigGroup(GROUP)
@@ -32,13 +33,25 @@ public interface ClodernConfig extends Config
 
 	@ConfigItem(
 		keyName = "logoutDoor",
-		name = "Replace log-out door",
-		description = "Add the log-out door back to the bottom tab",
+		name = "Return logout door",
+		description = "Add the logout door back to the bottom tab",
 		position = 3
 	)
 	default boolean logoutDoor()
 	{
 		return true;
+	}
+
+	@Range(min=-1)
+	@ConfigItem(
+		keyName = "collapseTimeout",
+		name = "Tab collapse double-click window",
+		description = "Only collapse inventory if a tab is double-clicked within this many client ticks (50 per second). Set to -1 to disable",
+		position = 4
+	)
+	default int collapseTimeout()
+	{
+		return -1;
 	}
 
 	enum Position{
@@ -47,5 +60,5 @@ public interface ClodernConfig extends Config
 		RIGHT
 	}
 
-	final String GROUP = "clodern";
+	String GROUP = "clodern";
 }

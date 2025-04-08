@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Adam <Adam@sigterm.info>
+ * Copyright (c) 2020, Hydrox6 <ikada@protonmail.ch>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,44 +22,41 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.cache.definitions;
+package net.runelite.client.plugins.clodern.Stuff;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import lombok.Data;
-import lombok.Value;
+import net.runelite.api.widgets.Widget;
 
-@Data
-public class SequenceDefinition
+public abstract class CustomWidgetWithIcon extends CustomWidget
 {
-	private final int id;
-	public String debugName;
-	public int[] frameIDs; // top 16 bits are FrameDefinition ids
-	public int[] chatFrameIds;
-	public int[] frameLengths;
-	public int frameStep = -1;
-	public int[] interleaveLeave;
-	public boolean stretches = false;
-	public int forcedPriority = 5;
-	public int leftHandItem = -1;
-	public int rightHandItem = -1;
-	public int maxLoops = 99;
-	public int precedenceAnimating = -1;
-	public int priority = -1;
-	public int replyMode = 2;
-	public int animMayaID = -1;
-	public Multimap<Integer, Sound> frameSounds = ArrayListMultimap.create();
-	public int animMayaStart;
-	public int animMayaEnd;
-	public boolean[] animMayaMasks;
+	protected int iconWidth;
+	protected int iconHeight;
 
-	@Value
-	public static class Sound
+	protected int iconSpriteID;
+	protected int iconPaddingX;
+	protected int iconPaddingY;
+
+	protected Widget icon;
+
+	public CustomWidgetWithIcon(final Widget parent, final String name, int iconSpriteID)
 	{
-		public int id;
-		public int loops;
-		public int location;
-		public int retain;
-		public int weight;
+		super(parent, name);
+		this.iconSpriteID = iconSpriteID;
+	}
+
+	public void setIconSize(int width, int height)
+	{
+		this.iconWidth = width;
+		this.iconHeight = height;
+		iconPaddingX = (this.width - iconWidth) / 2;
+		iconPaddingY = (this.height - iconHeight) / 2;
+	}
+
+	@Override
+	public void layout(int x, int y)
+	{
+		super.layout(x, y);
+		layoutWidget(icon, x + iconPaddingX, y + iconPaddingY);
+
+		parent.revalidate();
 	}
 }
