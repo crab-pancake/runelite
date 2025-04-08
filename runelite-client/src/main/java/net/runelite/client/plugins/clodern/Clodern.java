@@ -14,6 +14,7 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.ScriptPostFired;
 import net.runelite.api.events.VarClientIntChanged;
+import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.InterfaceID;
 import net.runelite.api.widgets.Widget;
@@ -109,6 +110,14 @@ public class Clodern extends Plugin
 	}
 
 	@Subscribe
+	private void onWidgetClosed(WidgetClosed e){
+		if (e.getGroupId() == InterfaceID.INVENTORY){
+			clientThread.invoke(this::moveComponents);
+			clientThread.invoke(this::shuffleButtons);
+		}
+	}
+
+	@Subscribe
 	private void onMenuOptionClicked(MenuOptionClicked e){
 		if (config.collapseTimeout() == -1 || !"".equals(e.getMenuTarget()))
 			return;
@@ -191,8 +200,8 @@ public class Clodern extends Plugin
 			lastClickedATab = client.getTickCount();
 		}
 		if (e.getGameState() == GameState.LOGGED_IN){
-			clientThread.invoke(this::moveComponents);
-			clientThread.invoke(this::shuffleButtons);
+			clientThread.invokeAtTickEnd(this::moveComponents);
+			clientThread.invokeAtTickEnd(this::shuffleButtons);
 		}
 	}
 
@@ -271,51 +280,56 @@ public class Clodern extends Plugin
 		if (bottomBar == null || bottomBar.isHidden() || topBar == null || topBar.isHidden())
 			return;
 
-		// snap top bar to bottom bar when inventory box is hidden
-		if (client.getVarcIntValue(VarClientInt.INVENTORY_TAB) == -1){
-			inventoryWasHidden = true;
-			log.debug("inventory is hidden, snap top bar");
+		clientThread.invokeLater(() -> {
+			// snap top bar to bottom bar when inventory box is hidden
+			if (inventoryBox.isHidden())
+			{  // client.getVarcIntValue(VarClientInt.INVENTORY_TAB) == -1
+				inventoryWasHidden = true;
+				log.debug("inventory is hidden, snap top bar");
 
-			topBarOverlay.setPreferredLocation(new Point(bottomBar.getRelativeX(), bottomBar.getRelativeY() - topBar.getHeight()));
-			topBarOverlay.revalidate();
-		}
+				topBarOverlay.setPreferredLocation(new Point(bottomBar.getRelativeX(), bottomBar.getRelativeY() - topBar.getHeight()));
+				topBarOverlay.revalidate();
+			}
 
-		// snap invy to bottom bar, top bar to invy when invy is unhidden
-		else {
-			if (!inventoryWasHidden)
+			// snap invy to bottom bar, top bar to invy when invy is unhidden
+			else
 			{
-				if (config.logoutDoor())
-					clientThread.invoke(this::shuffleButtons);
-				return;
+				if (!inventoryWasHidden)
+				{
+					if (config.logoutDoor())
+						clientThread.invoke(this::shuffleButtons);
+					return;
+				}
+
+				inventoryWasHidden = false;
+				log.debug("inventory un-hidden, move inventory box and top bar");
+
+				// snap inventory to bottom bar
+				if (bottomBar.isHidden() || inventoryBox == null)
+					return;
+
+				int snapToX;
+				switch (config.inventoryPosition())
+				{
+					case LEFT:
+						snapToX = bottomBar.getRelativeX();
+						break;
+					case CENTRE:
+						snapToX = bottomBar.getRelativeX() + (bottomBar.getWidth() - inventoryBox.getWidth()) / 2;
+						break;
+					default:
+						snapToX = bottomBar.getRelativeX() + bottomBar.getWidth() - inventoryBox.getWidth();
+				}
+
+				inventoryBoxOverlay.setPreferredLocation(new Point(snapToX, bottomBar.getRelativeY() - inventoryBox.getHeight()));
+				inventoryBoxOverlay.revalidate();
+
+				// snap top bar to top of inventory
+
+				topBarOverlay.setPreferredLocation(new Point(bottomBar.getRelativeX(), bottomBar.getRelativeY() - inventoryBox.getHeight() - topBar.getHeight()));
+				topBarOverlay.revalidate();
 			}
-
-			inventoryWasHidden = false;
-			log.debug("inventory un-hidden, move inventory box and top bar");
-
-			// snap inventory to bottom bar
-			if (bottomBar.isHidden() || inventoryBox == null)
-				return;
-
-			int snapToX;
-			switch (config.inventoryPosition()){
-				case LEFT:
-					snapToX = bottomBar.getRelativeX();
-					break;
-				case CENTRE:
-					snapToX = bottomBar.getRelativeX() + (bottomBar.getWidth() - inventoryBox.getWidth()) / 2;
-					break;
-				default:
-					snapToX = bottomBar.getRelativeX() + bottomBar.getWidth() - inventoryBox.getWidth();
-			}
-
-			inventoryBoxOverlay.setPreferredLocation(new Point(snapToX, bottomBar.getRelativeY() - inventoryBox.getHeight()));
-			inventoryBoxOverlay.revalidate();
-
-			// snap top bar to top of inventory
-
-			topBarOverlay.setPreferredLocation(new Point(bottomBar.getRelativeX(), bottomBar.getRelativeY() - inventoryBox.getHeight() - topBar.getHeight()));
-			topBarOverlay.revalidate();
-		}
+		});
 	}
 
 	private void addFakeDoor(){

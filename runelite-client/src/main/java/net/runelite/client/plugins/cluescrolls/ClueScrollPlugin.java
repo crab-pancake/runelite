@@ -243,7 +243,8 @@ public class ClueScrollPlugin extends Plugin
 	private EmoteClue clickedSTASHClue;
 
 	private String previousChatboxText;
-	private String nextString = "";
+
+	private final List<Integer> inventoryClues = new ArrayList<>();
 
 	@Provides
 	ClueScrollConfig getConfig(ConfigManager configManager)
@@ -437,6 +438,10 @@ public class ClueScrollPlugin extends Plugin
 			}
 		}
 
+		// TODO: compare new inventory to old inventory
+		// if anything changed, set that clue item as the current clue
+		// need to make findClueScroll(id) - clue details plugin?
+
 		// Check if item was removed from inventory
 		if (clue != null && clueItemId != null)
 		{
@@ -463,6 +468,8 @@ public class ClueScrollPlugin extends Plugin
 				checkClueNPCs(clue, client.getTopLevelWorldView().npcs());
 			}
 		}
+
+		// TODO: update inventoryClues with new inventory
 	}
 
 	private List<Item> getRunepouchContents()
@@ -788,7 +795,6 @@ public class ClueScrollPlugin extends Plugin
 		}
 
 		clue = null;
-		nextString = "";
 		worldMapPointManager.removeIf(ClueScrollWorldMapPoint.class::isInstance);
 		worldMapPointsSet = false;
 		npcsToMark.clear();
@@ -1112,6 +1118,10 @@ public class ClueScrollPlugin extends Plugin
 				namedObjectsToMark.add(object);
 			}
 		}
+	}
+
+	private void getInventoryClues(ItemContainer e){
+
 	}
 
 	private void updateClue(final ClueScroll clue)
