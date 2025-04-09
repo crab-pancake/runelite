@@ -43,16 +43,16 @@ import javax.inject.Named;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
-import net.runelite.api.InventoryID;
 import net.runelite.api.ItemComposition;
 import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.VarClientStr;
-import net.runelite.api.Varbits;
 import net.runelite.api.events.GrandExchangeSearched;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.ScriptCallbackEvent;
-import net.runelite.api.widgets.ComponentID;
+import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.InventoryID;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -240,7 +240,7 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 	private void reinitBank()
 	{
 		// call [clientscript,bankmain_init]
-		Widget w = client.getWidget(ComponentID.BANK_CONTAINER);
+		Widget w = client.getWidget(InterfaceID.Bankmain.UNIVERSE);
 		if (w != null)
 		{
 			client.createScriptEvent(w.getOnLoadListener())
@@ -262,7 +262,7 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 			Keybind keybind = config.toggleKeybind();
 			if (keybind.matches(e))
 			{
-				Widget bankContainer = client.getWidget(ComponentID.BANK_ITEM_CONTAINER);
+				Widget bankContainer = client.getWidget(InterfaceID.Bankmain.ITEMS);
 				if (bankContainer != null && !bankContainer.isSelfHidden())
 				{
 					log.debug("All tags tab hotkey pressed");
@@ -271,7 +271,7 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 						tabInterface.closeTag(true);
 						return;
 					}
-					clientThread.invoke(() -> client.setVarbit(Varbits.CURRENT_BANK_TAB, 0));
+					clientThread.invoke(() -> client.setVarbit(VarbitID.BANK_CURRENTTAB, 0));
 					openTag("tagtabs", null, 0);
 					e.consume();
 				}
@@ -448,10 +448,10 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 	@Subscribe
 	public void onMenuEntryAdded(MenuEntryAdded event)
 	{
-		if (event.getActionParam1() == ComponentID.BANK_ITEM_CONTAINER
+		if (event.getActionParam1() == InterfaceID.Bankmain.ITEMS
 			&& event.getOption().equals("Examine"))
 		{
-			Widget container = client.getWidget(ComponentID.BANK_ITEM_CONTAINER);
+			Widget container = client.getWidget(InterfaceID.Bankmain.ITEMS);
 			Widget item = container.getChild(event.getActionParam0());
 			int itemId = item.getItemId();
 
