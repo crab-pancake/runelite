@@ -56,6 +56,7 @@ import net.runelite.api.VarClientInt;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.ScriptPreFired;
+import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
@@ -781,7 +782,7 @@ public class LayoutManager
 	}
 
 	private void resizeBankContainerScrollbar(int height, int lastHeight) {
-		Widget container = client.getWidget(ComponentID.BANK_ITEM_CONTAINER);
+		Widget container = client.getWidget(InterfaceID.Bankmain.ITEMS);
 
 		container.setScrollHeight(height); // This change requires the script below to run to take effect.
 
@@ -789,8 +790,8 @@ public class LayoutManager
 
 		clientThread.invokeLater(() ->
 			client.runScript(ScriptID.UPDATE_SCROLLBAR,
-				ComponentID.BANK_SCROLLBAR,
-				ComponentID.BANK_ITEM_CONTAINER,
+				InterfaceID.Bankmain.SCROLLBAR,
+				InterfaceID.Bankmain.ITEMS,
 				itemContainerScroll)
 		);
 	}

@@ -59,9 +59,7 @@ import net.runelite.api.events.ScriptPostFired;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WorldChanged;
-import net.runelite.api.widgets.InterfaceID;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.Notifier;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -199,7 +197,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 			return;
 		}
 
-		widget = client.getWidget(InterfaceID.PVP,50);
+		widget = client.getWidget(InterfaceID.PvpIcons.WILDERNESSLEVEL);
 		if (widget != null && !widget.isHidden())
 		{
 			final Matcher m = Pattern.compile("^Level: (\\d+)(?:<br>\\d+-\\d+)?$").matcher(widget.getText());
@@ -307,7 +305,6 @@ public class PlayerIndicatorsPlugin extends Plugin
 
 			if (type == WALK
 				|| type == WIDGET_TARGET_ON_PLAYER
-				|| type == ITEM_USE_ON_PLAYER
 				|| type == PLAYER_FIRST_OPTION
 				|| type == PLAYER_SECOND_OPTION
 				|| type == PLAYER_THIRD_OPTION

@@ -15,8 +15,7 @@ import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.ScriptPostFired;
 import net.runelite.api.events.VarClientIntChanged;
 import net.runelite.api.events.WidgetClosed;
-import net.runelite.api.widgets.ComponentID;
-import net.runelite.api.widgets.InterfaceID;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -117,80 +116,80 @@ public class Clodern extends Plugin
 		}
 	}
 
-	@Subscribe
-	private void onMenuOptionClicked(MenuOptionClicked e){
-		if (config.collapseTimeout() == -1 || !"".equals(e.getMenuTarget()))
-			return;
-
-		// check that this widget is one of the inventory tabs!
-//		if (e.getWidget().getParent()){
+//	@Subscribe
+//	private void onMenuOptionClicked(MenuOptionClicked e){
+//		if (config.collapseTimeout() == -1 || !"".equals(e.getMenuTarget()))
+//			return;
 //
+//		// check that this widget is one of the inventory tabs!
+////		if (e.getWidget().getParent()){
+////
+////		}
+//
+//		List<String> currentTabOptionName;
+//
+//		switch (client.getVarcIntValue(VarClientInt.INVENTORY_TAB)){
+//			case 0:
+//				currentTabOptionName = List.of("Combat Options");
+//				break;
+//			case 1:
+//				currentTabOptionName = List.of("Skills");
+//				break;
+//			case 2:
+//				currentTabOptionName = List.of("Character Summary","Quest List","Achievement Diaries");
+//				break;
+//			case 3:
+//				currentTabOptionName = List.of("Inventory");
+//				break;
+//			case 4:
+//				currentTabOptionName = List.of("Worn Equipment");
+//				break;
+//			case 5:
+//				currentTabOptionName = List.of("Prayer");
+//				break;
+//			case 6:
+//				currentTabOptionName = List.of("Magic");
+//				break;
+//			case 7:
+//				currentTabOptionName = List.of("Grouping","Chat-channel","Your Clan","View another clan");
+//				break;
+//			case 8:
+//				currentTabOptionName = List.of("Account Management");
+//				break;
+//			case 9:
+//				currentTabOptionName = List.of("Friends List","Ignore list");
+//				break;
+//			case 10:
+//				currentTabOptionName = List.of("Logout");
+//				break;
+//			case 11:
+//				currentTabOptionName = List.of("Settings");
+//				break;
+//			case 12:
+//				currentTabOptionName = List.of("Emotes");
+//				break;
+//			case 13:
+//				currentTabOptionName = List.of("Music Player");
+//				break;
+//			default:
+//				// includes -1 (inventory hidden)
+//				return;
 //		}
-
-		List<String> currentTabOptionName;
-
-		switch (client.getVarcIntValue(VarClientInt.INVENTORY_TAB)){
-			case 0:
-				currentTabOptionName = List.of("Combat Options");
-				break;
-			case 1:
-				currentTabOptionName = List.of("Skills");
-				break;
-			case 2:
-				currentTabOptionName = List.of("Character Summary","Quest List","Achievement Diaries");
-				break;
-			case 3:
-				currentTabOptionName = List.of("Inventory");
-				break;
-			case 4:
-				currentTabOptionName = List.of("Worn Equipment");
-				break;
-			case 5:
-				currentTabOptionName = List.of("Prayer");
-				break;
-			case 6:
-				currentTabOptionName = List.of("Magic");
-				break;
-			case 7:
-				currentTabOptionName = List.of("Grouping","Chat-channel","Your Clan","View another clan");
-				break;
-			case 8:
-				currentTabOptionName = List.of("Account Management");
-				break;
-			case 9:
-				currentTabOptionName = List.of("Friends List","Ignore list");
-				break;
-			case 10:
-				currentTabOptionName = List.of("Logout");
-				break;
-			case 11:
-				currentTabOptionName = List.of("Settings");
-				break;
-			case 12:
-				currentTabOptionName = List.of("Emotes");
-				break;
-			case 13:
-				currentTabOptionName = List.of("Music Player");
-				break;
-			default:
-				// includes -1 (inventory hidden)
-				return;
-		}
-
-		if (currentTabOptionName.stream().noneMatch(str -> str.equalsIgnoreCase(e.getMenuOption())))
-			return;
-
-		// block varcint change if enabled, inventory not currently collapsed AND we clicked after the collapse window
-		if (client.getGameCycle() > lastClickedATab + config.collapseTimeout())
-		{
-			e.consume();
-			log.debug("blocked invy collapse!");
-			lastClickedATab = client.getGameCycle();
-			return;
-		}
-
-		lastClickedATab = -1;
-	}
+//
+//		if (currentTabOptionName.stream().noneMatch(str -> str.equalsIgnoreCase(e.getMenuOption())))
+//			return;
+//
+//		// block varcint change if enabled, inventory not currently collapsed AND we clicked after the collapse window
+//		if (client.getGameCycle() > lastClickedATab + config.collapseTimeout())
+//		{
+//			e.consume();
+//			log.debug("blocked invy collapse!");
+//			lastClickedATab = client.getGameCycle();
+//			return;
+//		}
+//
+//		lastClickedATab = -1;
+//	}
 
 	@Subscribe
 	private void onGameStateChanged(GameStateChanged e){
@@ -200,6 +199,8 @@ public class Clodern extends Plugin
 			lastClickedATab = client.getTickCount();
 		}
 		if (e.getGameState() == GameState.LOGGED_IN){
+			client.setVarbit(14709,1);
+
 			clientThread.invokeAtTickEnd(this::moveComponents);
 			clientThread.invokeAtTickEnd(this::shuffleButtons);
 		}
@@ -217,13 +218,13 @@ public class Clodern extends Plugin
 	{
 		if (config.logoutDoor()){
 			// shuffle buttons and icons to the left
-			Widget bottomBarButtonContainer = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE,37);
+			Widget bottomBarButtonContainer = client.getWidget(InterfaceID.TOPLEVEL_PRE_EOC,37);
 			if (bottomBarButtonContainer == null || bottomBarButtonContainer.isHidden())
 				return;
 			bottomBarButtonContainer.setRelativeX(0);
 			bottomBarButtonContainer.setWidth(231);
 			offsets.forEach((id, offset) -> {
-				Widget button = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE,id);
+				Widget button = client.getWidget(InterfaceID.TOPLEVEL_PRE_EOC,id);
 				if (button != null)
 					button.setRelativeX(offset * TAB_X_OFFSET_SIZE);
 			});
@@ -252,14 +253,14 @@ public class Clodern extends Plugin
 	private void moveComponents(){
 		// make sure all the stuff exists
 		if (bottomBar == null)
-			bottomBar = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_TABS1);
+			bottomBar = client.getWidget(InterfaceID.ToplevelPreEoc.SIDE_STATIC_LAYER);
 		if (topBar == null)
-			topBar = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_TABS2);
+			topBar = client.getWidget(InterfaceID.ToplevelPreEoc.SIDE_MOVABLE_LAYER);
 		if (inventoryBox == null)
-			inventoryBox = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_INVENTORY_PARENT);
+			inventoryBox = client.getWidget(InterfaceID.ToplevelPreEoc.SIDE_CONTAINER);
 		if (topBarOverlay == null)
 		{
-			topBarOverlay = overlayManager.get(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_TABS2);
+			topBarOverlay = overlayManager.get(InterfaceID.ToplevelPreEoc.SIDE_MOVABLE_LAYER);
 			if (topBarOverlay == null)
 			{
 				log.info("couldn't find top bar widgetoverlay");
@@ -269,7 +270,7 @@ public class Clodern extends Plugin
 
 		if (inventoryBoxOverlay == null)
 		{
-			inventoryBoxOverlay = overlayManager.get(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_INVENTORY_PARENT);
+			inventoryBoxOverlay = overlayManager.get(InterfaceID.ToplevelPreEoc.SIDE_CONTAINER);
 			if (inventoryBoxOverlay == null)
 			{
 				log.info("couldn't find inventory box widgetoverlay");
@@ -362,19 +363,19 @@ public class Clodern extends Plugin
 		topBarOverlay.setPreferredLocation(null);
 		topBarOverlay.revalidate();
 
-		Widget bottomBarButtonContainer = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE,37);
+		Widget bottomBarButtonContainer = client.getWidget(InterfaceID.ToplevelPreEoc.SIDE_STATIC);
 		if (bottomBarButtonContainer != null)
 			clientThread.invoke(() -> {
 				bottomBarButtonContainer.revalidate();
 
 				offsets.forEach((id, offset) -> {
-					Widget button = client.getWidget(InterfaceID.RESIZABLE_VIEWPORT_BOTTOM_LINE, id);
+					Widget button = client.getWidget(InterfaceID.TOPLEVEL_PRE_EOC, id);
 					if (button != null)
 						button.revalidate();
 				});
 			});
 
-		WidgetOverlay bottomBarOverlay = overlayManager.get(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_TABS1);
+		WidgetOverlay bottomBarOverlay = overlayManager.get(InterfaceID.ToplevelPreEoc.SIDE_STATIC_LAYER);
 		if (bottomBarOverlay != null)
 		{
 			bottomBarOverlay.setPreferredLocation(null);
