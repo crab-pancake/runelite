@@ -43,6 +43,7 @@ import net.runelite.api.clan.ClanChannelMember;
 import net.runelite.api.clan.ClanRank;
 import net.runelite.api.clan.ClanSettings;
 import net.runelite.api.clan.ClanTitle;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.party.PartyService;
 import net.runelite.client.util.Text;
 
@@ -92,7 +93,7 @@ class PlayerIndicatorsService
 		}
 
 		final Predicate<PlayerIndicatorsConfig.HighlightSetting> isEnabled = (hs) -> hs == PlayerIndicatorsConfig.HighlightSetting.ENABLED ||
-			(hs == PlayerIndicatorsConfig.HighlightSetting.PVP && (client.getVarbitValue(Varbits.IN_WILDERNESS) == 1 ||
+			(hs == PlayerIndicatorsConfig.HighlightSetting.PVP && (client.getVarbitValue(VarbitID.INSIDE_WILDERNESS) == 1 ||
 				WorldType.isPvpWorld(client.getWorldType()) || client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1));
 
 		Color color = null;
