@@ -111,8 +111,8 @@ public class Clodern extends Plugin
 	@Subscribe
 	private void onWidgetClosed(WidgetClosed e){
 		if (e.getGroupId() == InterfaceID.INVENTORY){
-			clientThread.invoke(this::moveComponents);
-			clientThread.invoke(this::shuffleButtons);
+			clientThread.invokeLater(this::moveComponents);
+			clientThread.invokeLater(this::shuffleButtons);
 		}
 	}
 
@@ -241,7 +241,7 @@ public class Clodern extends Plugin
 		if (e.getIndex() != VarClientInt.INVENTORY_TAB || !config.moveTopBar())
 			return;
 
-		moveComponents();
+		clientThread.invokeLater(this::moveComponents);
 	}
 
 	@Provides
