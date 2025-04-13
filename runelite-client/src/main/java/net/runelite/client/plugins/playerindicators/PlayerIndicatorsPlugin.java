@@ -35,7 +35,6 @@ import net.runelite.api.Client;
 import net.runelite.api.FriendsChatRank;
 import static net.runelite.api.FriendsChatRank.UNRANKED;
 import net.runelite.api.MenuAction;
-import static net.runelite.api.MenuAction.ITEM_USE_ON_PLAYER;
 import static net.runelite.api.MenuAction.PLAYER_EIGHTH_OPTION;
 import static net.runelite.api.MenuAction.PLAYER_FIFTH_OPTION;
 import static net.runelite.api.MenuAction.PLAYER_FIRST_OPTION;
@@ -50,7 +49,6 @@ import static net.runelite.api.MenuAction.WIDGET_TARGET_ON_PLAYER;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.Player;
 import net.runelite.api.ScriptID;
-import net.runelite.api.Varbits;
 import net.runelite.api.WorldType;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.GameTick;
@@ -59,6 +57,7 @@ import net.runelite.api.events.ScriptPostFired;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WorldChanged;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.Notifier;
 import net.runelite.client.callback.ClientThread;
@@ -151,14 +150,14 @@ public class PlayerIndicatorsPlugin extends Plugin
 	@Subscribe
 	private void onPlayerSpawned(PlayerSpawned event)
 	{
-		clientThread.invokeLater(() -> {
+		clientThread.invokeLater(() ->
+		{
 			if (!pvpZone || config.ding() == PlayerIndicatorsConfig.DingType.NO) return;
 
 			Player p = event.getPlayer();
 			if (p == client.getLocalPlayer()) return;
 
-			if (client.isFriended(p.getName(), false)
-				|| p.isFriendsChatMember())
+			if (p.isFriendsChatMember() || client.isFriended(p.getName(), false))
 			{
 				// friendly
 				return;
@@ -191,7 +190,8 @@ public class PlayerIndicatorsPlugin extends Plugin
 	}
 
 	@Subscribe
-	private void onGameTick(GameTick event){
+	private void onGameTick(GameTick event)
+	{
 		if (!pvpZone)
 		{
 			return;
@@ -228,9 +228,9 @@ public class PlayerIndicatorsPlugin extends Plugin
 	public void check(Client client)
 	{
 		clientThread.invokeLater(() -> {
-			pvpZone = client.getVarbitValue(Varbits.IN_WILDERNESS) == 1 ||
+			pvpZone = client.getVarbitValue(VarbitID.INSIDE_WILDERNESS) == 1 ||
 					WorldType.isPvpWorld(client.getWorldType()) ||
-					client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1;
+					client.getVarbitValue(VarbitID.PVP_AREA_CLIENT) == 1;
 		});
 	}
 

@@ -2,7 +2,6 @@ package net.runelite.client.plugins.clodern;
 
 import com.google.inject.Provides;
 import java.awt.Point;
-import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import lombok.Getter;
@@ -11,7 +10,6 @@ import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.VarClientInt;
 import net.runelite.api.events.GameStateChanged;
-import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.ScriptPostFired;
 import net.runelite.api.events.VarClientIntChanged;
 import net.runelite.api.events.WidgetClosed;
@@ -24,7 +22,7 @@ import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import static net.runelite.client.plugins.clodern.ClodernConfig.GROUP;
-import net.runelite.client.plugins.clodern.Stuff.FakeDoor;
+import net.runelite.client.plugins.clodern.FakeDoor.FakeDoor;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.WidgetOverlay;
 
@@ -63,12 +61,12 @@ public class Clodern extends Plugin
 	private final int TAB_X_OFFSET_SIZE = 33;
 
 	private static final Map<Integer, Integer> offsets = Map.ofEntries(
-		Map.entry(38,0),Map.entry(44,0),
-		Map.entry(39,1),Map.entry(45,1),
-		Map.entry(40,2),Map.entry(46,2),
-		Map.entry(41,4),Map.entry(47,4),
-		Map.entry(42,5),Map.entry(48,5),
-		Map.entry(43,6),Map.entry(49,6)
+		Map.entry(38, 0), Map.entry(44, 0),
+		Map.entry(39, 1), Map.entry(45, 1),
+		Map.entry(40, 2), Map.entry(46, 2),
+		Map.entry(41, 4), Map.entry(47, 4),
+		Map.entry(42, 5), Map.entry(48, 5),
+		Map.entry(43, 6), Map.entry(49, 6)
 		);
 
 	@Override
@@ -94,7 +92,8 @@ public class Clodern extends Plugin
 	}
 
 	@Subscribe
-	private void onConfigChanged(ConfigChanged e){
+	private void onConfigChanged(ConfigChanged e)
+	{
 		if (!GROUP.equals(e.getGroup()))
 			return;
 
@@ -109,10 +108,12 @@ public class Clodern extends Plugin
 	}
 
 	@Subscribe
-	private void onWidgetClosed(WidgetClosed e){
+	private void onWidgetClosed(WidgetClosed e)
+	{
 		if (e.getGroupId() == InterfaceID.INVENTORY){
-			clientThread.invokeLater(this::moveComponents);
+			clientThread.invoke(this::moveComponents);
 			clientThread.invokeLater(this::shuffleButtons);
+			clientThread.invokeAtTickEnd(this::moveComponents);
 		}
 	}
 
@@ -192,7 +193,8 @@ public class Clodern extends Plugin
 //	}
 
 	@Subscribe
-	private void onGameStateChanged(GameStateChanged e){
+	private void onGameStateChanged(GameStateChanged e)
+	{
 		if (e.getGameState() == GameState.LOGGING_IN || e.getGameState() == GameState.HOPPING){
 			inventoryWasHidden = true;
 			// don't block the change on logging in & default tab plugin on hopping
@@ -207,7 +209,8 @@ public class Clodern extends Plugin
 	}
 
 	@Subscribe
-	private void onScriptPostFired(ScriptPostFired e){
+	private void onScriptPostFired(ScriptPostFired e)
+	{
 		if (e.getScriptId() != 907 && e.getScriptId() != 6010)
 			return;
 

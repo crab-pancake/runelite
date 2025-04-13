@@ -66,7 +66,7 @@ class PlayerIndicatorsService
 
 	void forEachPlayer(final BiConsumer<Player, Decorations> consumer)
 	{
-		for (Player player : client.getPlayers())
+		for (Player player : client.getTopLevelWorldView().players())
 		{
 			if (player == null || player.getName() == null)
 			{
@@ -88,13 +88,16 @@ class PlayerIndicatorsService
 			return null;
 		}
 
-		if (!plugin.pvpZone && client.getIgnoreContainer().findByName(player.getName()) != null){
+		if (!plugin.pvpZone && client.getIgnoreContainer().findByName(player.getName()) != null)
+		{
 			return null;
 		}
 
 		final Predicate<PlayerIndicatorsConfig.HighlightSetting> isEnabled = (hs) -> hs == PlayerIndicatorsConfig.HighlightSetting.ENABLED ||
-			(hs == PlayerIndicatorsConfig.HighlightSetting.PVP && (client.getVarbitValue(VarbitID.INSIDE_WILDERNESS) == 1 ||
-				WorldType.isPvpWorld(client.getWorldType()) || client.getVarbitValue(Varbits.PVP_SPEC_ORB) == 1));
+			(hs == PlayerIndicatorsConfig.HighlightSetting.PVP &&
+				(client.getVarbitValue(VarbitID.INSIDE_WILDERNESS) == 1 ||
+					client.getVarbitValue(VarbitID.PVP_AREA_CLIENT) == 1 ||
+					WorldType.isPvpWorld(client.getWorldType())));
 
 		Color color = null;
 		if (player == client.getLocalPlayer())
@@ -108,7 +111,7 @@ class PlayerIndicatorsService
 		{
 			color = config.getPartyMemberColor();
 		}
-		else if (client.isFriended(player.getName(),false) && isEnabled.test(config.highlightFriends()))
+		else if (client.isFriended(player.getName(), false) && isEnabled.test(config.highlightFriends()))
 		{
 			color = config.getFriendColor();
 		}

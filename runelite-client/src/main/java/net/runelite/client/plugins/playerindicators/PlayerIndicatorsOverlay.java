@@ -88,7 +88,7 @@ public class PlayerIndicatorsOverlay extends Overlay
 				zOffset = player.getLogicalHeight() + ACTOR_OVERHEAD_TEXT_MARGIN;
 		}
 
-		final String name = Text.sanitize(player.getName()) + (plugin.pvpZone ? "  ("+player.getCombatLevel()+")" : "");
+		final String name = Text.sanitize(player.getName()) + (plugin.pvpZone ? "  (" + player.getCombatLevel() + ")" : "");
 
 		Point textLocation = player.getCanvasTextLocation(graphics, name, zOffset);
 

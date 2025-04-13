@@ -42,7 +42,7 @@ public interface ClodernConfig extends Config
 		return true;
 	}
 
-	@Range(min=-1)
+	@Range(min = -1)
 	@ConfigItem(
 		keyName = "collapseTimeout",
 		name = "Tab collapse double-click window",
@@ -54,7 +54,8 @@ public interface ClodernConfig extends Config
 		return -1;
 	}
 
-	enum Position{
+	enum Position
+	{
 		LEFT,
 		CENTRE,
 		RIGHT

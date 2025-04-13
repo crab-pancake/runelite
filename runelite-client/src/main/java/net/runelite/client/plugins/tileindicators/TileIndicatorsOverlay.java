@@ -64,9 +64,9 @@ public class TileIndicatorsOverlay extends Overlay
 			if (plugin.walk || !config.hoverOnWalkOnly())
 			{
 				// If we have tile "selected" render it
-				if (client.getSelectedSceneTile() != null)
+				if (client.getTopLevelWorldView().getSelectedSceneTile() != null)
 				{
-					renderTile(graphics, client.getSelectedSceneTile().getLocalLocation(), config.highlightHoveredColor(), config.hoveredTileBorderWidth(), config.hoveredTileFillColor(), config.hoveredTileCornersOnly());
+					renderTile(graphics, client.getTopLevelWorldView().getSelectedSceneTile().getLocalLocation(), config.highlightHoveredColor(), config.hoveredTileBorderWidth(), config.hoveredTileFillColor(), config.hoveredTileCornersOnly());
 				}
 			}
 		}
@@ -84,7 +84,7 @@ public class TileIndicatorsOverlay extends Overlay
 				return null;
 			}
 
-			final LocalPoint playerPosLocal = LocalPoint.fromWorld(client, playerPos);
+			final LocalPoint playerPosLocal = LocalPoint.fromWorld(client.getTopLevelWorldView(), playerPos);
 			if (playerPosLocal == null)
 			{
 				return null;

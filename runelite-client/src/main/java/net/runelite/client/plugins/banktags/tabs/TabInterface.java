@@ -515,7 +515,8 @@ public class TabInterface
 				}
 				break;
 			case NEWTAB_OP_OPEN_TAB_MENU:
-				if (allTagsTabActive){
+				if (allTagsTabActive)
+				{
 					closeTag(true);
 					return;
 				}
@@ -668,7 +669,8 @@ public class TabInterface
 						// put selected tab at the bottom
 						scrollTab(scrollPosition - config.position() - tabCount + 1);
 					}
-					else if (scrollPosition < config.position()){
+					else if (scrollPosition < config.position())
+					{
 						// put selected tab at the top
 						scrollTab(scrollPosition - config.position());
 					}

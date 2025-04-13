@@ -42,9 +42,9 @@ enum ImplingSpawn
 	SPAWN_BABY3(new WorldPoint(2568, 4323, 0), ImplingType.BABY),
 	SPAWN_BABY4(new WorldPoint(2571, 4305, 0), ImplingType.BABY),
 	SPAWN_BABY5(new WorldPoint(2581, 4300, 0), ImplingType.BABY),
-	SPAWN_BABY6(new WorldPoint(2596, 4296, 0), ImplingType.BABY),//14381
+	SPAWN_BABY6(new WorldPoint(2596, 4296, 0), ImplingType.BABY),
 	SPAWN_BABY7(new WorldPoint(2609, 4339, 0), ImplingType.BABY),
-	SPAWN_BABY8(new WorldPoint(2610, 4304, 0), ImplingType.BABY),// 14400
+	SPAWN_BABY8(new WorldPoint(2610, 4304, 0), ImplingType.BABY),
 	SPAWN_BABY9(new WorldPoint(2615, 4322, 0), ImplingType.BABY),
 	SPAWN_BABY10(new WorldPoint(2620, 4291, 0), ImplingType.BABY),
 	SPAWN_BABY11(new WorldPoint(2620, 4348, 0), ImplingType.BABY),
@@ -62,17 +62,17 @@ enum ImplingSpawn
 	SPAWN_YOUNG10(new WorldPoint(2587, 4300, 0), ImplingType.YOUNG),
 
 	//Gourmet spawns
-	SPAWN_GOURMET9A(new WorldPoint(2580, 4343, 0), ImplingType.GOURMET),//14356
-	SPAWN_GOURMET10A(new WorldPoint(2602, 4346, 0), ImplingType.GOURMET),//14388
-	SPAWN_GOURMET11A(new WorldPoint(2615, 4342, 0), ImplingType.GOURMET),//14416
-	SPAWN_GOURMET1(new WorldPoint(2568, 4296, 0), ImplingType.GOURMET),//14326
-	SPAWN_GOURMET2(new WorldPoint(2569, 4327, 0), ImplingType.GOURMET), //14329
-	SPAWN_GOURMET3(new WorldPoint(2574, 4311, 0), ImplingType.GOURMET), //, 14342
-	SPAWN_GOURMET4(new WorldPoint(2585, 4296, 0), ImplingType.GOURMET),//14361
-	SPAWN_GOURMET5(new WorldPoint(2597, 4293, 0), ImplingType.GOURMET),//14382
-	SPAWN_GOURMET6(new WorldPoint(2609, 4317, 0), ImplingType.GOURMET),//14396
-	SPAWN_GOURMET7(new WorldPoint(2615, 4298, 0), ImplingType.GOURMET),//14412
-	SPAWN_GOURMET8(new WorldPoint(2618, 4321, 0), ImplingType.GOURMET),//14421
+	SPAWN_GOURMET9A(new WorldPoint(2580, 4343, 0), ImplingType.GOURMET),
+	SPAWN_GOURMET10A(new WorldPoint(2602, 4346, 0), ImplingType.GOURMET),
+	SPAWN_GOURMET11A(new WorldPoint(2615, 4342, 0), ImplingType.GOURMET),
+	SPAWN_GOURMET1(new WorldPoint(2568, 4296, 0), ImplingType.GOURMET),
+	SPAWN_GOURMET2(new WorldPoint(2569, 4327, 0), ImplingType.GOURMET),
+	SPAWN_GOURMET3(new WorldPoint(2574, 4311, 0), ImplingType.GOURMET),
+	SPAWN_GOURMET4(new WorldPoint(2585, 4296, 0), ImplingType.GOURMET),
+	SPAWN_GOURMET5(new WorldPoint(2597, 4293, 0), ImplingType.GOURMET),
+	SPAWN_GOURMET6(new WorldPoint(2609, 4317, 0), ImplingType.GOURMET),
+	SPAWN_GOURMET7(new WorldPoint(2615, 4298, 0), ImplingType.GOURMET),
+	SPAWN_GOURMET8(new WorldPoint(2618, 4321, 0), ImplingType.GOURMET),
 
 	//Earth spawns
 	SPAWN_EARTH6A(new WorldPoint(2568, 4317, 0), ImplingType.EARTH),
@@ -92,10 +92,10 @@ enum ImplingSpawn
 	SPAWN_ESSENCE5(new WorldPoint(2612, 4318, 0), ImplingType.ESSENCE),
 
 	//Eclectic spawns
-	SPAWN_ECLECTIC1(new WorldPoint(2567, 4319, 0), ImplingType.ECLECTIC),//14325
-	SPAWN_ECLECTIC2(new WorldPoint(2591, 4340, 0), ImplingType.ECLECTIC),//14376
-	SPAWN_ECLECTIC3(new WorldPoint(2591, 4295, 0), ImplingType.ECLECTIC), //14372
-	SPAWN_ECLECTIC4(new WorldPoint(2615, 4326, 0), ImplingType.ECLECTIC);//14414
+	SPAWN_ECLECTIC1(new WorldPoint(2567, 4319, 0), ImplingType.ECLECTIC),
+	SPAWN_ECLECTIC2(new WorldPoint(2591, 4340, 0), ImplingType.ECLECTIC),
+	SPAWN_ECLECTIC3(new WorldPoint(2591, 4295, 0), ImplingType.ECLECTIC),
+	SPAWN_ECLECTIC4(new WorldPoint(2615, 4326, 0), ImplingType.ECLECTIC);
 
 	private final WorldPoint spawnLocation;
 	private final ImplingType type;

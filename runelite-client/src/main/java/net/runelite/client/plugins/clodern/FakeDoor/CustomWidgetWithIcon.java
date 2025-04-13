@@ -22,58 +22,41 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.clodern.Stuff;
+package net.runelite.client.plugins.clodern.FakeDoor;
 
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetType;
 
-public abstract class CustomWidget
+public abstract class CustomWidgetWithIcon extends CustomWidget
 {
-	protected final Widget parent;
-	private final String name;
+	protected int iconWidth;
+	protected int iconHeight;
 
-	protected int x;
-	protected int y;
-	protected int width;
-	protected int height;
+	protected int iconSpriteID;
+	protected int iconPaddingX;
+	protected int iconPaddingY;
 
-	protected Widget base;
+	protected Widget icon;
 
-	public static final String ORANGE_COLOUR_WIDGET_NAME = "<col=ff981f>";
-
-	public CustomWidget(final Widget parent, final String name)
+	public CustomWidgetWithIcon(final Widget parent, final String name, int iconSpriteID)
 	{
-		this.parent = parent;
-		this.name = name;
+		super(parent, name);
+		this.iconSpriteID = iconSpriteID;
 	}
 
-	public void setSize(int width, int height)
+	public void setIconSize(int width, int height)
 	{
-		this.width = width;
-		this.height = height;
+		this.iconWidth = width;
+		this.iconHeight = height;
+		iconPaddingX = (this.width - iconWidth) / 2;
+		iconPaddingY = (this.height - iconHeight) / 2;
 	}
 
+	@Override
 	public void layout(int x, int y)
 	{
-		this.x = x;
-		this.y = y;
-	}
+		super.layout(x, y);
+		layoutWidget(icon, x + iconPaddingX, y + iconPaddingY);
 
-	public abstract void create();
-
-	protected Widget createSpriteWidget(int width, int height)
-	{
-		final Widget w = parent.createChild(-1, WidgetType.GRAPHIC);
-		w.setOriginalWidth(width);
-		w.setOriginalHeight(height);
-		w.setName(ORANGE_COLOUR_WIDGET_NAME + this.name);
-		return w;
-	}
-
-	protected static void layoutWidget(Widget w, int x, int y)
-	{
-		w.setOriginalX(x);
-		w.setOriginalY(y);
-		w.revalidate();
+		parent.revalidate();
 	}
 }

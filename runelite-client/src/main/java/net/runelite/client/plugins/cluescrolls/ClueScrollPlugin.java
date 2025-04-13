@@ -70,7 +70,6 @@ import net.runelite.api.ScriptID;
 import net.runelite.api.Tile;
 import net.runelite.api.TileObject;
 import net.runelite.api.VarClientStr;
-import net.runelite.api.Varbits;
 import net.runelite.api.annotations.Component;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
@@ -274,13 +273,15 @@ public class ClueScrollPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onVarClientStrChanged(VarClientStrChanged e){
+	public void onVarClientStrChanged(VarClientStrChanged e)
+	{
 		if (e.getIndex() != VarClientStr.CHATBOX_TYPED_TEXT)
 			return;
 
-		if (clue != null && this.clue instanceof EmoteClue){
+		if (clue != null && this.clue instanceof EmoteClue)
+		{
 			Emote emote = ((EmoteClue) this.clue).getFirstEmote();
-			String previousCommand = "!"+emote.getName().replace(" ","").toLowerCase();
+			String previousCommand = "!" + emote.getName().replace(" ", "").toLowerCase();
 			if (emote.getSpriteId() != -1 && "".equals(client.getVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT)) && previousCommand.equals(previousChatboxText))
 			{
 				Emote emote2 = ((EmoteClue) this.clue).getSecondEmote();
@@ -1120,7 +1121,8 @@ public class ClueScrollPlugin extends Plugin
 		}
 	}
 
-	private void getInventoryClues(ItemContainer e){
+	private void getInventoryClues(ItemContainer e)
+	{
 
 	}
 
@@ -1143,7 +1145,7 @@ public class ClueScrollPlugin extends Plugin
 			Emote emote = ((EmoteClue) this.clue).getFirstEmote();
 			if (emote.getSpriteId() != -1)
 			{
-				client.setVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT, "!"+emote.getName().replace(" ","").toLowerCase());
+				client.setVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT, "!" + emote.getName().replace(" ", "").toLowerCase());
 				client.runScript(73, -2147483640, -2147483639);
 			}
 		}

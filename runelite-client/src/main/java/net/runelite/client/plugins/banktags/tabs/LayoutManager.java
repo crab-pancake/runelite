@@ -56,7 +56,6 @@ import net.runelite.api.VarClientInt;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.ScriptPreFired;
-import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
@@ -109,8 +108,8 @@ public class LayoutManager
 
 	@Inject
 	LayoutManager(Client client, ClientThread clientThread, ItemManager itemManager, BankTagsPlugin plugin, ChatboxPanelManager chatboxPanelManager,
-				  BankSearch bankSearch, ChatMessageManager chatMessageManager,
-				  PotionStorage potionStorage, EventBus eventBus, ConfigManager configManager)
+					BankSearch bankSearch, ChatMessageManager chatMessageManager,
+					PotionStorage potionStorage, EventBus eventBus, ConfigManager configManager)
 	{
 		this.client = client;
 		this.clientThread = clientThread;
@@ -533,7 +532,7 @@ public class LayoutManager
 
 		// resize the bank scrollbar
 		// TODO: eventually i want it to update while the item is still being dragged. does this mean i have to use onDragHandler?
-		resizeBankContainerScrollbar(0,0);
+		resizeBankContainerScrollbar(0, 0);
 
 		saveLayout(l);
 		bankSearch.layoutBank();
@@ -652,7 +651,7 @@ public class LayoutManager
 					layout(layout);
 					scrollLayout(layout);
 
-					int height = getYForIndex(layout.getLayout().length) + BANK_ITEM_HEIGHT + BANK_ITEM_HEIGHT/2;
+					int height = getYForIndex(layout.getLayout().length) + BANK_ITEM_HEIGHT + BANK_ITEM_HEIGHT / 2;
 
 					// This is prior to bankmain_finishbuilding running, so the arguments are still on the stack. Overwrite
 					// argument int12 (7 from the end) which is the height passed to if_setscrollsize
@@ -781,7 +780,8 @@ public class LayoutManager
 		}
 	}
 
-	private void resizeBankContainerScrollbar(int height, int lastHeight) {
+	private void resizeBankContainerScrollbar(int height, int lastHeight)
+	{
 		Widget container = client.getWidget(InterfaceID.Bankmain.ITEMS);
 
 		container.setScrollHeight(height); // This change requires the script below to run to take effect.
@@ -797,7 +797,7 @@ public class LayoutManager
 	}
 
 	static int getYForIndex(int index) {
-		return ((index-1) / 8) * BANK_ITEM_WIDTH;
+		return ((index - 1) / 8) * BANK_ITEM_WIDTH;
 	}
 
 	private class DefaultLayout implements AutoLayout

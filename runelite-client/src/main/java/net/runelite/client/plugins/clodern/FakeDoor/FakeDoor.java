@@ -22,7 +22,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.clodern.Stuff;
+package net.runelite.client.plugins.clodern.FakeDoor;
 
 import java.util.Arrays;
 import javax.inject.Inject;
@@ -41,7 +41,8 @@ public class FakeDoor
 		this.plugin = plugin;
 	}
 
-	public void create(){
+	public void create()
+	{
 		final Widget parent = plugin.getBottomBar();
 		if (parent == null)
 			return;
@@ -65,9 +66,10 @@ public class FakeDoor
 //		logoutButton.layout(4 * 33, 0);
 	}
 
-	public void info(){
-		System.out.println("pos: "+logoutButton.base.getBounds().getX()+", "+logoutButton.base.getBounds().getY());
-		System.out.println("actions: "+ Arrays.toString(logoutButton.base.getActions()));
+	public void info()
+	{
+		System.out.println("pos: " + logoutButton.base.getBounds().getX() + ", " + logoutButton.base.getBounds().getY());
+		System.out.println("actions: " + Arrays.toString(logoutButton.base.getActions()));
 	}
 
 	public void destroy(){
