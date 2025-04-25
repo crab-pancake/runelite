@@ -14,6 +14,7 @@ import net.runelite.api.events.ScriptPostFired;
 import net.runelite.api.events.VarClientIntChanged;
 import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -82,7 +83,7 @@ public class Clodern extends Plugin
 		inventoryBoxOverlay = null;
 
 		lastClickedATab = -1;
-		clientThread.invoke(this::moveComponents);
+//		clientThread.invoke(this::moveComponents);
 	}
 
 	@Override
@@ -98,7 +99,7 @@ public class Clodern extends Plugin
 			return;
 
 		if ("logoutDoor".equals(e.getKey())){
-			clientThread.invoke(this::shuffleButtons);
+			clientThread.invoke(this::shuffleStones);
 		}
 		else if ("moveTopBar".equals(e.getKey())){
 			if (!config.moveTopBar()){
@@ -112,8 +113,6 @@ public class Clodern extends Plugin
 	{
 		if (e.getGroupId() == InterfaceID.INVENTORY){
 			clientThread.invoke(this::moveComponents);
-			clientThread.invokeLater(this::shuffleButtons);
-			clientThread.invokeAtTickEnd(this::moveComponents);
 		}
 	}
 
@@ -196,15 +195,20 @@ public class Clodern extends Plugin
 	private void onGameStateChanged(GameStateChanged e)
 	{
 		if (e.getGameState() == GameState.LOGGING_IN || e.getGameState() == GameState.HOPPING){
-			inventoryWasHidden = true;
+			bottomBar = null;
+			topBar = null;
+			inventoryBox = null;
+			topBarOverlay = null;
+
 			// don't block the change on logging in & default tab plugin on hopping
 			lastClickedATab = client.getTickCount();
+
 		}
 		if (e.getGameState() == GameState.LOGGED_IN){
-			client.setVarbit(14709,1);
+			client.setVarbit(VarbitID.SHOW_DIALOGUE_IN_CHATBOX,1);
 
-			clientThread.invokeAtTickEnd(this::moveComponents);
-			clientThread.invokeAtTickEnd(this::shuffleButtons);
+			clientThread.invoke(this::moveComponents);
+			clientThread.invoke(this::shuffleStones);
 		}
 	}
 
@@ -214,10 +218,10 @@ public class Clodern extends Plugin
 		if (e.getScriptId() != 907 && e.getScriptId() != 6010)
 			return;
 
-		clientThread.invoke(this::shuffleButtons);
+		clientThread.invoke(this::shuffleStones);
 	}
 
-	private void shuffleButtons()
+	private void shuffleStones()
 	{
 		if (config.logoutDoor()){
 			// shuffle buttons and icons to the left
@@ -244,7 +248,7 @@ public class Clodern extends Plugin
 		if (e.getIndex() != VarClientInt.INVENTORY_TAB || !config.moveTopBar())
 			return;
 
-		clientThread.invokeLater(this::moveComponents);
+		clientThread.invoke(this::moveComponents);
 	}
 
 	@Provides
@@ -284,56 +288,55 @@ public class Clodern extends Plugin
 		if (bottomBar == null || bottomBar.isHidden() || topBar == null || topBar.isHidden())
 			return;
 
-		clientThread.invokeLater(() -> {
-			// snap top bar to bottom bar when inventory box is hidden
-			if (inventoryBox.isHidden())
-			{  // client.getVarcIntValue(VarClientInt.INVENTORY_TAB) == -1
-				inventoryWasHidden = true;
-				log.debug("inventory is hidden, snap top bar");
+		// snap top bar to bottom bar when inventory box is hidden
+		if (client.getVarcIntValue(VarClientInt.INVENTORY_TAB) == -1)  //(inventoryBox.isHidden())
+		{
+			inventoryWasHidden = true;
+			log.debug("inventory is hidden, snap top bar");
 
-				topBarOverlay.setPreferredLocation(new Point(bottomBar.getRelativeX(), bottomBar.getRelativeY() - topBar.getHeight()));
-				topBarOverlay.revalidate();
-			}
+			topBarOverlay.setPreferredLocation(new Point(bottomBar.getRelativeX(), bottomBar.getRelativeY() - topBar.getHeight()));
+			topBarOverlay.revalidate();
+		}
 
-			// snap invy to bottom bar, top bar to invy when invy is unhidden
-			else
+		// snap invy to bottom bar, top bar to invy when invy is unhidden
+		else
+		{
+			if (!inventoryWasHidden)
 			{
-				if (!inventoryWasHidden)
-				{
-					if (config.logoutDoor())
-						clientThread.invoke(this::shuffleButtons);
-					return;
-				}
-
-				inventoryWasHidden = false;
-				log.debug("inventory un-hidden, move inventory box and top bar");
-
-				// snap inventory to bottom bar
-				if (bottomBar.isHidden() || inventoryBox == null)
-					return;
-
-				int snapToX;
-				switch (config.inventoryPosition())
-				{
-					case LEFT:
-						snapToX = bottomBar.getRelativeX();
-						break;
-					case CENTRE:
-						snapToX = bottomBar.getRelativeX() + (bottomBar.getWidth() - inventoryBox.getWidth()) / 2;
-						break;
-					default:
-						snapToX = bottomBar.getRelativeX() + bottomBar.getWidth() - inventoryBox.getWidth();
-				}
-
-				inventoryBoxOverlay.setPreferredLocation(new Point(snapToX, bottomBar.getRelativeY() - inventoryBox.getHeight()));
-				inventoryBoxOverlay.revalidate();
-
-				// snap top bar to top of inventory
-
-				topBarOverlay.setPreferredLocation(new Point(bottomBar.getRelativeX(), bottomBar.getRelativeY() - inventoryBox.getHeight() - topBar.getHeight()));
-				topBarOverlay.revalidate();
+				// can i hide these? should be covered by the script firing stuff
+//				if (config.logoutDoor())
+//					clientThread.invoke(this::shuffleStones);
+				return;
 			}
-		});
+
+			inventoryWasHidden = false;
+			log.debug("inventory un-hidden, move inventory box and top bar");
+
+			// snap inventory to bottom bar
+			if (bottomBar.isHidden() || inventoryBox == null)
+				return;
+
+			int snapToX;
+			switch (config.inventoryPosition())
+			{
+				case LEFT:
+					snapToX = bottomBar.getRelativeX();
+					break;
+				case CENTRE:
+					snapToX = bottomBar.getRelativeX() + (bottomBar.getWidth() - inventoryBox.getWidth()) / 2;
+					break;
+				default:
+					snapToX = bottomBar.getRelativeX() + bottomBar.getWidth() - inventoryBox.getWidth();
+			}
+
+			inventoryBoxOverlay.setPreferredLocation(new Point(snapToX, bottomBar.getRelativeY() - inventoryBox.getHeight()));
+			inventoryBoxOverlay.revalidate();
+
+			// snap top bar to top of inventory
+
+			topBarOverlay.setPreferredLocation(new Point(bottomBar.getRelativeX(), bottomBar.getRelativeY() - inventoryBox.getHeight() - topBar.getHeight()));
+			topBarOverlay.revalidate();
+		}
 	}
 
 	private void addFakeDoor(){
