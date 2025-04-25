@@ -44,17 +44,17 @@ public interface PlayerIndicatorsConfig extends Config
 	String highlightSection = "section";
 
 	@ConfigSection(
-		name="Extra Options",
-		description="More options",
-		position=100,
-		closedByDefault=true)
+		name = "Extra Options",
+		description = "More options",
+		position = 100,
+		closedByDefault = true)
 	String extras = "extras";
 
 	enum HighlightSetting
 	{
 		DISABLED,
 		ENABLED,
-		PVP;
+		PVP
 	}
 
 	@ConfigItem(
@@ -314,7 +314,7 @@ public interface PlayerIndicatorsConfig extends Config
 		return DingType.IN_RANGE;
 	}
 
-	@Range(min=1, max=50)
+	@Range(min = 1, max = 50)
 	@ConfigItem(
 		position = 2,
 		keyName = "Volume",
@@ -322,7 +322,8 @@ public interface PlayerIndicatorsConfig extends Config
 		description = "Ding go loud. Gl your ears (20 is a good volume).",
 		section = extras
 	)
-	default int volume() {
+	default int volume()
+	{
 		return 20;
 	}
 
@@ -338,7 +339,8 @@ public interface PlayerIndicatorsConfig extends Config
 		return new Color(255, 0, 255);
 	}
 
-	enum DingType{
+	enum DingType
+	{
 		NO,
 		IN_RANGE,
 		ALWAYS

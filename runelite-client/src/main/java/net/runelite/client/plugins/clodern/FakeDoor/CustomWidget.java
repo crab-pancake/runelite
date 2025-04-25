@@ -22,17 +22,58 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.clodern.Stuff;
+package net.runelite.client.plugins.clodern.FakeDoor;
 
-import net.runelite.api.ScriptEvent;
+import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetType;
 
-public interface InteractibleWidget
+public abstract class CustomWidget
 {
-	@FunctionalInterface
-	interface WidgetBooleanCallback
+	protected final Widget parent;
+	private final String name;
+
+	protected int x;
+	protected int y;
+	protected int width;
+	protected int height;
+
+	protected Widget base;
+
+	public static final String ORANGE_COLOUR_WIDGET_NAME = "<col=ff981f>";
+
+	public CustomWidget(final Widget parent, final String name)
 	{
-		void run();
+		this.parent = parent;
+		this.name = name;
 	}
 
-	void onButtonClicked(ScriptEvent scriptEvent);
+	public void setSize(int width, int height)
+	{
+		this.width = width;
+		this.height = height;
+	}
+
+	public void layout(int x, int y)
+	{
+		this.x = x;
+		this.y = y;
+	}
+
+	public abstract void create();
+
+	protected Widget createSpriteWidget(int width, int height)
+	{
+		final Widget w = parent.createChild(-1, WidgetType.GRAPHIC);
+		w.setOriginalWidth(width);
+		w.setOriginalHeight(height);
+		w.setName(ORANGE_COLOUR_WIDGET_NAME + this.name);
+		return w;
+	}
+
+	protected static void layoutWidget(Widget w, int x, int y)
+	{
+		w.setOriginalX(x);
+		w.setOriginalY(y);
+		w.revalidate();
+	}
 }

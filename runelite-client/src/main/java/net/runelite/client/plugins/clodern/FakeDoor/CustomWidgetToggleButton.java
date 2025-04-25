@@ -22,7 +22,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.clodern.Stuff;
+package net.runelite.client.plugins.clodern.FakeDoor;
 
 import net.runelite.api.Client;
 import net.runelite.api.ScriptEvent;
@@ -85,7 +85,8 @@ public class CustomWidgetToggleButton extends CustomWidgetWithIcon implements In
 		{
 			base.setSpriteId(selectedBackgroundSprite);
 		}
-		else {
+		else
+		{
 			base.setSpriteId(backgroundSpriteID);
 		}
 	}

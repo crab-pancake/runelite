@@ -72,8 +72,9 @@ public class TileIndicatorsPlugin extends Plugin
 		overlayManager.remove(overlay);
 	}
 
-	@Subscribe(priority=-1)
-	public void onPostMenuSort(PostMenuSort e){
+	@Subscribe(priority = -1)
+	public void onPostMenuSort(PostMenuSort e)
+	{
 		walk = client.getMenuEntries()[client.getMenuEntries().length - 1].getOption().equalsIgnoreCase("walk here") ||
 			client.getMenuEntries()[client.getMenuEntries().length - 1].getOption().equalsIgnoreCase("take");
 	}

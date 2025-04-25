@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.inject.Inject;
@@ -100,7 +99,8 @@ class CannonOverlay extends Overlay
 				Color color = config.highlightDoubleHitColor();
 				drawDoubleHitSpots(graphics, cannonPoint, color);
 			}
-			if (config.showZoneCentres()){
+			if (config.showZoneCentres())
+			{
 				Color color = config.highlightDoubleHitColor();
 				drawZoneCentreTiles(graphics, cannonPoint, color);
 			}
@@ -148,7 +148,8 @@ class CannonOverlay extends Overlay
 	}
 
 	// really lazy but cba changing it
-	private void drawZoneCentreTiles(Graphics2D graphics, LocalPoint startTile, Color color){
+	private void drawZoneCentreTiles(Graphics2D graphics, LocalPoint startTile, Color color)
+	{
 		List<Integer> straight = Arrays.asList(-14, -7, -3, 3, 7, 14);
 		List<Integer> diagonal = Arrays.asList(-12, -5, -2, 2, 5, 12);
 

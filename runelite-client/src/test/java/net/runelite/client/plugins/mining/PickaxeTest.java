@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Hydrox6 <ikada@protonmail.ch>
+ * Copyright (c) 2025, Jordan Atwood <nightfirecat@nightfirec.at>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,58 +22,25 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.clodern.Stuff;
+package net.runelite.client.plugins.mining;
 
-import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetType;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
-public abstract class CustomWidget
+public class PickaxeTest
 {
-	protected final Widget parent;
-	private final String name;
-
-	protected int x;
-	protected int y;
-	protected int width;
-	protected int height;
-
-	protected Widget base;
-
-	public static final String ORANGE_COLOUR_WIDGET_NAME = "<col=ff981f>";
-
-	public CustomWidget(final Widget parent, final String name)
+	@Test
+	public void testInit()
 	{
-		this.parent = parent;
-		this.name = name;
+		Pickaxe.fromAnimation(0);
 	}
 
-	public void setSize(int width, int height)
+	@Test
+	public void listAllAnimations()
 	{
-		this.width = width;
-		this.height = height;
-	}
-
-	public void layout(int x, int y)
-	{
-		this.x = x;
-		this.y = y;
-	}
-
-	public abstract void create();
-
-	protected Widget createSpriteWidget(int width, int height)
-	{
-		final Widget w = parent.createChild(-1, WidgetType.GRAPHIC);
-		w.setOriginalWidth(width);
-		w.setOriginalHeight(height);
-		w.setName(ORANGE_COLOUR_WIDGET_NAME + this.name);
-		return w;
-	}
-
-	protected static void layoutWidget(Widget w, int x, int y)
-	{
-		w.setOriginalX(x);
-		w.setOriginalY(y);
-		w.revalidate();
+		for (Pickaxe pickaxe : Pickaxe.values())
+		{
+			assertEquals(pickaxe.name() + " does not have the expected 3 animations. (default, wall, noreachforward)", 3, pickaxe.getAnimIds().length);
+		}
 	}
 }
