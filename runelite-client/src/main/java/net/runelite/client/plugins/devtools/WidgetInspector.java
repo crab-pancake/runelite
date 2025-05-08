@@ -146,13 +146,13 @@ class WidgetInspector extends DevToolsFrame
 		});
 
 		final JScrollPane treeScrollPane = new JScrollPane(widgetTree);
-		treeScrollPane.setPreferredSize(new Dimension(200, 400));
+		treeScrollPane.setPreferredSize(new Dimension(400, 800));
 
 
 		final JTable widgetInfo = new JTable(infoTableModel);
 
 		final JScrollPane infoScrollPane = new JScrollPane(widgetInfo);
-		infoScrollPane.setPreferredSize(new Dimension(400, 400));
+		infoScrollPane.setPreferredSize(new Dimension(600, 800));
 
 
 		final JPanel bottomPanel = new JPanel();
@@ -334,13 +334,6 @@ class WidgetInspector extends DevToolsFrame
 			//until it's actually needed.
 			try
 			{
-				for (Field field : InterfaceID.class.getDeclaredFields())  // is this block unnecessary?
-				{
-					int id = field.getInt(null);
-					String name = field.getName();
-					widgetNames.put(id * 65536, name);
-				}
-
 				for (Class<?> innerClass : InterfaceID.class.getDeclaredClasses())
 				{
 					for (Field field : innerClass.getDeclaredFields())
