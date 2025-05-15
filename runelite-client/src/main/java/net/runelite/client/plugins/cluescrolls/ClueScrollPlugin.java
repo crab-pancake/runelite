@@ -64,6 +64,7 @@ import static net.runelite.api.MenuAction.RUNELITE_OVERLAY;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.NPC;
 import net.runelite.api.ObjectComposition;
+import net.runelite.api.ParamID;
 import net.runelite.api.Point;
 import net.runelite.api.Scene;
 import net.runelite.api.ScriptID;
@@ -383,7 +384,7 @@ public class ClueScrollPlugin extends Plugin
 				|| itemComposition.getName().startsWith("Treasure scroll"))
 			{
 				clueItemId = itemComposition.getId();
-				updateClue(MapClue.forItemId(clueItemId));
+				updateClue(findClueScroll(clueItemId));
 			}
 		}
 		else if (event.getMenuOption().equals("Search")	&& clue instanceof EmoteClue)
@@ -411,6 +412,7 @@ public class ClueScrollPlugin extends Plugin
 			return;
 		}
 
+		final Item[] previousInventory = inventoryItems;
 		inventoryItems = itemContainer.getItems();
 
 		// Add runes from rune pouch to inventoryItems
@@ -439,10 +441,6 @@ public class ClueScrollPlugin extends Plugin
 			}
 		}
 
-		// TODO: compare new inventory to old inventory
-		// if anything changed, set that clue item as the current clue
-		// need to make findClueScroll(id) - clue details plugin?
-
 		// Check if item was removed from inventory
 		if (clue != null && clueItemId != null)
 		{
@@ -470,7 +468,50 @@ public class ClueScrollPlugin extends Plugin
 			}
 		}
 
-		// TODO: update inventoryClues with new inventory
+		// Auto-identify clues in inventory, respecting already set clue
+		final Set<Item> newInventoryClues = new HashSet<>();
+		Collections.addAll(newInventoryClues, inventoryItems);
+		if (previousInventory != null)
+		{
+			for (final Item item : previousInventory)
+			{
+				newInventoryClues.remove(item);
+			}
+		}
+		newInventoryClues.removeIf((item) ->
+		{
+			// If paramID 623 returns a dbrow, the item is a valid clue scroll
+			ItemComposition itemComposition = client.getItemDefinition(item.getId());
+			return itemComposition == null || itemComposition.getIntValue(ParamID.CLUE_SCROLL) == -1;
+		});
+
+		if (!newInventoryClues.isEmpty())
+		{
+			final int newClueId = newInventoryClues.iterator().next().getId();
+			final ClueScrollConfig.IdentificationMode identificationMode = config.identify();
+
+			if (identificationMode == ClueScrollConfig.IdentificationMode.ON_PICKUP
+				|| (identificationMode == ClueScrollConfig.IdentificationMode.IF_INACTIVE && clue == null && clueItemId == null))
+			{
+				setActiveClue(newClueId);
+			}
+		}
+	}
+
+	private void setActiveClue(int itemId)
+	{
+		ClueScroll clueScroll = findClueScroll(itemId);
+
+		if (clueScroll != null)
+		{
+			clueItemId = itemId;
+			updateClue(clueScroll);
+		}
+		else if (itemId != ItemID.TRAIL_CLUE_BEGINNER && itemId != ItemID.TRAIL_CLUE_MASTER)
+		{
+			// Item is a valid clue which should be identifiable by ID, but is not yet associated with any ClueScroll
+			log.info("Unknown clue scroll id: {}", itemId);
+		}
 	}
 
 	private List<Item> getRunepouchContents()
@@ -721,7 +762,7 @@ public class ClueScrollPlugin extends Plugin
 					}
 					else
 					{
-						log.info("Unknown clue text: {}", clueScrollText.getText());
+						log.info("Unknown clue scroll (id {}) for text '{}'", clueItemId, clueScrollText.getText());
 						resetClue(true);
 					}
 				}
@@ -884,6 +925,67 @@ public class ClueScrollPlugin extends Plugin
 		if (threeStepCrypticClue != null)
 		{
 			return threeStepCrypticClue;
+		}
+
+		return null;
+	}
+
+	private static ClueScroll findClueScroll(int itemId)
+	{
+		if (itemId == ItemID.TRAIL_CLUE_BEGINNER || itemId == ItemID.TRAIL_CLUE_MASTER)
+		{
+			return null;
+		}
+
+		final MapClue mapClue = MapClue.forItemId(itemId);
+		if (mapClue != null)
+		{
+			return mapClue;
+		}
+
+		final MusicClue musicClue = MusicClue.forItemId(itemId);
+		if (musicClue != null)
+		{
+			return musicClue;
+		}
+
+		final CoordinateClue coordinateClue = CoordinateClue.forItemId(itemId);
+		if (coordinateClue != null)
+		{
+			return coordinateClue;
+		}
+
+		final AnagramClue anagramClue = AnagramClue.forItemId(itemId);
+		if (anagramClue != null)
+		{
+			return anagramClue;
+		}
+
+		final CipherClue cipherClue = CipherClue.forItemId(itemId);
+		if (cipherClue != null)
+		{
+			return cipherClue;
+		}
+
+		final CrypticClue crypticClue = CrypticClue.forItemId(itemId);
+
+		if (crypticClue != null)
+		{
+			return crypticClue;
+		}
+
+		final EmoteClue emoteClue = EmoteClue.forItemId(itemId);
+
+		if (emoteClue != null)
+		{
+			return emoteClue;
+		}
+
+		final FairyRingClue fairyRingClue = FairyRingClue.forItemId(itemId);
+
+		if (fairyRingClue != null)
+		{
+			return fairyRingClue;
 		}
 
 		return null;
