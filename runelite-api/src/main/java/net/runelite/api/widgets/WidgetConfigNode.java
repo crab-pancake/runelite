@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Jordan Atwood <nightfirecat@protonmail.com>
+ * Copyright (c) 2025, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,29 +22,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.skillcalculator.skills;
+package net.runelite.api.widgets;
 
-import java.util.EnumSet;
-import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import net.runelite.api.Node;
 
-@AllArgsConstructor
-@Getter(onMethod_ = @Override)
-public enum FiremakingBonus implements SkillBonus
+public interface WidgetConfigNode extends Node
 {
-	PYROMANCER_OUTFIT("Pyromancer Outfit", 1.025f),
-	MORYTANIA_ELITE_DIARY("Morytania Elite Diary", 1.5f)
-	;
+	int getClickMask();
 
-	private final String name;
-	private final float value;
-
-	@Override
-	public Set<FiremakingBonus> getCanBeStackedWith()
-	{
-		final EnumSet<FiremakingBonus> others = EnumSet.allOf(FiremakingBonus.class);
-		others.remove(this);
-		return others;
-	}
+	int getOpMask();
 }
