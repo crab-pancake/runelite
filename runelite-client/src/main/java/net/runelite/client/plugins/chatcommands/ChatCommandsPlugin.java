@@ -926,9 +926,14 @@ public class ChatCommandsPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onVarbitChanged(VarbitChanged varbitChanged)
+	public void onVarbitChanged(VarbitChanged event)
 	{
 		hiscoreEndpoint = getLocalHiscoreEndpointType();
+
+		if (event.getVarpId() == VarPlayerID.DOM_LEVEL_HIGHSCORES && event.getValue() > 0)
+		{
+			setKc("Doom of Mokhaiotl", event.getValue());
+		}
 	}
 
 	private boolean killCountSubmit(ChatInput chatInput, String value)
@@ -2777,6 +2782,10 @@ public class ChatCommandsPlugin extends Plugin
 
 			case "brimstone chest":
 				return "Brimstone chest";
+
+			case "dom":
+			case "doom":
+				return "Doom of Mokhaiotl";
 
 			default:
 				return WordUtils.capitalize(boss);
