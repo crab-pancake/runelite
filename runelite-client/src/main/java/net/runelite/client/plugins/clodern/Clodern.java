@@ -116,81 +116,6 @@ public class Clodern extends Plugin
 		}
 	}
 
-//	@Subscribe
-//	private void onMenuOptionClicked(MenuOptionClicked e){
-//		if (config.collapseTimeout() == -1 || !"".equals(e.getMenuTarget()))
-//			return;
-//
-//		// check that this widget is one of the inventory tabs!
-////		if (e.getWidget().getParent()){
-////
-////		}
-//
-//		List<String> currentTabOptionName;
-//
-//		switch (client.getVarcIntValue(VarClientInt.INVENTORY_TAB)){
-//			case 0:
-//				currentTabOptionName = List.of("Combat Options");
-//				break;
-//			case 1:
-//				currentTabOptionName = List.of("Skills");
-//				break;
-//			case 2:
-//				currentTabOptionName = List.of("Character Summary","Quest List","Achievement Diaries");
-//				break;
-//			case 3:
-//				currentTabOptionName = List.of("Inventory");
-//				break;
-//			case 4:
-//				currentTabOptionName = List.of("Worn Equipment");
-//				break;
-//			case 5:
-//				currentTabOptionName = List.of("Prayer");
-//				break;
-//			case 6:
-//				currentTabOptionName = List.of("Magic");
-//				break;
-//			case 7:
-//				currentTabOptionName = List.of("Grouping","Chat-channel","Your Clan","View another clan");
-//				break;
-//			case 8:
-//				currentTabOptionName = List.of("Account Management");
-//				break;
-//			case 9:
-//				currentTabOptionName = List.of("Friends List","Ignore list");
-//				break;
-//			case 10:
-//				currentTabOptionName = List.of("Logout");
-//				break;
-//			case 11:
-//				currentTabOptionName = List.of("Settings");
-//				break;
-//			case 12:
-//				currentTabOptionName = List.of("Emotes");
-//				break;
-//			case 13:
-//				currentTabOptionName = List.of("Music Player");
-//				break;
-//			default:
-//				// includes -1 (inventory hidden)
-//				return;
-//		}
-//
-//		if (currentTabOptionName.stream().noneMatch(str -> str.equalsIgnoreCase(e.getMenuOption())))
-//			return;
-//
-//		// block varcint change if enabled, inventory not currently collapsed AND we clicked after the collapse window
-//		if (client.getGameCycle() > lastClickedATab + config.collapseTimeout())
-//		{
-//			e.consume();
-//			log.debug("blocked invy collapse!");
-//			lastClickedATab = client.getGameCycle();
-//			return;
-//		}
-//
-//		lastClickedATab = -1;
-//	}
-
 	@Subscribe
 	private void onGameStateChanged(GameStateChanged e)
 	{
@@ -202,11 +127,8 @@ public class Clodern extends Plugin
 
 			// don't block the change on logging in & default tab plugin on hopping
 			lastClickedATab = client.getTickCount();
-
 		}
 		if (e.getGameState() == GameState.LOGGED_IN){
-			client.setVarbit(VarbitID.SHOW_DIALOGUE_IN_CHATBOX,1);
-
 			clientThread.invoke(this::moveComponents);
 			clientThread.invoke(this::shuffleStones);
 		}
