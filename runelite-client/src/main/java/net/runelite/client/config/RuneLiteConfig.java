@@ -479,4 +479,15 @@ public interface RuneLiteConfig extends Config
 	{
 		return Keybind.ALT;
 	}
+
+	@ConfigItem(
+		keyName = "hideOverlaysDuringCutscenes",
+		name = "Hide overlays during cutscenes",
+		description = "Hides plugin-created overlays such as infoboxes, timers, etc. while viewing cutscenes.",
+		position = 53
+	)
+	default boolean hideOverlaysDuringCutscenes()
+	{
+		return false;
+	}
 }
