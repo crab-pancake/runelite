@@ -1840,9 +1840,9 @@ public class ChatCommandsPlugin extends Plugin
 			final Skill hiscoreSkill;
 			final HiscoreLookup lookup = getCorrectLookupFor(chatMessage);
 
-			// League points only exist on the league hiscores
+			// League points only exist on the seasonal hiscores
 			final HiscoreEndpoint endPoint = minigame == HiscoreSkill.LEAGUE_POINTS ?
-				HiscoreEndpoint.LEAGUE :
+				HiscoreEndpoint.SEASONAL :
 				lookup.getEndpoint();
 
 			final HiscoreResult result = hiscoreClient.lookup(lookup.getName(), endPoint);
@@ -2097,7 +2097,7 @@ public class ChatCommandsPlugin extends Plugin
 		}
 		else if (name.contains(IconID.LEAGUE.toString()))
 		{
-			return HiscoreEndpoint.LEAGUE;
+			return HiscoreEndpoint.SEASONAL;
 		}
 		else
 		{
