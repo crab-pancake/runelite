@@ -263,7 +263,6 @@ public class BankTagsPlugin extends Plugin implements BankTagsService
 				Widget bankContainer = client.getWidget(InterfaceID.Bankmain.ITEMS);
 				if (bankContainer != null && !bankContainer.isSelfHidden())
 				{
-					log.debug("All tags tab hotkey pressed");
 					if (tabInterface.isAllTagsTabActive())
 					{
 						tabInterface.closeTag(true);

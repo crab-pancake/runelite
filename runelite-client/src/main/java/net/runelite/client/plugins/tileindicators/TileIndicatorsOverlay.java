@@ -70,7 +70,7 @@ public class TileIndicatorsOverlay extends Overlay
 				// If we have tile "selected" render it
 				if (tile != null)
 				{
-					renderTile(graphics, tile.getLocalLocation(), config.highlightHoveredColor(), config.hoveredTileBorderWidth(), config.hoveredTileFillColor());
+					renderTile(graphics, tile.getLocalLocation(), config.highlightHoveredColor(), config.hoveredTileBorderWidth(), config.hoveredTileFillColor(), config.hoveredTileCornersOnly());
 				}
 			}
 		}
