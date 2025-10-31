@@ -68,44 +68,45 @@ public class LootTrackerClient
 	{
 		CompletableFuture<Void> future = new CompletableFuture<>();
 
-		HttpUrl url = apiBase.newBuilder()
-			.addPathSegment("loottracker")
-			.build();
+//		HttpUrl url = apiBase.newBuilder()
+//			.addPathSegment("loottracker")
+//			.build();
+//
+//		Request.Builder requestBuilder = new Request.Builder();
+//		if (uuid != null)
+//		{
+//			requestBuilder.header(RuneLiteAPI.RUNELITE_AUTH, uuid.toString());
+//		}
+//		requestBuilder.post(RequestBody.create(JSON, gson.toJson(lootRecords)))
+//			.url(url)
+//			.build();
+//
+//		client.newCall(requestBuilder.build()).enqueue(new Callback()
+//		{
+//			@Override
+//			public void onFailure(Call call, IOException e)
+//			{
+//				log.warn("unable to submit loot", e);
+//				future.completeExceptionally(e);
+//			}
+//
+//			@Override
+//			public void onResponse(Call call, Response response)
+//			{
+//				if (response.isSuccessful())
+//				{
+//					log.debug("Submitted loot");
+//				}
+//				else
+//				{
+//					log.warn("Error submitting loot: {} - {}", response.code(), response.message());
+//				}
+//				response.close();
+//				future.complete(null);
+//			}
+//		});
 
-		Request.Builder requestBuilder = new Request.Builder();
-		if (uuid != null)
-		{
-			requestBuilder.header(RuneLiteAPI.RUNELITE_AUTH, uuid.toString());
-		}
-		requestBuilder.post(RequestBody.create(JSON, gson.toJson(lootRecords)))
-			.url(url)
-			.build();
-
-		client.newCall(requestBuilder.build()).enqueue(new Callback()
-		{
-			@Override
-			public void onFailure(Call call, IOException e)
-			{
-				log.warn("unable to submit loot", e);
-				future.completeExceptionally(e);
-			}
-
-			@Override
-			public void onResponse(Call call, Response response)
-			{
-				if (response.isSuccessful())
-				{
-					log.debug("Submitted loot");
-				}
-				else
-				{
-					log.warn("Error submitting loot: {} - {}", response.code(), response.message());
-				}
-				response.close();
-				future.complete(null);
-			}
-		});
-
+		future.complete(null);
 		return future;
 	}
 }
