@@ -79,7 +79,11 @@ import net.runelite.client.ui.ClientUI;
 import net.runelite.client.ui.DrawManager;
 import net.runelite.rlawt.AWTContext;
 import org.lwjgl.opengl.GL;
-import static org.lwjgl.opengl.GL43C.*;
+import static org.lwjgl.opengl.GL33C.*;
+import static org.lwjgl.opengl.GL43C.GL_DEBUG_SOURCE_API;
+import static org.lwjgl.opengl.GL43C.GL_DEBUG_TYPE_OTHER;
+import static org.lwjgl.opengl.GL43C.GL_DEBUG_TYPE_PERFORMANCE;
+import static org.lwjgl.opengl.GL43C.glDebugMessageControl;
 import static org.lwjgl.opengl.GL45C.GL_ZERO_TO_ONE;
 import static org.lwjgl.opengl.GL45C.glClipControl;
 import org.lwjgl.opengl.GLCapabilities;
@@ -305,9 +309,9 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 				log.info("Using device: {}", glGetString(GL_RENDERER));
 				log.info("Using driver: {}", glGetString(GL_VERSION));
 
-				if (!glCapabilities.OpenGL31)
+				if (!glCapabilities.OpenGL33)
 				{
-					throw new RuntimeException("OpenGL 3.1 is required but not available");
+					throw new RuntimeException("OpenGL 3.3 is required but not available");
 				}
 
 				lwjglInitted = true;
@@ -877,7 +881,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		// Clear scene
 		int sky = client.getSkyboxColor();
 		glClearColor((sky >> 16 & 0xFF) / 255f, (sky >> 8 & 0xFF) / 255f, (sky & 0xFF) / 255f, 1f);
-		glClearDepthf(0f);
+		glClearDepth(0d);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Setup anisotropic filtering
@@ -1090,7 +1094,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 
 			if (scene.getWorldViewId() == -1)
 			{
-				glProgramUniform3i(glProgram, uniBase, 0, 0, 0);
+				glUniform3i(uniBase, 0, 0, 0);
 
 				var vaos = vaoO.unmap();
 				for (VAO vao : vaos)
@@ -1176,7 +1180,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 	}
 
 	@Override
-	public void drawTemp(Projection worldProjection, Scene scene, GameObject gameObject, Model m)
+	public void drawTemp(Projection worldProjection, Scene scene, GameObject gameObject, Model m, int orient, int x, int y, int z)
 	{
 		SceneContext ctx = context(scene);
 		if (ctx == null)
@@ -1189,20 +1193,21 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 			return;
 		}
 
+		Renderable renderable = gameObject.getRenderable();
 		int size = m.getFaceCount() * 3 * VAO.VERT_SIZE;
-		if (gameObject.getRenderable() instanceof Player || m.getFaceTransparencies() != null)
+		if (renderable instanceof Player || m.getFaceTransparencies() != null)
 		{
 			// opaque player faces have their own vao and are drawn in a separate pass from normal opaque faces
 			// because they are not depth tested. transparent player faces don't need their own vao because normal
 			// transparent faces are already not depth tested
-			VAO o = gameObject.getRenderable() instanceof Player ? vaoPO.get(size) : vaoO.get(size);
+			VAO o = renderable instanceof Player ? vaoPO.get(size) : vaoO.get(size);
 			VAO a = vaoA.get(size);
 
 			int start = a.vbo.vb.position();
 			m.calculateBoundsCylinder();
 			try
 			{
-				facePrioritySorter.uploadSortedModel(worldProjection, m, gameObject.getModelOrientation(), gameObject.getX(), gameObject.getZ(), gameObject.getY(), o.vbo.vb, a.vbo.vb);
+				facePrioritySorter.uploadSortedModel(worldProjection, m, orient, x, y, z, o.vbo.vb, a.vbo.vb);
 			}
 			catch (Exception ex)
 			{
@@ -1216,13 +1221,13 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 				int zx = (gameObject.getX() >> 10) + offset;
 				int zz = (gameObject.getY() >> 10) + offset;
 				Zone zone = ctx.zones[zx][zz];
-				zone.addTempAlphaModel(a.vao, start, end, gameObject.getPlane(), gameObject.getX() & 1023, gameObject.getZ() - gameObject.getRenderable().getModelHeight() /* to render players over locs */, gameObject.getY() & 1023);
+				zone.addTempAlphaModel(a.vao, start, end, gameObject.getPlane(), x & 1023, y - renderable.getModelHeight() /* to render players over locs */, z & 1023);
 			}
 		}
 		else
 		{
 			VAO o = vaoO.get(size);
-			SceneUploader.uploadTempModel(m, gameObject.getModelOrientation(), gameObject.getX(), gameObject.getZ(), gameObject.getY(), o.vbo.vb);
+			SceneUploader.uploadTempModel(m, orient, x, y, z, o.vbo.vb);
 		}
 	}
 
@@ -1366,7 +1371,9 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 			{
 				// if texture upload is successful, compute and set texture animations
 				float[] texAnims = textureManager.computeTextureAnimations(textureProvider);
-				glProgramUniform2fv(glProgram, uniTextureAnimations, texAnims);
+				glUseProgram(glProgram);
+				glUniform2fv(uniTextureAnimations, texAnims);
+				glUseProgram(0);
 			}
 		}
 
