@@ -61,43 +61,43 @@ public class ClientSessionManager
 
 	public void start()
 	{
-		executorService.execute(() ->
-		{
-			try
-			{
-				sessionId = sessionClient.open();
-				log.debug("Opened session {}", sessionId);
-			}
-			catch (IOException ex)
-			{
-				log.warn("error opening session", ex);
-			}
-		});
-
-		scheduledFuture = executorService.scheduleWithFixedDelay(RunnableExceptionLogger.wrap(this::ping), 1, 10, TimeUnit.MINUTES);
+//		executorService.execute(() ->
+//		{
+//			try
+//			{
+//				sessionId = sessionClient.open();
+//				log.debug("Opened session {}", sessionId);
+//			}
+//			catch (IOException ex)
+//			{
+//				log.warn("error opening session", ex);
+//			}
+//		});
+//
+//		scheduledFuture = executorService.scheduleWithFixedDelay(RunnableExceptionLogger.wrap(this::ping), 1, 10, TimeUnit.MINUTES);
 	}
 
 	@Subscribe
 	private void onClientShutdown(ClientShutdown e)
 	{
-		scheduledFuture.cancel(true);
-
-		e.waitFor(executorService.submit(() ->
-		{
-			try
-			{
-				UUID localUuid = sessionId;
-				if (localUuid != null)
-				{
-					sessionClient.delete(localUuid);
-				}
-			}
-			catch (IOException ex)
-			{
-				log.warn(null, ex);
-			}
-			sessionId = null;
-		}));
+//		scheduledFuture.cancel(true);
+//
+//		e.waitFor(executorService.submit(() ->
+//		{
+//			try
+//			{
+//				UUID localUuid = sessionId;
+//				if (localUuid != null)
+//				{
+//					sessionClient.delete(localUuid);
+//				}
+//			}
+//			catch (IOException ex)
+//			{
+//				log.warn(null, ex);
+//			}
+//			sessionId = null;
+//		}));
 	}
 
 	private void ping()

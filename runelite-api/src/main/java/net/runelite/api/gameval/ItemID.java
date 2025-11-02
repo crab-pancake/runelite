@@ -33092,9 +33092,19 @@ public final class ItemID
 	public static final int HUNTING_OJIBWAY_BIRD_SNARE = 10006;
 
 	/**
+	 * Null
+	 */
+	public static final int CERT_HUNTING_OJIBWAY_BIRD_SNARE = 10007;
+
+	/**
 	 * Box trap
 	 */
 	public static final int HUNTING_BOX_TRAP = 10008;
+
+	/**
+	 * Null
+	 */
+	public static final int CERT_HUNTING_BOX_TRAP = 10009;
 
 	/**
 	 * Butterfly net
@@ -33143,6 +33153,11 @@ public final class ItemID
 	public static final int MAGIC_IMP_BOX = 10025;
 
 	/**
+	 * Null
+	 */
+	public static final int CERT_MAGIC_IMP_BOX = 10026;
+
+	/**
 	 * Imp-in-a-box(2)
 	 */
 	public static final int MAGIC_IMP_BOX_FULL = 10027;
@@ -33161,6 +33176,11 @@ public final class ItemID
 	 * Rabbit snare
 	 */
 	public static final int HUNTING_SNARE = 10031;
+
+	/**
+	 * Null
+	 */
+	public static final int CERT_HUNTING_SNARE = 10032;
 
 	/**
 	 * Chinchompa
@@ -38491,6 +38511,10 @@ public final class ItemID
 	 */
 	public static final int HUNTING_WIMPY_FEATHER = 11525;
 	public static final int PATTERN_LIME_DUMMY = 11526;
+
+	/**
+	 * Mausoleum bridge repair
+	 */
 	public static final int PATTERN_PINEAPPLE_CHUNKS_DUMMY = 11527;
 	public static final int PATTERN_BLACK_BATTLEAXE_DUMMY = 11528;
 	public static final int PATTERN_CHOCOLATE_CAKE_DUMMY = 11529;
@@ -39273,7 +39297,7 @@ public final class ItemID
 	public static final int SOTD = 11791;
 
 	/**
-	 * Agility jump
+	 * Agility strength
 	 */
 	public static final int AGILITY_STRENGTH = 11793;
 
@@ -79333,6 +79357,885 @@ public final class ItemID
 	 */
 	public static final int PLUGIN_DEV_WORLD_TOOL = 30890;
 
+	/**
+	 * Keris partisan of amascut
+	 */
+	public static final int KERIS_PARTISAN_AMASCUT = 30891;
+
+	/**
+	 * Jewel of amascut
+	 */
+	public static final int JEWEL_OF_AMASCUT = 30893;
+
+	/**
+	 * Steel ring
+	 */
+	public static final int STEEL_RING = 30895;
+
+	/**
+	 * Giant bones
+	 */
+	public static final int GIANT_BONES = 30898;
+
+	/**
+	 * Shark lure
+	 */
+	public static final int SHARK_LURE = 30900;
+
+	/**
+	 * Minor beginner scroll case
+	 */
+	public static final int SCROLL_CASE_BEGINNER_MINOR = 30902;
+
+	/**
+	 * Major beginner scroll case
+	 */
+	public static final int SCROLL_CASE_BEGINNER_MAJOR = 30904;
+
+	/**
+	 * Minor easy scroll case
+	 */
+	public static final int SCROLL_CASE_EASY_MINOR = 30906;
+
+	/**
+	 * Major easy scroll case
+	 */
+	public static final int SCROLL_CASE_EASY_MAJOR = 30908;
+
+	/**
+	 * Minor medium scroll case
+	 */
+	public static final int SCROLL_CASE_MEDIUM_MINOR = 30910;
+
+	/**
+	 * Major medium scroll case
+	 */
+	public static final int SCROLL_CASE_MEDIUM_MAJOR = 30912;
+
+	/**
+	 * Minor hard scroll case
+	 */
+	public static final int SCROLL_CASE_HARD_MINOR = 30914;
+
+	/**
+	 * Major hard scroll case
+	 */
+	public static final int SCROLL_CASE_HARD_MAJOR = 30916;
+
+	/**
+	 * Minor elite scroll case
+	 */
+	public static final int SCROLL_CASE_ELITE_MINOR = 30918;
+
+	/**
+	 * Major elite scroll case
+	 */
+	public static final int SCROLL_CASE_ELITE_MAJOR = 30920;
+
+	/**
+	 * Minor master scroll case
+	 */
+	public static final int SCROLL_CASE_MASTER_MINOR = 30922;
+
+	/**
+	 * Major master scroll case
+	 */
+	public static final int SCROLL_CASE_MASTER_MAJOR = 30924;
+
+	/**
+	 * Mimic scroll case
+	 */
+	public static final int SCROLL_CASE_MIMIC = 30926;
+
+	/**
+	 * Clue scroll (easy)
+	 */
+	public static final int TRAIL_EASY_VAGUE_VM3 = 30928;
+
+	/**
+	 * Clue scroll (hard)
+	 */
+	public static final int TRAIL_HARD_CIPHER_VM02 = 30929;
+
+	/**
+	 * Challenge scroll (hard)
+	 */
+	public static final int TRAIL_HARD_CIPHER_VM02_CHALLENGE = 30930;
+
+	/**
+	 * Clue scroll (hard)
+	 */
+	public static final int TRAIL_HARD_SEXTANT_EXP16 = 30931;
+
+	/**
+	 * Clue scroll (elite)
+	 */
+	public static final int TRAIL_ELITE_RIDDLE_VM03 = 30932;
+
+	/**
+	 * Clue scroll (medium)
+	 */
+	public static final int TRAIL_MEDIUM_ANAGRAM_VM02 = 30933;
+
+	/**
+	 * Challenge scroll (medium)
+	 */
+	public static final int TRAIL_MEDIUM_ANAGRAM_VM02_CHALLENGE = 30934;
+
+	/**
+	 * Clue scroll (medium)
+	 */
+	public static final int TRAIL_CLUE_MEDIUM_RIDDLE_VM02 = 30935;
+
+	/**
+	 * Wet fabric scrap
+	 */
+	public static final int SOC_CLOTH = 30936;
+
+	/**
+	 * Caerula berries
+	 */
+	public static final int CAERULA_BERRIES = 30937;
+
+	/**
+	 * Mind mender
+	 */
+	public static final int AEC_MIND_MENDER = 30939;
+	public static final int VMQ4_JANUS_DOG_TAG = 30940;
+
+	/**
+	 * Coin purse
+	 */
+	public static final int VMQ4_JANUS_PURSE = 30941;
+
+	/**
+	 * Empty coin purse
+	 */
+	public static final int VMQ4_JANUS_PURSE_EMPTY = 30942;
+
+	/**
+	 * Sandy coin purse
+	 */
+	public static final int VMQ4_JANUS_PURSE_SAND = 30943;
+
+	/**
+	 * Makeshift blackjack
+	 */
+	public static final int VMQ4_JANUS_SLAP = 30944;
+
+	/**
+	 * Branch
+	 */
+	public static final int VMQ4_JANUS_REED = 30945;
+	public static final int VMQ4_BASEMENT_KEY = 30946;
+
+	/**
+	 * Potato sack
+	 */
+	public static final int POTATO_SACK_HAT = 30947;
+
+	/**
+	 * Emissary scroll
+	 */
+	public static final int VMQ4_CULT_MANIFEST = 30949;
+
+	/**
+	 * Canvas piece
+	 */
+	public static final int VMQ4_PAINTING_SIGIL = 30950;
+
+	/**
+	 * Key
+	 */
+	public static final int VMQ4_DRAWER_KEY = 30951;
+
+	/**
+	 * Stone tablet
+	 */
+	public static final int VMQ4_MOKI_TABLET = 30952;
+
+	/**
+	 * Stone tablet
+	 */
+	public static final int VMQ4_MOKI_TABLET_CREDITS = 30953;
+
+	/**
+	 * Stone tablet
+	 */
+	public static final int MOKHAIOTL_PUZZLE_LORE_TABLET = 30954;
+
+	/**
+	 * Arkan blade
+	 */
+	public static final int ARKAN_BLADE = 30955;
+
+	/**
+	 * Earthbound tecpatl
+	 */
+	public static final int EARTHBOUND_TECPATL = 30957;
+
+	/**
+	 * Antique lamp
+	 */
+	public static final int VMQ4_REWARD_LAMP = 30960;
+
+	/**
+	 * Keystone fragment
+	 */
+	public static final int VMQ4_MONOLITH_FRAGMENT = 30961;
+
+	/**
+	 * Kuhu essence
+	 */
+	public static final int VMQ4_ESSENCE = 30962;
+
+	/**
+	 * Ancient roots
+	 */
+	public static final int VMQ4_ROOTS = 30963;
+
+	/**
+	 * Root kindling
+	 */
+	public static final int VMQ4_ROOT_KINDLING = 30964;
+
+	/**
+	 * Knife blade
+	 */
+	public static final int VMQ4_KNIFE = 30965;
+
+	/**
+	 * Ancient teleporter
+	 */
+	public static final int TONALI_PORTABLE_TELEPORTER = 30966;
+
+	/**
+	 * Large egg
+	 */
+	public static final int SCRAMBLED_CHICKEN_EGG = 30967;
+
+	/**
+	 * Dragon egg
+	 */
+	public static final int SCRAMBLED_DRAGON_EGG = 30968;
+
+	/**
+	 * Jaguar egg
+	 */
+	public static final int SCRAMBLED_JAGUAR_EGG = 30969;
+
+	/**
+	 * Egg
+	 */
+	public static final int SCRAMBLED_EGG = 30970;
+	public static final int SCRAMBLED_EGG_DUMMY = 30972;
+
+	/**
+	 * Alan's bones
+	 */
+	public static final int ALAN_BONES = 30973;
+
+	/**
+	 * Alan's bonemeal
+	 */
+	public static final int POT_BONEMEAL_ALAN = 30975;
+
+	/**
+	 * Damiana leaves
+	 */
+	public static final int DAMIANA_LEAVES = 30977;
+
+	/**
+	 * Damiana water
+	 */
+	public static final int BOWL_DAMIANA_WATER = 30979;
+
+	/**
+	 * Damiana tea
+	 */
+	public static final int BOWL_DAMIANA_TEA = 30981;
+
+	/**
+	 * Damiana tea
+	 */
+	public static final int BOWL_DAMIANA_TEA_MILKY = 30983;
+
+	/**
+	 * Cup of tea
+	 */
+	public static final int CUP_DAMIANA_TEA = 30985;
+
+	/**
+	 * Cup of tea
+	 */
+	public static final int CUP_DAMIANA_TEA_MILKY = 30987;
+
+	/**
+	 * Acatzin's axe
+	 */
+	public static final int SCRAMBLED_AXE_DAMAGED = 30989;
+
+	/**
+	 * Acatzin's axe
+	 */
+	public static final int SCRAMBLED_AXE_REPAIRED = 30990;
+
+	/**
+	 * Kite shield
+	 */
+	public static final int POH_WALL_CREST_6_DUMMY = 30991;
+
+	/**
+	 * Dungeon entrance
+	 */
+	public static final int POH_GARDEN_CENTREPIECE_5_DUMMY = 30992;
+
+	/**
+	 * Custodian stalker
+	 */
+	public static final int SLAYERGUIDE_CUSTODIAN_STALKER_JUVENILE = 30993;
+
+	/**
+	 * Custodian stalker
+	 */
+	public static final int SLAYERGUIDE_CUSTODIAN_STALKER_MATURE = 30994;
+
+	/**
+	 * Custodian stalker
+	 */
+	public static final int SLAYERGUIDE_CUSTODIAN_STALKER_ELDER = 30995;
+	public static final int MAGIC_HUNTER_RUNE_ACTIVATION = 30996;
+
+	/**
+	 * Events tool
+	 */
+	public static final int EVENT_TOOL = 30997;
+
+	/**
+	 * Atlatl dart tips
+	 */
+	public static final int ATLATL_DART_TIPS = 30998;
+	public static final int ATLATL_DART_TIPS_2 = 31000;
+	public static final int ATLATL_DART_TIPS_3 = 31001;
+	public static final int ATLATL_DART_TIPS_4 = 31002;
+	public static final int ATLATL_DART_TIPS_5 = 31003;
+
+	/**
+	 * Atlatl dart shaft
+	 */
+	public static final int ATLATL_DART_SHAFT = 31004;
+	public static final int ATLATL_DART_SHAFT_2 = 31006;
+	public static final int ATLATL_DART_SHAFT_3 = 31007;
+	public static final int ATLATL_DART_SHAFT_4 = 31008;
+	public static final int ATLATL_DART_SHAFT_5 = 31009;
+
+	/**
+	 * Headless atlatl dart
+	 */
+	public static final int HEADLESS_ATLATL_DART = 31010;
+	public static final int HEADLESS_ATLATL_DART_2 = 31012;
+	public static final int HEADLESS_ATLATL_DART_3 = 31013;
+	public static final int HEADLESS_ATLATL_DART_4 = 31014;
+	public static final int HEADLESS_ATLATL_DART_5 = 31015;
+
+	/**
+	 * Sacraments of ent folk
+	 */
+	public static final int ENT_TOTEMS_INTRO_BOOK = 31016;
+
+	/**
+	 * Ent seed
+	 */
+	public static final int ENT_SEED = 31018;
+	public static final int ENT_SEED02 = 31020;
+	public static final int ENT_SEED03 = 31021;
+	public static final int ENT_SEED04 = 31022;
+	public static final int ENT_SEED05 = 31023;
+
+	/**
+	 * Greenman carving
+	 */
+	public static final int GREENMAN_WALL_DECORATION = 31024;
+
+	/**
+	 * Greenman statue
+	 */
+	public static final int GREENMAN_STATUE = 31027;
+
+	/**
+	 * Greenman carving
+	 */
+	public static final int POH_GREENMAN_WALL_DECORATION = 31030;
+
+	/**
+	 * Greenman statue
+	 */
+	public static final int POH_GREENMAN_STATUE = 31031;
+
+	/**
+	 * Ent branch
+	 */
+	public static final int ENT_BRANCH = 31032;
+
+	/**
+	 * Greenman mask
+	 */
+	public static final int GREENMAN_MASK = 31034;
+
+	/**
+	 * Greenman mask (normal)
+	 */
+	public static final int GREENMAN_MASK_REGULAR = 31037;
+
+	/**
+	 * Greenman mask (oak)
+	 */
+	public static final int GREENMAN_MASK_OAK = 31038;
+
+	/**
+	 * Greenman mask (willow)
+	 */
+	public static final int GREENMAN_MASK_WILLOW = 31039;
+
+	/**
+	 * Greenman mask (maple)
+	 */
+	public static final int GREENMAN_MASK_MAPLE = 31040;
+
+	/**
+	 * Greenman mask (yew)
+	 */
+	public static final int GREENMAN_MASK_YEW = 31041;
+
+	/**
+	 * Greenman mask (magic)
+	 */
+	public static final int GREENMAN_MASK_MAGIC = 31042;
+
+	/**
+	 * Fletching knife
+	 */
+	public static final int FLETCHING_KNIFE = 31043;
+
+	/**
+	 * Bale of flax
+	 */
+	public static final int FLAX_BALE = 31045;
+
+	/**
+	 * Dirty arrowtips
+	 */
+	public static final int DIRTY_ARROWTIPS = 31047;
+
+	/**
+	 * Redwood hiking staff
+	 */
+	public static final int REDWOOD_HIKING_STAFF = 31049;
+
+	/**
+	 * Bow string spool
+	 */
+	public static final int BOWSTRING_SPOOL = 31052;
+
+	/**
+	 * Vale offerings
+	 */
+	public static final int ENT_TOTEMS_LOOT = 31054;
+	public static final int ENT_TOTEMS_LOOT02 = 31056;
+	public static final int ENT_TOTEMS_LOOT03 = 31057;
+	public static final int ENT_TOTEMS_LOOT04 = 31058;
+	public static final int ENT_TOTEMS_ANIMAL_ICON_A = 31059;
+	public static final int ENT_TOTEMS_ANIMAL_ICON_B = 31060;
+	public static final int ENT_TOTEMS_ANIMAL_ICON_C = 31061;
+	public static final int ENT_TOTEMS_ANIMAL_ICON_D = 31062;
+	public static final int ENT_TOTEMS_ANIMAL_ICON_E = 31063;
+	public static final int ENT_TOTEMS_ANIMAL_ICON_A_DISABLED = 31064;
+	public static final int ENT_TOTEMS_ANIMAL_ICON_B_DISABLED = 31065;
+	public static final int ENT_TOTEMS_ANIMAL_ICON_C_DISABLED = 31066;
+	public static final int ENT_TOTEMS_ANIMAL_ICON_D_DISABLED = 31067;
+	public static final int ENT_TOTEMS_ANIMAL_ICON_E_DISABLED = 31068;
+	public static final int ENT_TOTEMS_TRAIL01_BUFF01 = 31069;
+	public static final int AUBURN_ADVERTISEMENTS = 31070;
+
+	/**
+	 * Letter
+	 */
+	public static final int AUBURNVALE_UNSENT_LETTER = 31071;
+
+	/**
+	 * Letter
+	 */
+	public static final int AUBURNVALE_UNSENT_LETTER_SUNSET = 31073;
+
+	/**
+	 * Alan's blessed bones
+	 */
+	public static final int BLESSED_ALAN_BONES = 31075;
+
+	/**
+	 * On migration patterns
+	 */
+	public static final int CUSTODIAN_LOREBOOK = 31077;
+
+	/**
+	 * Auburn valley ecological reports
+	 */
+	public static final int AUBURN_ECOLOGICAL_REPORTS = 31079;
+
+	/**
+	 * Antler guard
+	 */
+	public static final int CUSTODIAN_ANTLER_GUARD = 31081;
+
+	/**
+	 * Alchemist's signet
+	 */
+	public static final int ALCHEMIST_RING = 31084;
+
+	/**
+	 * Broken antler
+	 */
+	public static final int CUSTODIAN_BROKEN_ANTLER = 31086;
+
+	/**
+	 * Avernic treads
+	 */
+	public static final int AVERNIC_TREADS = 31088;
+
+	/**
+	 * Avernic treads (pr)
+	 */
+	public static final int AVERNIC_TREADS_MELEE = 31091;
+
+	/**
+	 * Avernic treads (pe)
+	 */
+	public static final int AVERNIC_TREADS_RANGED = 31092;
+
+	/**
+	 * Avernic treads (et)
+	 */
+	public static final int AVERNIC_TREADS_MAGIC = 31093;
+
+	/**
+	 * Avernic treads (pr)(pe)
+	 */
+	public static final int AVERNIC_TREADS_MELEE_RANGED = 31094;
+
+	/**
+	 * Avernic treads (pr)(et)
+	 */
+	public static final int AVERNIC_TREADS_MELEE_MAGIC = 31095;
+
+	/**
+	 * Avernic treads (pe)(et)
+	 */
+	public static final int AVERNIC_TREADS_RANGED_MAGIC = 31096;
+
+	/**
+	 * Avernic treads (max)
+	 */
+	public static final int AVERNIC_TREADS_MAX = 31097;
+
+	/**
+	 * Mokhaiotl waystone
+	 */
+	public static final int DOM_TELEPORT_ITEM = 31099;
+	public static final int DOM_TELEPORT_ITEM_1 = 31101;
+	public static final int DOM_TELEPORT_ITEM_2 = 31102;
+	public static final int DOM_TELEPORT_ITEM_3 = 31103;
+	public static final int DOM_TELEPORT_ITEM_4 = 31104;
+	public static final int DOM_TELEPORT_ITEM_5 = 31105;
+
+	/**
+	 * Confliction gauntlets
+	 */
+	public static final int CONFLICTION_GAUNTLETS = 31106;
+
+	/**
+	 * Mokhaiotl cloth
+	 */
+	public static final int MOKHAIOTL_CLOTH = 31109;
+
+	/**
+	 * Demon tear
+	 */
+	public static final int DEMON_TEAR = 31111;
+
+	/**
+	 * Eye of ayak
+	 */
+	public static final int EYE_OF_AYAK = 31113;
+
+	/**
+	 * Eye of ayak (uncharged)
+	 */
+	public static final int EYE_OF_AYAK_UNCHARGED = 31115;
+
+	/**
+	 * Orange
+	 */
+	public static final int ORANGE_HAT = 31117;
+	public static final int TLATI_DUMMY_BOOK_1 = 31119;
+	public static final int TLATI_DUMMY_BOOK_2 = 31120;
+
+	/**
+	 * Old letter
+	 */
+	public static final int TALTEKLAN_LETTER = 31121;
+
+	/**
+	 * Token
+	 */
+	public static final int VARLAMORE_FINAL_TOKEN_1 = 31123;
+
+	/**
+	 * Token
+	 */
+	public static final int VARLAMORE_FINAL_TOKEN_2 = 31124;
+
+	/**
+	 * Token
+	 */
+	public static final int VARLAMORE_FINAL_TOKEN_3 = 31125;
+
+	/**
+	 * Token
+	 */
+	public static final int VARLAMORE_FINAL_TOKEN_4 = 31126;
+
+	/**
+	 * Token
+	 */
+	public static final int VARLAMORE_FINAL_TOKEN_5 = 31127;
+
+	/**
+	 * Blueberry muffin
+	 */
+	public static final int BLUEBERRY_MUFFIN = 31128;
+
+	/**
+	 * Dom
+	 */
+	public static final int DOMPET = 31130;
+
+	/**
+	 * Dinh's blazing bulwark
+	 */
+	public static final int ROTTEN_DINHS_BULWARK = 31132;
+
+	/**
+	 * Venator bow
+	 */
+	public static final int ROTTEN_VENATOR_BOW = 31133;
+
+	/**
+	 * Agility swing
+	 */
+	public static final int AGILITY_SWING = 31134;
+
+	/**
+	 * Agility swing
+	 */
+	public static final int AGILITY_SWING_AREA = 31135;
+
+	/**
+	 * Blood moon armour set
+	 */
+	public static final int SET_BLOOD_MOON_ARMOUR = 31136;
+
+	/**
+	 * Blue moon armour set
+	 */
+	public static final int SET_BLUE_MOON_ARMOUR = 31139;
+
+	/**
+	 * Eclipse moon armour set
+	 */
+	public static final int SET_ECLIPSE_MOON_ARMOUR = 31142;
+
+	/**
+	 * Torva armour set
+	 */
+	public static final int SET_TORVA_ARMOUR = 31145;
+
+	/**
+	 * Virtus armour set
+	 */
+	public static final int SET_VIRTUS_ARMOUR = 31148;
+
+	/**
+	 * Rock-shell armour set
+	 */
+	public static final int SET_DAGGANOTH_MELEE_ARMOUR = 31151;
+
+	/**
+	 * Skeletal armour set
+	 */
+	public static final int SET_DAGGANOTH_MAGE_ARMOUR = 31154;
+
+	/**
+	 * Spined armour set
+	 */
+	public static final int SET_DAGGANOTH_RANGE_ARMOUR = 31157;
+
+	/**
+	 * Swampbark armour set
+	 */
+	public static final int SET_SWAMPBARK_ARMOUR = 31160;
+
+	/**
+	 * Bloodbark armour set
+	 */
+	public static final int SET_BLOODBARK_ARMOUR = 31163;
+
+	/**
+	 * Mixed hide armour set
+	 */
+	public static final int SET_MIXED_HIDE_ARMOUR = 31166;
+
+	/**
+	 * Hueycoatl hide armour set
+	 */
+	public static final int SET_HUEY_ARMOUR = 31169;
+
+	/**
+	 * Battlehat
+	 */
+	public static final int EVENT_BATTLEHAT = 31172;
+
+	/**
+	 * Corrupted shark
+	 */
+	public static final int EVENT_CORRUPTED_SHARK = 31174;
+	public static final int EVENT_MUSHTREE_DUMMY = 31176;
+	public static final int EVENT_BARROWS_CHEST_DUMMY = 31177;
+	public static final int EVENT_QUETZAL_LANDING_SITE_DUMMY = 31178;
+	public static final int EVENT_FOSSIL_RANGE_DUMMY = 31179;
+	public static final int EVENT_MOONLIGHT_MOTH_DUMMY = 31180;
+
+	/**
+	 * Grid master tabard
+	 */
+	public static final int BINGO_TABARD = 31181;
+
+	/**
+	 * Grid master tabard (b)
+	 */
+	public static final int BINGO_TABARD_BLACK = 31184;
+
+	/**
+	 * Grid master tabard (p)
+	 */
+	public static final int BINGO_TABARD_PINK = 31187;
+
+	/**
+	 * Grid master tabard (g)
+	 */
+	public static final int BINGO_TABARD_GREEN = 31190;
+
+	/**
+	 * Swords and emblem
+	 */
+	public static final int BINGO_SWORDS = 31193;
+
+	/**
+	 * Swords and emblem (b)
+	 */
+	public static final int BINGO_SWORDS_BLACK = 31196;
+
+	/**
+	 * Swords and emblem (p)
+	 */
+	public static final int BINGO_SWORDS_PINK = 31199;
+
+	/**
+	 * Swords and emblem (g)
+	 */
+	public static final int BINGO_SWORDS_GREEN = 31202;
+
+	/**
+	 * Grid master altar icon scroll
+	 */
+	public static final int BINGO_ALTAR_ICON_SCROLL = 31205;
+
+	/**
+	 * Grid master torch scroll
+	 */
+	public static final int BINGO_TORCH_SCROLL = 31208;
+
+	/**
+	 * Event lamp
+	 */
+	public static final int EVENT_GENILAMP = 31211;
+
+	/**
+	 * Combatant scroll
+	 */
+	public static final int REWARD_COMBATANT = 31212;
+
+	/**
+	 * Craftsman scroll
+	 */
+	public static final int REWARD_CRAFTSMAN = 31214;
+
+	/**
+	 * Gatherer scroll
+	 */
+	public static final int REWARD_GATHERER = 31216;
+
+	/**
+	 * Cabbage
+	 */
+	public static final int GRIDMASTER_POINTS = 31218;
+	public static final int BOUGHT_GRIDMASTER_POINTS = 31219;
+
+	/**
+	 * Cabbage
+	 */
+	public static final int GRIDMASTER_POINTS_NEGATIVE = 31220;
+	public static final int BOUGHT_GRIDMASTER_POINTS_NEGATIVE = 31221;
+
+	/**
+	 * Spooky picture
+	 */
+	public static final int HW25_SPOOKY_PAINTING = 31222;
+
+	/**
+	 * Spooky wall lamp
+	 */
+	public static final int HW25_SPOOKY_WALL_LAMP = 31223;
+
+	/**
+	 * Spooky scarecrow
+	 */
+	public static final int HW25_SPOOKY_SCARECROW = 31224;
+
+	/**
+	 * Spooky chair
+	 */
+	public static final int HW25_CHAIR_OBJ_REWARD = 31225;
+
+	/**
+	 * Spooky pumpkin lantern
+	 */
+	public static final int HW25_PUMPKIN_LANTERN_REWARD = 31227;
+
+	/**
+	 * Grim reaper top
+	 */
+	public static final int HW25_GRIM_REAPER_TOP = 31229;
+
+	/**
+	 * Grim reaper bottoms
+	 */
+	public static final int HW25_GRIM_REAPER_BOTTOMS = 31231;
+
+	/**
+	 * Grim reaper gloves
+	 */
+	public static final int HW25_GRIM_REAPER_GLOVES = 31233;
+
 	public static final class Cert
 	{
 		public static final int TWPART1 = 7;
@@ -81788,17 +82691,13 @@ public final class ItemID
 		public static final int _3DOSEHUNTING = 10001;
 		public static final int _2DOSEHUNTING = 10003;
 		public static final int _1DOSEHUNTING = 10005;
-		public static final int HUNTING_OJIBWAY_BIRD_SNARE = 10007;
-		public static final int HUNTING_BOX_TRAP = 10009;
 		public static final int HUNTING_BUTTERFLY_NET = 10011;
 		public static final int BUTTERFLY_JAR = 10013;
 		public static final int BUTTERFLY_JAR_WARLOCK = 10015;
 		public static final int BUTTERFLY_JAR_SNOWY = 10017;
 		public static final int BUTTERFLY_JAR_GLACIALIS = 10019;
 		public static final int BUTTERFLY_JAR_RUBY = 10021;
-		public static final int MAGIC_IMP_BOX = 10026;
 		public static final int HUNTING_TEASING_STICK = 10030;
-		public static final int HUNTING_SNARE = 10032;
 		public static final int HUNTING_TROUSERS_TIGER = 10036;
 		public static final int HUNTING_TORSO_TIGER = 10038;
 		public static final int HUNTING_HAT_TIGER = 10040;
@@ -83779,6 +84678,38 @@ public final class ItemID
 		public static final int _3DOSESURGE = 30879;
 		public static final int _2DOSESURGE = 30882;
 		public static final int _1DOSESURGE = 30885;
+		public static final int STEEL_RING = 30896;
+		public static final int EARTHBOUND_TECPATL = 30958;
+		public static final int GREENMAN_WALL_DECORATION = 31025;
+		public static final int GREENMAN_STATUE = 31028;
+		public static final int GREENMAN_MASK = 31035;
+		public static final int REDWOOD_HIKING_STAFF = 31050;
+		public static final int CUSTODIAN_ANTLER_GUARD = 31082;
+		public static final int AVERNIC_TREADS = 31089;
+		public static final int CONFLICTION_GAUNTLETS = 31107;
+		public static final int EYE_OF_AYAK_UNCHARGED = 31116;
+		public static final int SET_BLOOD_MOON_ARMOUR = 31137;
+		public static final int SET_BLUE_MOON_ARMOUR = 31140;
+		public static final int SET_ECLIPSE_MOON_ARMOUR = 31143;
+		public static final int SET_TORVA_ARMOUR = 31146;
+		public static final int SET_VIRTUS_ARMOUR = 31149;
+		public static final int SET_DAGGANOTH_MELEE_ARMOUR = 31152;
+		public static final int SET_DAGGANOTH_MAGE_ARMOUR = 31155;
+		public static final int SET_DAGGANOTH_RANGE_ARMOUR = 31158;
+		public static final int SET_SWAMPBARK_ARMOUR = 31161;
+		public static final int SET_BLOODBARK_ARMOUR = 31164;
+		public static final int SET_MIXED_HIDE_ARMOUR = 31167;
+		public static final int SET_HUEY_ARMOUR = 31170;
+		public static final int BINGO_TABARD = 31182;
+		public static final int BINGO_TABARD_BLACK = 31185;
+		public static final int BINGO_TABARD_PINK = 31188;
+		public static final int BINGO_TABARD_GREEN = 31191;
+		public static final int BINGO_SWORDS = 31194;
+		public static final int BINGO_SWORDS_BLACK = 31197;
+		public static final int BINGO_SWORDS_PINK = 31200;
+		public static final int BINGO_SWORDS_GREEN = 31203;
+		public static final int BINGO_ALTAR_ICON_SCROLL = 31206;
+		public static final int BINGO_TORCH_SCROLL = 31209;
 	}
 
 	public static final class Placeholder
@@ -92794,6 +93725,103 @@ public final class ItemID
 		public static final int _2DOSESURGE = 30883;
 		public static final int _1DOSESURGE = 30886;
 		public static final int YAMAPET = 30889;
+		public static final int KERIS_PARTISAN_AMASCUT = 30892;
+		public static final int JEWEL_OF_AMASCUT = 30894;
+		public static final int STEEL_RING = 30897;
+		public static final int GIANT_BONES = 30899;
+		public static final int SHARK_LURE = 30901;
+		public static final int SCROLL_CASE_BEGINNER_MINOR = 30903;
+		public static final int SCROLL_CASE_BEGINNER_MAJOR = 30905;
+		public static final int SCROLL_CASE_EASY_MINOR = 30907;
+		public static final int SCROLL_CASE_EASY_MAJOR = 30909;
+		public static final int SCROLL_CASE_MEDIUM_MINOR = 30911;
+		public static final int SCROLL_CASE_MEDIUM_MAJOR = 30913;
+		public static final int SCROLL_CASE_HARD_MINOR = 30915;
+		public static final int SCROLL_CASE_HARD_MAJOR = 30917;
+		public static final int SCROLL_CASE_ELITE_MINOR = 30919;
+		public static final int SCROLL_CASE_ELITE_MAJOR = 30921;
+		public static final int SCROLL_CASE_MASTER_MINOR = 30923;
+		public static final int SCROLL_CASE_MASTER_MAJOR = 30925;
+		public static final int SCROLL_CASE_MIMIC = 30927;
+		public static final int CAERULA_BERRIES = 30938;
+		public static final int POTATO_SACK_HAT = 30948;
+		public static final int ARKAN_BLADE = 30956;
+		public static final int EARTHBOUND_TECPATL = 30959;
+		public static final int SCRAMBLED_EGG = 30971;
+		public static final int ALAN_BONES = 30974;
+		public static final int POT_BONEMEAL_ALAN = 30976;
+		public static final int DAMIANA_LEAVES = 30978;
+		public static final int BOWL_DAMIANA_WATER = 30980;
+		public static final int BOWL_DAMIANA_TEA = 30982;
+		public static final int BOWL_DAMIANA_TEA_MILKY = 30984;
+		public static final int CUP_DAMIANA_TEA = 30986;
+		public static final int CUP_DAMIANA_TEA_MILKY = 30988;
+		public static final int ATLATL_DART_TIPS = 30999;
+		public static final int ATLATL_DART_SHAFT = 31005;
+		public static final int HEADLESS_ATLATL_DART = 31011;
+		public static final int ENT_TOTEMS_INTRO_BOOK = 31017;
+		public static final int ENT_SEED = 31019;
+		public static final int GREENMAN_WALL_DECORATION = 31026;
+		public static final int GREENMAN_STATUE = 31029;
+		public static final int ENT_BRANCH = 31033;
+		public static final int GREENMAN_MASK = 31036;
+		public static final int FLETCHING_KNIFE = 31044;
+		public static final int FLAX_BALE = 31046;
+		public static final int DIRTY_ARROWTIPS = 31048;
+		public static final int REDWOOD_HIKING_STAFF = 31051;
+		public static final int BOWSTRING_SPOOL = 31053;
+		public static final int ENT_TOTEMS_LOOT = 31055;
+		public static final int AUBURNVALE_UNSENT_LETTER = 31072;
+		public static final int AUBURNVALE_UNSENT_LETTER_SUNSET = 31074;
+		public static final int BLESSED_ALAN_BONES = 31076;
+		public static final int CUSTODIAN_LOREBOOK = 31078;
+		public static final int AUBURN_ECOLOGICAL_REPORTS = 31080;
+		public static final int CUSTODIAN_ANTLER_GUARD = 31083;
+		public static final int ALCHEMIST_RING = 31085;
+		public static final int CUSTODIAN_BROKEN_ANTLER = 31087;
+		public static final int AVERNIC_TREADS = 31090;
+		public static final int AVERNIC_TREADS_MAX = 31098;
+		public static final int DOM_TELEPORT_ITEM = 31100;
+		public static final int CONFLICTION_GAUNTLETS = 31108;
+		public static final int MOKHAIOTL_CLOTH = 31110;
+		public static final int DEMON_TEAR = 31112;
+		public static final int EYE_OF_AYAK = 31114;
+		public static final int ORANGE_HAT = 31118;
+		public static final int TALTEKLAN_LETTER = 31122;
+		public static final int BLUEBERRY_MUFFIN = 31129;
+		public static final int DOMPET = 31131;
+		public static final int SET_BLOOD_MOON_ARMOUR = 31138;
+		public static final int SET_BLUE_MOON_ARMOUR = 31141;
+		public static final int SET_ECLIPSE_MOON_ARMOUR = 31144;
+		public static final int SET_TORVA_ARMOUR = 31147;
+		public static final int SET_VIRTUS_ARMOUR = 31150;
+		public static final int SET_DAGGANOTH_MELEE_ARMOUR = 31153;
+		public static final int SET_DAGGANOTH_MAGE_ARMOUR = 31156;
+		public static final int SET_DAGGANOTH_RANGE_ARMOUR = 31159;
+		public static final int SET_SWAMPBARK_ARMOUR = 31162;
+		public static final int SET_BLOODBARK_ARMOUR = 31165;
+		public static final int SET_MIXED_HIDE_ARMOUR = 31168;
+		public static final int SET_HUEY_ARMOUR = 31171;
+		public static final int EVENT_BATTLEHAT = 31173;
+		public static final int EVENT_CORRUPTED_SHARK = 31175;
+		public static final int BINGO_TABARD = 31183;
+		public static final int BINGO_TABARD_BLACK = 31186;
+		public static final int BINGO_TABARD_PINK = 31189;
+		public static final int BINGO_TABARD_GREEN = 31192;
+		public static final int BINGO_SWORDS = 31195;
+		public static final int BINGO_SWORDS_BLACK = 31198;
+		public static final int BINGO_SWORDS_PINK = 31201;
+		public static final int BINGO_SWORDS_GREEN = 31204;
+		public static final int BINGO_ALTAR_ICON_SCROLL = 31207;
+		public static final int BINGO_TORCH_SCROLL = 31210;
+		public static final int REWARD_COMBATANT = 31213;
+		public static final int REWARD_CRAFTSMAN = 31215;
+		public static final int REWARD_GATHERER = 31217;
+		public static final int HW25_CHAIR_OBJ_REWARD = 31226;
+		public static final int HW25_PUMPKIN_LANTERN_REWARD = 31228;
+		public static final int HW25_GRIM_REAPER_TOP = 31230;
+		public static final int HW25_GRIM_REAPER_BOTTOMS = 31232;
+		public static final int HW25_GRIM_REAPER_GLOVES = 31234;
 	}
 /* This file is automatically generated. Do not edit. */
 }

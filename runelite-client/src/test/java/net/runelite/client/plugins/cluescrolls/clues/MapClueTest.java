@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Adam <Adam@sigterm.info>
+ * Copyright (c) 2025, Jordan Atwood <nightfirecat@nightfirec.at>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,50 +22,23 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.loottracker;
+package net.runelite.client.plugins.cluescrolls.clues;
 
-import java.util.Arrays;
-import net.runelite.api.gameval.ItemID;
-import net.runelite.client.game.ItemManager;
-import net.runelite.http.api.loottracker.LootRecordType;
+import java.util.Set;
+import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
 
-public class LootTrackerBoxTest
+public class MapClueTest
 {
 	@Test
-	public void testAddKill()
+	public void uniqueIds()
 	{
-		LootTrackerBox lootTrackerBox = new LootTrackerBox(
-			mock(ItemManager.class),
-			"Theatre of Blood",
-			LootRecordType.EVENT,
-			null,
-			false,
-			LootTrackerPriceType.GRAND_EXCHANGE,
-			false,
-			null, null,
-			false);
+		final Set<Integer> clueIds = MapClue.CLUES.stream()
+			.mapToInt(MapClue::getItemId)
+			.boxed()
+			.collect(Collectors.toUnmodifiableSet());
 
-		LootTrackerItem[] items = new LootTrackerItem[]{
-			new LootTrackerItem(ItemID.TRAIL_CLUE_MEDIUM_SEXTANT001, "Clue scroll (medium)", 1, 0, 0, false),
-			new LootTrackerItem(ItemID.TRAIL_CLUE_MEDIUM_MAP007, "Clue scroll (medium)", 1, 0, 0, false),
-			new LootTrackerItem(ItemID.ZEAH_GRACEFUL_HOOD_ARCEUUS, "Graceful hood", 1, 0, 0, false),
-		};
-		LootTrackerRecord lootTrackerRecord = new LootTrackerRecord(
-			"Theatre of Blood",
-			null,
-			LootRecordType.EVENT,
-			items,
-			42
-		);
-
-		lootTrackerBox.addKill(lootTrackerRecord);
-
-		assertEquals(Arrays.asList(
-			new LootTrackerItem(ItemID.TRAIL_CLUE_MEDIUM_SEXTANT001, "Clue scroll (medium)", 2, 0, 0, false),
-			new LootTrackerItem(ItemID.ZEAH_GRACEFUL_HOOD_ARCEUUS, "Graceful hood", 1, 0, 0, false)
-		), lootTrackerBox.getItems());
+		assertEquals(MapClue.CLUES.size(), clueIds.size());
 	}
 }

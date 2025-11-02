@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Adam <Adam@sigterm.info>
+ * Copyright (c) 2025, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,40 +22,82 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.runelite.client.callback;
 
-struct uniform {
-  float cameraYaw;
-  float cameraPitch;
-  int centerX;
-  int centerY;
-  int zoom;
-  float cameraX;
-  float cameraY;
-  float cameraZ;
-};
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import javax.inject.Singleton;
+import net.runelite.api.Renderable;
+import net.runelite.api.Scene;
+import net.runelite.api.Tile;
+import net.runelite.api.TileObject;
 
-struct shared_data {
-  int totalNum[12];        // number of faces with a given priority
-  int totalDistance[12];   // sum of distances to faces of a given priority
-  int totalMappedNum[18];  // number of faces with a given adjusted priority
-  int min10;               // minimum distance to a face of priority 10
-  int renderPris[0];       // priority for face draw order
-};
+@Singleton
+public class RenderCallbackManager
+{
+	private final List<RenderCallback> callbacks = new CopyOnWriteArrayList<>();
 
-struct modelinfo {
-  int offset;   // offset into vertex buffer
-  int toffset;  // offset into texture buffer
-  int size;     // length in faces
-  int idx;      // write idx in target buffer
-  int flags;    // buffer, hillskew, plane, orientation
-  int x;        // scene position x
-  int y;        // scene position y
-  int z;        // scene position z
-};
+	public void register(RenderCallback cb)
+	{
+		callbacks.add(cb);
+	}
 
-struct vert {
-  float x;
-  float y;
-  float z;
-  int ahsl;
-};
+	public void unregister(RenderCallback cb)
+	{
+		callbacks.remove(cb);
+	}
+
+	public boolean addEntity(Renderable renderable, boolean ui)
+	{
+		if (callbacks.isEmpty())
+		{
+			return true;
+		}
+
+		for (var cb : callbacks)
+		{
+			if (!cb.addEntity(renderable, ui))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public boolean drawTile(Scene scene, Tile tile)
+	{
+		if (callbacks.isEmpty())
+		{
+			return true;
+		}
+
+		for (var cb : callbacks)
+		{
+			if (!cb.drawTile(scene, tile))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public boolean drawObject(Scene scene, TileObject object)
+	{
+		if (callbacks.isEmpty())
+		{
+			return true;
+		}
+
+		for (var cb : callbacks)
+		{
+			if (!cb.drawObject(scene, object))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+}
