@@ -495,7 +495,7 @@ public class ClueScrollPlugin extends Plugin
 		{
 			// If paramID 623 returns a dbrow, the item is a valid clue scroll
 			ItemComposition itemComposition = client.getItemDefinition(item.getId());
-			return itemComposition == null || itemComposition.getIntValue(ParamID.CLUE_SCROLL) == -1;
+			return itemComposition.getIntValue(ParamID.CLUE_SCROLL) == -1 || itemComposition.getName().startsWith("Challenge scroll");
 		});
 
 		if (!newInventoryClues.isEmpty())
