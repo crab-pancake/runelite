@@ -147,7 +147,6 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 
 	static final Shader PROGRAM = new Shader()
 		.add(GL_VERTEX_SHADER, "vert.glsl")
-		.add(GL_GEOMETRY_SHADER, "geom.glsl")
 		.add(GL_FRAGMENT_SHADER, "frag.glsl");
 
 	static final Shader UI_PROGRAM = new Shader()
@@ -681,9 +680,18 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		uniformBuffer = null;
 		Zone.freeBuffer();
 
-		vaoO.free();
-		vaoA.free();
-		vaoPO.free();
+		if (vaoO != null)
+		{
+			vaoO.free();
+		}
+		if (vaoA != null)
+		{
+			vaoA.free();
+		}
+		if (vaoPO != null)
+		{
+			vaoPO.free();
+		}
 		vaoO = vaoA = vaoPO = null;
 	}
 
@@ -1049,6 +1057,8 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		checkGLErrors();
 	}
 
+	private static final int ALPHA_ZSORT_CLOSE = 2048;
+
 	@Override
 	public void drawZoneAlpha(Projection entityProjection, Scene scene, int level, int zx, int zz)
 	{
@@ -1070,13 +1080,17 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		}
 
 		int offset = scene.getWorldViewId() == -1 ? (SCENE_OFFSET >> 3) : 0;
+		int dx = cameraX - ((zx - offset) << 10);
+		int dz = cameraZ - ((zz - offset) << 10);
+		boolean close = dx * dx + dz * dz < ALPHA_ZSORT_CLOSE * ALPHA_ZSORT_CLOSE;
+
 		if (level == 0)
 		{
 			z.alphaSort(zx - offset, zz - offset, cameraX, cameraY, cameraZ);
 			z.multizoneLocs(scene, zx - offset, zz - offset, cameraX, cameraZ, ctx.zones);
 		}
 
-		z.renderAlpha(zx - offset, zz - offset, cameraYaw, cameraPitch, minLevel, this.level, maxLevel, level, hideRoofIds);
+		z.renderAlpha(zx - offset, zz - offset, cameraYaw, cameraPitch, minLevel, this.level, maxLevel, level, hideRoofIds, !close);
 
 		checkGLErrors();
 	}
@@ -1168,7 +1182,14 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 			m.calculateBoundsCylinder();
 			VAO o = vaoO.get(size), a = vaoA.get(size);
 			int start = a.vbo.vb.position();
-			facePrioritySorter.uploadSortedModel(worldProjection, m, orient, x, y, z, o.vbo.vb, a.vbo.vb);
+			try
+			{
+				facePrioritySorter.uploadSortedModel(worldProjection, m, orient, x, y, z, o.vbo.vb, a.vbo.vb);
+			}
+			catch (Exception ex)
+			{
+				log.debug("error drawing entity", ex);
+			}
 			int end = a.vbo.vb.position();
 
 			if (end > start)
@@ -1243,6 +1264,11 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 	public void invalidateZone(Scene scene, int zx, int zz)
 	{
 		SceneContext ctx = context(scene);
+		if (ctx == null)
+		{
+			return;
+		}
+
 		Zone z = ctx.zones[zx][zz];
 		if (!z.invalidate)
 		{
@@ -1464,7 +1490,9 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		else
 		{
 			glDpiAwareViewport(0, 0, canvasWidth, canvasHeight);
-			glUniform2i(uniTexTargetDimensions, canvasWidth, canvasHeight);
+			final GraphicsConfiguration graphicsConfiguration = clientUI.getGraphicsConfiguration();
+			final AffineTransform t = graphicsConfiguration.getDefaultTransform();
+			glUniform2i(uniTexTargetDimensions, getScaledValue(t.getScaleX(), canvasWidth), getScaledValue(t.getScaleY(), canvasHeight));
 		}
 
 		// Set the sampling function used when stretching the UI.
@@ -1849,7 +1877,8 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		SceneContext ctx0 = subs[worldViewId];
 		if (ctx0 != null)
 		{
-			throw new RuntimeException("Reload of an already loaded worldview?");
+			log.info("Reload of an already loaded worldview?");
+			return;
 		}
 
 		final SceneContext ctx = new SceneContext(worldView.getSizeX() >> 3, worldView.getSizeY() >> 3);
@@ -1924,7 +1953,13 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		if (worldViewId > -1)
 		{
 			log.debug("WorldView despawn: {}", worldViewId);
-			subs[worldViewId].free();
+			var sub = subs[worldViewId];
+			if (sub == null)
+			{
+				return;
+			}
+
+			sub.free();
 			subs[worldViewId] = null;
 		}
 	}
@@ -1982,6 +2017,11 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 	private void swapSub(Scene scene)
 	{
 		SceneContext ctx = context(scene);
+		if (ctx == null)
+		{
+			return;
+		}
+
 		// setup vaos
 		for (int x = 0; x < ctx.sizeX; ++x)
 		{
