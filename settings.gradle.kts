@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Adam <Adam@sigterm.info>
+ * Copyright (c) 2024, LlemonDuck <napkinorton@gmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,25 +22,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.loottracker;
 
-import java.util.Collection;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import net.runelite.client.game.ItemStack;
-import net.runelite.http.api.loottracker.LootRecordType;
+rootProject.name = "runelite"
 
-/**
- * Event published by the loot tracker when new loot is received
- */
-@Data
-@AllArgsConstructor
-public class LootReceived
-{
-	private String name;
-	private int combatLevel;
-	private LootRecordType type;
-	private Collection<ItemStack> items;
-	private int amount;
-	private Object metadata;
-}
+// these two have artifact ids that don't match their project directory names
+// and so they are done without includeBuild so that intellij can resolve them properly
+include("jshell")
+project(":jshell").projectDir = file("./runelite-jshell")
+include("client")
+project(":client").projectDir = file("./runelite-client")
+apply(from = "./common.settings.gradle.kts")
+
+includeBuild("cache")
+includeBuild("runelite-api")
+includeBuild("runelite-gradle-plugin")
