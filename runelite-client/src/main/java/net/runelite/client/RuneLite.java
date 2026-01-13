@@ -377,6 +377,8 @@ public class RuneLite
 
 		clientUI.show();
 
+		client.unblockStartup();
+
 //		if (telemetryClient != null)
 //		{
 //			scheduledExecutorService.execute(() ->
