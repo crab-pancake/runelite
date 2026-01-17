@@ -148,8 +148,6 @@ tasks.withType<net.runelite.gradle.index.IndexTask> {
 }
 
 tasks.processResources {
-    inputs.property("projectVersion", project.version)
-
     val commit = ByteArrayOutputStream()
     exec {
         commandLine("git", "rev-parse", "--short=7", "HEAD")
