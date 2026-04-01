@@ -31,11 +31,11 @@ import org.intellij.lang.annotations.MagicConstant;
 
 public interface WorldView
 {
-	int TOPLEVEL = -1;
+	int TOPLEVEL = 0;
 
 	/**
 	 * Get the world view id
-	 * @return the id, or -1 if this is the top level worldview
+	 * @return the id
 	 */
 	int getId();
 
@@ -264,4 +264,10 @@ public interface WorldView
 	 */
 	@MagicConstant(intValues = {Constants.CLICK_ACTION_NONE, Constants.CLICK_ACTION_WALK, Constants.CLICK_ACTION_SET_HEADING})
 	int getYellowClickAction();
+
+	/**
+	 * Gets the tile height at the given coordinates, interpolating the height from adjacent tiles.
+	 * @return
+	 */
+	int getTileHeight(int x, int y, int maplevel);
 }
