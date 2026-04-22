@@ -54,6 +54,17 @@ public interface ClodernConfig extends Config
 		return -1;
 	}
 
+	@ConfigItem(
+		keyName = "tempDisable",
+		name = "Temporary disable movement",
+		description = "Temporarily disable movement of the inventory box",
+		position = 5
+	)
+	default boolean tempDisable()
+	{
+		return false;
+	}
+
 	enum Position
 	{
 		LEFT,
