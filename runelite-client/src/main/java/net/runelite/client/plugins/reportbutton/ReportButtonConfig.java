@@ -50,4 +50,14 @@ public interface ReportButtonConfig extends Config
 	{
 		return TimeFormat.TIME_12H;
 	}
+
+	@ConfigItem(
+		keyName = "includeMapClock",
+		name = "Include map clock",
+		description = "Includes server map clock underneath the time"
+	)
+	default boolean includeMapClock()
+	{
+		return true;
+	}
 }
