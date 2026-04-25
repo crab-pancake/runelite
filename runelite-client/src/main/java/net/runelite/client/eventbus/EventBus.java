@@ -86,7 +86,11 @@ public class EventBus
 	 */
 	public EventBus()
 	{
-		this((e) -> log.warn(DEDUPLICATE, "Uncaught exception in event subscriber", e));
+		this((e) -> {
+			if (e instanceof NullPointerException)
+				return;
+			log.warn(DEDUPLICATE, "Uncaught exception in event subscriber", e);
+		});
 	}
 
 	/**
