@@ -409,14 +409,14 @@ public class SceneOverlay extends Overlay
 			Actor ta = fa.getInteracting();
 			if (ta == null)
 			{
-				return;
+				continue;
 			}
 
 			LocalPoint fl = fa.getLocalLocation();
 			Point fs = Perspective.localToCanvas(client, fl, client.getPlane(), fa.getLogicalHeight() / 2);
 			if (fs == null)
 			{
-				return;
+				continue;
 			}
 			int fsx = fs.getX();
 			int fsy = fs.getY() - INTERACTING_SHIFT;
@@ -425,7 +425,7 @@ public class SceneOverlay extends Overlay
 			Point ts = Perspective.localToCanvas(client, tl, client.getPlane(), ta.getLogicalHeight() / 2);
 			if (ts == null)
 			{
-				return;
+				continue;
 			}
 			int tsx = ts.getX();
 			int tsy = ts.getY() - INTERACTING_SHIFT;
