@@ -1195,7 +1195,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 			int start = a.vbo.vb.position();
 			try
 			{
-				facePrioritySorter.uploadSortedModel(worldProjection, m, orient, x, y, z, o.vbo.vb, a.vbo.vb);
+				facePrioritySorter.uploadSortedModel(worldProjection, m, orient, x, y, z, o.vbo.vb, a.vbo.vb, false);
 			}
 			catch (Exception ex)
 			{
@@ -1248,7 +1248,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 			m.calculateBoundsCylinder();
 			try
 			{
-				facePrioritySorter.uploadSortedModel(worldProjection, m, orient, x, y, z, o.vbo.vb, a.vbo.vb);
+				facePrioritySorter.uploadSortedModel(worldProjection, m, orient, x, y, z, o.vbo.vb, a.vbo.vb, renderMode == Renderable.RENDERMODE_SORTED_NO_DEPTH);
 			}
 			catch (Exception ex)
 			{
@@ -1369,10 +1369,6 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 			lastCanvasWidth = canvasWidth;
 			lastCanvasHeight = canvasHeight;
 
-			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, interfacePbo);
-			glBufferData(GL_PIXEL_UNPACK_BUFFER, canvasWidth * canvasHeight * 4L, GL_STREAM_DRAW);
-			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-
 			glBindTexture(GL_TEXTURE_2D, interfaceTexture);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, canvasWidth, canvasHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, 0);
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -1384,6 +1380,7 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		final int height = bufferProvider.getHeight();
 
 		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, interfacePbo);
+		glBufferData(GL_PIXEL_UNPACK_BUFFER, (long) width * height * Integer.BYTES, GL_STREAM_DRAW);
 		ByteBuffer interfaceBuf = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
 		if (interfaceBuf != null)
 		{
@@ -1391,6 +1388,11 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 				.asIntBuffer()
 				.put(pixels, 0, width * height);
 			glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+		}
+		else
+		{
+			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+			return;
 		}
 		glBindTexture(GL_TEXTURE_2D, interfaceTexture);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0);
