@@ -105,29 +105,38 @@ class DevToolsOverlay extends Overlay
 
 		if (plugin.getPlayers().isActive())
 		{
-			renderPlayers(tlwv, graphics);
-			if (playerWv != tlwv)
-			{
-				renderPlayers(playerWv, graphics);
+			for (WorldView wv : client.getTopLevelWorldView().worldViews()){
+				renderPlayers(wv, graphics);
 			}
+//			renderPlayers(tlwv, graphics);
+//			if (playerWv != tlwv)
+//			{
+//				renderPlayers(playerWv, graphics);
+//			}
 		}
 
 		if (plugin.getNpcs().isActive())
 		{
-			renderNpcs(tlwv, graphics);
-			if (playerWv != tlwv)
-			{
-				renderNpcs(playerWv, graphics);
+			for (WorldView wv : client.getTopLevelWorldView().worldViews()){
+				renderNpcs(wv, graphics);
 			}
+//			renderNpcs(tlwv, graphics);
+//			if (playerWv != tlwv)
+//			{
+//				renderNpcs(playerWv, graphics);
+//			}
 		}
 
 		if (plugin.getGroundItems().isActive() || plugin.getGroundObjects().isActive() || plugin.getGameObjects().isActive() || plugin.getWalls().isActive() || plugin.getDecorations().isActive() || plugin.getTileLocation().isActive() || plugin.getMovementFlags().isActive())
 		{
-			renderTileObjects(tlwv, graphics);
-			if (playerWv != tlwv)
-			{
-				renderTileObjects(playerWv, graphics);
+			for (WorldView wv : client.getTopLevelWorldView().worldViews()){
+				renderTileObjects(wv, graphics);
 			}
+//			renderTileObjects(tlwv, graphics);
+//			if (playerWv != tlwv)
+//			{
+//				renderTileObjects(playerWv, graphics);
+//			}
 		}
 
 		if (plugin.getProjectiles().isActive())
@@ -138,20 +147,26 @@ class DevToolsOverlay extends Overlay
 
 		if (plugin.getGraphicsObjects().isActive())
 		{
-			renderGraphicsObjects(tlwv, graphics);
-			if (playerWv != tlwv)
-			{
-				renderGraphicsObjects(playerWv, graphics);
+			for (WorldView wv : client.getTopLevelWorldView().worldViews()){
+				renderGraphicsObjects(wv, graphics);
 			}
+//			renderGraphicsObjects(tlwv, graphics);
+//			if (playerWv != tlwv)
+//			{
+//				renderGraphicsObjects(playerWv, graphics);
+//			}
 		}
 
 		if (plugin.getTileFlags().isActive())
 		{
-			renderTileFlags(tlwv, graphics);
-			if (playerWv != tlwv)
-			{
-				renderTileFlags(playerWv, graphics);
+			for (WorldView wv : client.getTopLevelWorldView().worldViews()){
+				renderTileFlags(wv, graphics);
 			}
+//			renderTileFlags(tlwv, graphics);
+//			if (playerWv != tlwv)
+//			{
+//				renderTileFlags(playerWv, graphics);
+//			}
 		}
 
 		if (plugin.getWorldEntities().isActive())
@@ -486,10 +501,10 @@ class DevToolsOverlay extends Overlay
 		WorldView toplevel = client.getTopLevelWorldView();
 		for (WorldEntity we : toplevel.worldEntities())
 		{
-			if (we.isHiddenForOverlap())
-			{
-				continue;
-			}
+//			if (we.isHiddenForOverlap())
+//			{
+//				continue;
+//			}
 
 			LocalPoint location = we.getLocalLocation();
 			String text = "ID: " + we.getWorldView().getId() + " Type: " + we.getConfig().getId();
