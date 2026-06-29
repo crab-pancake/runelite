@@ -2,10 +2,12 @@ package net.runelite.client.plugins.clodern;
 
 import com.google.inject.Provides;
 import java.awt.Point;
+import java.util.Arrays;
 import java.util.Map;
 import javax.inject.Inject;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.VarClientInt;
@@ -55,20 +57,32 @@ public class DialogInChat extends Plugin
 			client.setVarbit(VarbitID.SHOW_DIALOGUE_IN_CHATBOX, 0));
 	}
 
+	public boolean inVerzikRoom(){
+		// eventually turn this into a proper blacklist
+		return Arrays.stream(client.getTopLevelWorldView().getMapRegions()).anyMatch(i -> i == (49<<8) + 67);
+	}
+
 	@Subscribe
 	private void onGameStateChanged(GameStateChanged e)
 	{
 		if (e.getGameState() == GameState.LOGGED_IN){
 			clientThread.invoke(() ->
-				client.setVarbit(VarbitID.SHOW_DIALOGUE_IN_CHATBOX, 1));
+				client.setVarbit(VarbitID.SHOW_DIALOGUE_IN_CHATBOX, inVerzikRoom() ? 0 : 1));
 		}
 	}
 
 	@Subscribe
 	private void onChatMessage(ChatMessage e){
+		if (e.getType() != ChatMessageType.GAMEMESSAGE)
+			return;
+
 		if (client.getVarbitValue(VarbitID.SHOW_DIALOGUE_IN_CHATBOX) == 0){
 			clientThread.invoke(() ->
 				client.setVarbit(VarbitID.SHOW_DIALOGUE_IN_CHATBOX, 1));
+		}
+		else if (inVerzikRoom()){
+			clientThread.invoke(() ->
+				client.setVarbit(VarbitID.SHOW_DIALOGUE_IN_CHATBOX, 0));
 		}
 	}
 }
