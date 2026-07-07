@@ -55,8 +55,8 @@ public class Clodern extends Plugin
 
 	private int lastClickedATab;
 
-	private Point inventoryPreferredLocation = null;
-	private Point topBarPreferredLocation = null;
+	private Point inventoryPreferredLocation;
+	private Point topBarPreferredLocation;
 
 	private final int TAB_X_OFFSET_SIZE = 33;
 
@@ -80,8 +80,11 @@ public class Clodern extends Plugin
 		topBarOverlay = null;
 		inventoryBoxOverlay = null;
 
+		inventoryPreferredLocation = null;
+		topBarPreferredLocation = null;
+
 		lastClickedATab = -1;
-//		clientThread.invoke(this::moveComponents);
+//		clientThread.invokeLater(this::moveComponents);
 	}
 
 	@Override
@@ -126,7 +129,7 @@ public class Clodern extends Plugin
 			// don't block the change on logging in & default tab plugin on hopping
 			lastClickedATab = client.getTickCount();
 		}
-		if (e.getGameState() == GameState.LOGGED_IN){
+		else if (e.getGameState() == GameState.LOGGED_IN){
 			clientThread.invokeLater(this::moveComponents);
 			clientThread.invokeLater(this::shuffleStones);
 		}
@@ -251,6 +254,10 @@ public class Clodern extends Plugin
 			topBar = client.getWidget(InterfaceID.ToplevelPreEoc.SIDE_MOVABLE_LAYER);
 		if (inventoryBox == null)
 			inventoryBox = client.getWidget(InterfaceID.ToplevelPreEoc.SIDE_CONTAINER);
+		if (bottomBar == null || topBar == null){
+			return false;
+		}
+
 		if (topBarOverlay == null)
 		{
 			topBarOverlay = overlayManager.get(InterfaceID.ToplevelPreEoc.SIDE_MOVABLE_LAYER);
@@ -259,8 +266,13 @@ public class Clodern extends Plugin
 				log.warn("couldn't find top bar widgetoverlay");
 				return false;
 			}
-			else {
+			else if (topBarPreferredLocation == null)
+			{
 				topBarPreferredLocation = topBarOverlay.getPreferredLocation();
+				if (topBarPreferredLocation == null){
+					topBarPreferredLocation = new Point((int) topBarOverlay.getBounds().getX(), (int) topBarOverlay.getBounds().getY());
+				}
+//				System.out.println("Saving top bar preferred location: "+topBarPreferredLocation.getX()+", "+topBarPreferredLocation.getY());
 			}
 		}
 
@@ -272,8 +284,13 @@ public class Clodern extends Plugin
 				log.info("couldn't find inventory box widgetoverlay");
 				return false;
 			}
-			else {
+			else if (inventoryPreferredLocation == null)
+			{
 				inventoryPreferredLocation = inventoryBoxOverlay.getPreferredLocation();
+				if (inventoryPreferredLocation == null){
+					inventoryPreferredLocation = new Point((int) inventoryBoxOverlay.getBounds().getX(), (int) inventoryBoxOverlay.getBounds().getY());
+				}
+//				System.out.println("Saving inventory preferred location: "+inventoryPreferredLocation.getX()+", "+inventoryPreferredLocation.getY());
 			}
 		}
 		return true;
@@ -302,7 +319,18 @@ public class Clodern extends Plugin
 	}
 
 	private void resetPositions(){
-		log.debug("resetting widgets to default position");
+//		System.out.println("resetting widgets to default position");
+//		if (inventoryPreferredLocation == null){
+//			System.out.println("invy: null");
+//		}
+//		else
+//			System.out.println("inventory preferred location: "+inventoryPreferredLocation.getX()+", "+inventoryPreferredLocation.getY());
+//
+//		if (topBarPreferredLocation == null){
+//			System.out.println("top bar: null");
+//		}
+//		else
+//			System.out.println("top bar preferred location: "+topBarPreferredLocation.getX()+", "+topBarPreferredLocation.getY());
 
 		inventoryBoxOverlay.setPreferredLocation(inventoryPreferredLocation);
 		inventoryBoxOverlay.revalidate();
