@@ -23,7 +23,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 import static net.runelite.client.plugins.clodern.ClodernConfig.GROUP;
 import net.runelite.client.plugins.clodern.FakeDoor.FakeDoor;
 import net.runelite.client.ui.overlay.OverlayManager;
-import net.runelite.client.ui.overlay.WidgetOverlay;
+import net.runelite.client.ui.overlay.WidgetOverlays.WidgetOverlay;
 
 @Slf4j
 @PluginDescriptor(

@@ -72,6 +72,7 @@ import net.runelite.client.util.ColorUtil;
 import net.runelite.client.util.HotkeyListener;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
+import net.runelite.api.gameval.VarbitID;
 
 @Singleton
 @Slf4j
