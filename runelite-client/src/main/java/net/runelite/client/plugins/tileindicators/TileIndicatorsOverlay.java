@@ -88,7 +88,13 @@ public class TileIndicatorsOverlay extends Overlay
 
 		if (config.highlightCurrentTile())
 		{
-			final WorldPoint playerPos = client.getLocalPlayer().getWorldLocation();
+			var player = client.getLocalPlayer();
+			if (player == null)
+			{
+				return null;
+			}
+
+			final WorldPoint playerPos = player.getWorldLocation();
 			if (playerPos == null)
 			{
 				return null;
