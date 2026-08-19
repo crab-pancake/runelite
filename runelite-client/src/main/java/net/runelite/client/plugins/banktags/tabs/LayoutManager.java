@@ -275,24 +275,24 @@ public class LayoutManager
 			drawItem(l, c, bank, bankItemId, pos);
 		}
 
-		int lastEmptySlot = -1;
+		int insertionSlot = (plugin.getOptions() & BankTagsService.OPTION_ITEMS_NOT_IN_LAYOUT_AT_BOTTOM) != 0 ? l.lastItemIndex() : -1;
 		boolean modified = false;
 		// Items from the bank but not in the layout.
 		for (int itemId : bankItems)
 		{
 			do
 			{
-				++lastEmptySlot;
+				++insertionSlot;
 			}
-			while (lastEmptySlot < layout.length && layout[lastEmptySlot] > -1);
+			while (l.getItemAtPos(insertionSlot) > -1);
 
-			Widget c = itemContainer.getChild(lastEmptySlot);
+			Widget c = itemContainer.getChild(insertionSlot);
 			if (c == null || c.getOriginalHeight() != BANK_ITEM_HEIGHT) // check for tabs
 			{
 				break;
 			}
 
-			drawItem(l, c, bank, itemId, lastEmptySlot);
+			drawItem(l, c, bank, itemId, insertionSlot);
 
 			if (log.isDebugEnabled())
 			{
@@ -303,26 +303,27 @@ public class LayoutManager
 			}
 
 			int layoutItemId = itemManager.canonicalize(itemId);
-			l.addItem(layoutItemId);
+			l.addItemAfter(layoutItemId, insertionSlot);
 			modified = true;
 		}
 
 		// Fill the remaining slots with -1 so that items can be dragged to them
+		insertionSlot = -1;
 		while (true)
 		{
 			do
 			{
-				++lastEmptySlot;
+				++insertionSlot;
 			}
-			while (lastEmptySlot < layout.length && layout[lastEmptySlot] > -1);
+			while (l.getItemAtPos(insertionSlot) > -1);
 
-			Widget c = itemContainer.getChild(lastEmptySlot);
+			Widget c = itemContainer.getChild(insertionSlot);
 			if (c == null || c.getOriginalHeight() != BANK_ITEM_HEIGHT)  // check for tabs
 			{
 				break;
 			}
 
-			drawItem(l, c, bank, -1, lastEmptySlot);
+			drawItem(l, c, bank, -1, insertionSlot);
 		}
 
 		if (modified)
@@ -423,6 +424,35 @@ public class LayoutManager
 				if (!isPotStorage)
 				{
 					c.setAction(10, "Examine");
+				}
+				if (isPotStorage)
+				{
+					Potion potion = potionStorage.findPotion(item);
+					if (potion != null)
+					{
+						var potionEnum = potion.potionEnum;
+						int potionItemId1 = potionEnum.getIntValue(1);
+						int potionItemId2 = potionEnum.getIntValue(2);
+						int potionItemId3 = potionEnum.getIntValue(3);
+						int potionItemId4 = potionEnum.getIntValue(4);
+						c.setAction(10, "Doses");
+						if (potionItemId1 > -1)
+						{
+							c.setSubOp(10, 6, "1 Dose");
+						}
+						if (potionItemId2 > -1)
+						{
+							c.setSubOp(10, 7, "2 Dose");
+						}
+						if (potionItemId3 > -1)
+						{
+							c.setSubOp(10, 8, "3 Dose");
+						}
+						if (potionItemId4 > -1)
+						{
+							c.setSubOp(10, 9, "4 Dose");
+						}
+					}
 				}
 				c.setOpacity(0);
 			}
@@ -703,12 +733,28 @@ public class LayoutManager
 					return;
 				}
 
-				idx = potionStorage.getIdx(w.getItemId());
-				if (idx > -1)
+				Potion p = potionStorage.findPotion(w.getItemId());
+				if (p != null)
 				{
 					potionStorage.prepareWidgets();
 					menu.setParam1(InterfaceID.Bankmain.POTIONSTORE_ITEMS);
-					menu.setParam0(idx);
+					if (event.getId() > 0xffff)
+					{
+						// submenu click for doses
+						menu.setParam0(p.dosesChildId());
+						menu.setIdentifier((event.getId() >> 16) - 1);
+					}
+					else
+					{
+						menu.setParam0(p.withdrawChildId());
+					}
+				}
+
+				if (w.getItemId() == ItemID.VIAL_EMPTY)
+				{
+					potionStorage.prepareWidgets();
+					menu.setParam1(InterfaceID.Bankmain.POTIONSTORE_ITEMS);
+					menu.setParam0(potionStorage.getVialsChildIdx());
 				}
 			}
 		}

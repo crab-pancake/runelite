@@ -2188,8 +2188,20 @@ public final class ObjectID extends ObjectID1
 	 * Buried skeleton
 	 */
 	public static final int HALFBURIEDSKELETON1 = 651;
+
+	/**
+	 * Bloodsplatter
+	 */
 	public static final int BLOODSPLATTER1 = 652;
+
+	/**
+	 * Bloodsplatter
+	 */
 	public static final int BLOODSPLATTER2 = 653;
+
+	/**
+	 * Bloodsplatter
+	 */
 	public static final int BLOODSPLATTER3 = 654;
 	public static final int BLOODSCRATCH = 655;
 	public static final int BLOODSCRATCH2 = 656;
@@ -11021,7 +11033,7 @@ public final class ObjectID extends ObjectID1
 	public static final int PRISONWALL_REND = 3462;
 
 	/**
-	 * Cell door
+	 * Cell gate
 	 */
 	public static final int PIP_PRISONDOOR = 3463;
 	public static final int INACTIVE_PIPPRISONDOOR = 3464;
@@ -21260,7 +21272,7 @@ public final class ObjectID extends ObjectID1
 	public static final int ZOGRE_COFFIN_SPECIAL_SEARCHED = 6845;
 
 	/**
-	 * Broken Lecturn
+	 * Broken lectern
 	 */
 	public static final int ZOGRE_LECTURN = 6846;
 
@@ -33238,9 +33250,9 @@ public final class ObjectID extends ObjectID1
 	public static final int MOTHERLODE_SHORTCUT = 10047;
 
 	/**
-	 * Trapdoor
+	 * Engorged bloodwood tree
 	 */
-	public static final int WIN05_TRAPDOOR_OPEN = 10048;
+	public static final int AFK_BLOODWOOD_TREE = 10048;
 
 	/**
 	 * Grave
@@ -35286,6 +35298,10 @@ public final class ObjectID extends ObjectID1
 	public static final int EXCHANGE_STAIRS_VAR01_69 = 10695;
 	public static final int EXCHANGE_STAIRS_VAR01_70 = 10696;
 	public static final int EXCHANGE_STAIRS_VAR02 = 10697;
+
+	/**
+	 * Trapdoor
+	 */
 	public static final int WIN05_TRAPDOOR = 10698;
 	public static final int EXCHANGE_STAIRS_VAR01_63_MIRROR = 10699;
 	public static final int EXCHANGE_STAIRS_VAR01_64_MIRROR = 10700;
@@ -35540,11 +35556,7 @@ public final class ObjectID extends ObjectID1
 	 * Boxes
 	 */
 	public static final int CW_BANK_BOXES_2 = 10803;
-
-	/**
-	 * Trapdoor
-	 */
-	public static final int WIN05_TRAPDOOR_CLOSED = 10804;
+	public static final int WALLKIT_WOODEN01_WINDOW01_UPPER = 10804;
 
 	/**
 	 * Sandy's Desk
@@ -41633,10 +41645,6 @@ public final class ObjectID extends ObjectID1
 	 * Door
 	 */
 	public static final int BURGH_VILLAGE_DOOR_INACTIVE = 12856;
-
-	/**
-	 * Bar pumps
-	 */
 	public static final int BURGH_BAR_PUMPS_DAMAGED = 12857;
 	public static final int BURGH_BAR_DAMAGED = 12858;
 	public static final int BURGH_STONE_WALL_BROKEN = 12859;
@@ -41754,7 +41762,7 @@ public final class ObjectID extends ObjectID1
 	public static final int BURGH_BARREL = 12891;
 
 	/**
-	 * Small Table
+	 * Table
 	 */
 	public static final int BURGH_SMALL_WOODEN_TABLE_SMALL = 12892;
 	public static final int BURGH_SHELVES = 12893;
@@ -55537,7 +55545,7 @@ public final class ObjectID extends ObjectID1
 	public static final int XBOWS_REGICIDE_GRAPPLE_TREE = 17046;
 
 	/**
-	 * Wall
+	 * Rough wall
 	 */
 	public static final int XBOWS_YANILLE_CASTLEWALL = 17047;
 
@@ -55547,12 +55555,12 @@ public final class ObjectID extends ObjectID1
 	public static final int XBOWS_YANILLE_CASTLEWALL_BATTLEMENT = 17048;
 
 	/**
-	 * Wall
+	 * Rough wall
 	 */
 	public static final int XBOWS_FAI_FALADOR_CASTLE_WALLS_HILLSKEW = 17049;
 
 	/**
-	 * Wall
+	 * Rough wall
 	 */
 	public static final int XBOWS_FAI_FALADOR_CASTLE_ARCHES_HILLSKEW = 17050;
 
@@ -87929,7 +87937,15 @@ public final class ObjectID extends ObjectID1
 	public static final int ARCHEUUS_LIBRARY_RAILING_02 = 28370;
 	public static final int ARCHEUUS_LIBRARY_RAILING_03 = 28371;
 	public static final int ARCHEUUS_LIBRARY_RAILING_04 = 28372;
+
+	/**
+	 * Railing
+	 */
 	public static final int ARCHEUUS_LIBRARY_RAILING_05 = 28373;
+
+	/**
+	 * Railing
+	 */
 	public static final int ARCHEUUS_LIBRARY_RAILING_06 = 28374;
 	public static final int ARCHEUUS_LIBRARY_RAILING_STUDY_01 = 28375;
 	public static final int ARCHEUUS_LIBRARY_RAILING_STUDY_02 = 28376;
@@ -92389,6 +92405,26 @@ public final class ObjectID extends ObjectID1
 	 * Diseased huasca
 	 */
 	public static final int HERB_HUASCA_DISEASED_3 = 29612;
+
+	/**
+	 * Castle Gates
+	 */
+	public static final int DARKM_CASTLE_DOOR_OUTSIDE_OP = 29613;
+
+	/**
+	 * Castle Gates
+	 */
+	public static final int DARKM_CASTLE_DOOR_OUTSIDE_NOOP = 29614;
+	public static final int VAMPYRIUM_CASTLE_WALL = 29615;
+	public static final int VAMPYRIUM_CASTLE_WALL_OUTSIDE_CORNER = 29616;
+	public static final int VAMPYRIUM_CASTLE_WALL_WINDOW = 29617;
+	public static final int VAMPYRIUM_CASTLE_WALL_DIAGONAL_WINDOW_LEFT = 29618;
+	public static final int VAMPYRIUM_CASTLE_WALL_DIAGONAL_WINDOW_RIGHT = 29619;
+	public static final int VAMPYRIUM_CASTLE_WALL_DIAGONAL_WINDOW = 29620;
+	public static final int VAMPYRIUM_CASTLE_FRONT_DOOR_01 = 29621;
+	public static final int VAMPYRIUM_CASTLE_FRONT_DOOR_02 = 29622;
+	public static final int VAMPYRIUM_CASTLE_FRONT_DOOR_03 = 29623;
+	public static final int VAMPYRIUM_CASTLE_FRONT_DOOR_04 = 29624;
 
 	/**
 	 * Mounted Max Cape

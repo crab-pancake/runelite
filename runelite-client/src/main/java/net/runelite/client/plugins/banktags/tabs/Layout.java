@@ -208,4 +208,16 @@ public class Layout
 //		System.out.println("item at index "+index+" is "+layout[index]);
 		resize(index + 1);
 	}
+
+	int lastItemIndex()
+	{
+		for (int i = layout.length - 1; i >= 0; --i)
+		{
+			if (layout[i] != -1)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
 }
