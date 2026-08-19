@@ -39,7 +39,7 @@ import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 
 @Slf4j
-class WidgetOverlays
+public class WidgetOverlays
 {
 	private final Client client;
 	private final OverlayManager overlayManager;
@@ -136,10 +136,10 @@ class WidgetOverlays
 		);
 	}
 
-	class WidgetOverlay extends Overlay
+	public class WidgetOverlay extends Overlay
 	{
 		@Component
-		@Getter
+        @Getter
 		protected final int componentId;
 		protected final String name;
 		private final Rectangle parentBounds = new Rectangle();
@@ -150,7 +150,7 @@ class WidgetOverlays
 			this(componentId, name, overlayPosition, Overlay.PRIORITY_HIGHEST);
 		}
 
-		private WidgetOverlay(@Component final int componentId, final String name, final OverlayPosition overlayPosition, final float overlayPriority)
+		public WidgetOverlay(@Component final int componentId, final String name, final OverlayPosition overlayPosition, final float overlayPriority)
 		{
 			this.componentId = componentId;
 			this.name = name;

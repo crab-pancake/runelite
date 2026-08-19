@@ -42,6 +42,7 @@ import net.runelite.api.GameState;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.VarPlayerID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -190,6 +191,9 @@ public class ReportButtonPlugin extends Plugin
 			case GAME_TICKS:
 				reportButton.setText(getGameTicks());
 				break;
+		}
+		if (config.includeMapClock()){
+			reportButton.setText(reportButton.getText() + "<br>" + client.getVarpValue(VarPlayerID.MAP_CLOCK));
 		}
 	}
 
