@@ -557,6 +557,23 @@ public class ConfigManager
 			// --profile
 			if (configProfileName != null)
 			{
+				// if this is a filepath (contains C:/...)
+				if (configProfileName.toLowerCase().startsWith("c:/")){
+					log.info("config is file path: {}. Manually making a profile",configProfileName);
+
+					configProfile = new ConfigData(new File(configProfileName));
+					profile = new ConfigProfile(-1L);
+					profile.setName("filepathmanual");
+					profile.setActive(true);
+					profile.setSync(false);
+					profile.setRev(-2L);
+					this.profile = profile;
+					eventBus.post(new ProfileChanged());
+					return;
+				}
+				//  just create a temp profile and set path for the below manually?
+				//  configProfile = new ConfigData(new File(configProfileName));
+
 				profile = lock.findProfile(p -> !p.isInternal() && configProfileName.equals(p.getName()));
 			}
 			else
