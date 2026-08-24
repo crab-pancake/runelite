@@ -558,7 +558,7 @@ public class ConfigManager
 			if (configProfileName != null)
 			{
 				// if this is a filepath (contains C:/...)
-				if (configProfileName.toLowerCase().startsWith("c:/")){
+				if (configProfileName.toLowerCase().startsWith("c:")){
 					log.info("config is file path: {}. Manually making a profile",configProfileName);
 
 					configProfile = new ConfigData(new File(configProfileName));
