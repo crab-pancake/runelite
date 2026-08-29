@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -69,6 +70,7 @@ import net.runelite.api.Scene;
 import net.runelite.api.ScriptID;
 import net.runelite.api.Tile;
 import net.runelite.api.TileObject;
+import net.runelite.api.VarClientInt;
 import net.runelite.api.annotations.Component;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
@@ -86,6 +88,7 @@ import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
+import net.runelite.api.events.VarClientIntChanged;
 import net.runelite.api.events.VarClientStrChanged;
 import net.runelite.api.events.WallObjectDespawned;
 import net.runelite.api.events.WallObjectSpawned;
@@ -270,6 +273,39 @@ public class ClueScrollPlugin extends Plugin
 		tagManager.registerTag(ARMOUR_CASE_TAG_NAME, this::testArmourCase);
 		tagManager.registerTag(CAPE_RACK_TAG_NAME, this::testCapeRack);
 		tagManager.registerTag(TOY_BOX_TAG_NAME, this::testToyBox);
+	}
+
+	@Subscribe
+	public void onVarClientIntChanged(VarClientIntChanged event)
+	{
+		if (event.getIndex() != VarClientID.MESLAYERMODE || client.getVarcIntValue(VarClientID.MESLAYERMODE) != 7) {
+			return;
+		}
+
+		if (!(clue instanceof AnagramClue))
+			return;
+
+		Function<ClueScrollPlugin, String> dumbOb = ((AnagramClue) clue).getAnswerProvider();
+		if (dumbOb == null)
+			return;
+
+		clientThread.invokeLater(() -> {
+
+			Item[] items = client.getItemContainer(InventoryID.INV).getItems();
+			boolean hasChallengeScroll = false;
+			for (Item item : items)
+			{
+				if (itemManager.getItemComposition(item.getId()).getName().contains("Challenge scroll"))
+				{
+					hasChallengeScroll = true;
+					break;
+				}
+			}
+			if (hasChallengeScroll){
+				client.setVarcStrValue(VarClientID.MESLAYERINPUT, dumbOb.apply(this));
+				client.runScript(222,"");
+			}
+		});
 	}
 
 	@Subscribe
@@ -781,6 +817,7 @@ public class ClueScrollPlugin extends Plugin
 				}
 			});
 		}
+
 	}
 
 	@Subscribe
