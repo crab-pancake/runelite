@@ -1080,9 +1080,6 @@ public class AnagramClue extends ClueScroll implements NpcClueScroll, ObjectClue
 		{
 			case 1:
 				return "20";
-			case 0:
-			case 2:
-			case 3:
 			default:
 				return "19";
 		}
