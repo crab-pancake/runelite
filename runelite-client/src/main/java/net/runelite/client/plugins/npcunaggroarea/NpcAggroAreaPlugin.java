@@ -464,17 +464,23 @@ public class NpcAggroAreaPlugin extends Plugin
 		loadConfig();
 		resetConfig();
 
-		WorldPoint newLocation = client.getLocalPlayer().getWorldLocation();
-		assert newLocation != null;
+		clientThread.invokeLater(() -> {
+			if (client.getLocalPlayer() == null)
+				return false;
 
-		// If the player isn't at the location he/she logged out at,
-		// the safe unaggro area probably changed, and should be disposed.
-		if (lastPlayerLocation == null || newLocation.distanceTo(lastPlayerLocation) != 0)
-		{
-			safeCenters[0] = null;
-			safeCenters[1] = null;
-			lastPlayerLocation = newLocation;
-		}
+			WorldPoint newLocation = client.getLocalPlayer().getWorldLocation();
+			assert newLocation != null;
+
+			// If the player isn't at the location he/she logged out at,
+			// the safe unaggro area probably changed, and should be disposed.
+			if (lastPlayerLocation == null || newLocation.distanceTo(lastPlayerLocation) != 0)
+			{
+				safeCenters[0] = null;
+				safeCenters[1] = null;
+				lastPlayerLocation = newLocation;
+			}
+			return true;
+		});
 	}
 
 	@Subscribe
