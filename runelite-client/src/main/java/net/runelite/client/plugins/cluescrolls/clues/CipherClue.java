@@ -104,7 +104,7 @@ public class CipherClue extends ClueScroll implements NpcClueScroll, LocationClu
 			.locationProvider((plugin) -> isElunedInPrifddinas(plugin) ? new WorldPoint(3229, 6062, 0) : new WorldPoint(2289, 3144, 0))
 			.areaProvider((plugin) -> isElunedInPrifddinas(plugin) ? "Prifddinas" : "Outside Lletya")
 			.question("A question on elven crystal math. I have 5 and 3 crystals, large and small respectively. A large crystal is worth 10,000 coins and a small is worth but 1,000. How much are all my crystals worth?")
-			.answer("53,000")
+			.answer("53k")
 			.build(),
 		CipherClue.builder()
 			.itemId(ItemID.TRAIL_CLUE_HARD_CIPHER005)
