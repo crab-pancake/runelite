@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -69,7 +70,7 @@ import net.runelite.api.Scene;
 import net.runelite.api.ScriptID;
 import net.runelite.api.Tile;
 import net.runelite.api.TileObject;
-import net.runelite.api.VarClientStr;
+import net.runelite.api.VarClientInt;
 import net.runelite.api.annotations.Component;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
@@ -87,6 +88,7 @@ import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
+import net.runelite.api.events.VarClientIntChanged;
 import net.runelite.api.events.VarClientStrChanged;
 import net.runelite.api.events.WallObjectDespawned;
 import net.runelite.api.events.WallObjectSpawned;
@@ -94,6 +96,7 @@ import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
+import net.runelite.api.gameval.VarClientID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
@@ -273,29 +276,62 @@ public class ClueScrollPlugin extends Plugin
 	}
 
 	@Subscribe
+	public void onVarClientIntChanged(VarClientIntChanged event)
+	{
+		if (event.getIndex() != VarClientID.MESLAYERMODE || client.getVarcIntValue(VarClientID.MESLAYERMODE) != 7) {
+			return;
+		}
+
+		if (!(clue instanceof AnagramClue))
+			return;
+
+		Function<ClueScrollPlugin, String> dumbOb = ((AnagramClue) clue).getAnswerProvider();
+		if (dumbOb == null)
+			return;
+
+		clientThread.invokeLater(() -> {
+
+			Item[] items = client.getItemContainer(InventoryID.INV).getItems();
+			boolean hasChallengeScroll = false;
+			for (Item item : items)
+			{
+				if (itemManager.getItemComposition(item.getId()).getName().contains("Challenge scroll"))
+				{
+					hasChallengeScroll = true;
+					break;
+				}
+			}
+			if (hasChallengeScroll){
+				client.setVarcStrValue(VarClientID.MESLAYERINPUT, dumbOb.apply(this));
+				client.runScript(222,"");
+			}
+		});
+	}
+
+	@Subscribe
 	public void onVarClientStrChanged(VarClientStrChanged e)
 	{
-		if (e.getIndex() != VarClientStr.CHATBOX_TYPED_TEXT)
+		if (e.getIndex() != VarClientID.CHATINPUT)
 			return;
 
 		if (clue != null && this.clue instanceof EmoteClue)
 		{
 			Emote emote = ((EmoteClue) this.clue).getFirstEmote();
 			String previousCommand = "!" + emote.getName().replace(" ", "").toLowerCase();
-			if (emote.getSpriteId() != -1 && "".equals(client.getVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT)) && previousCommand.equals(previousChatboxText))
+			if (emote.getSpriteId() != -1 && "".equals(client.getVarcStrValue(VarClientID.CHATINPUT)) && previousCommand.equals(previousChatboxText))
 			{
 				Emote emote2 = ((EmoteClue) this.clue).getSecondEmote();
 				if (emote2 != null)
 				{
 					clientThread.invokeLater(() -> {
-						client.setVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT, "!" + emote2.getName().replace(" ", "").toLowerCase());
+						client.setVarcStrValue(VarClientID.CHATINPUT, "!" + emote2.getName().replace(" ", "").toLowerCase());
 						client.runScript(73, -2147483640, -2147483639);
 					});
 				}
 			}
 		}
 
-		previousChatboxText = client.getVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT);
+		previousChatboxText = client.getVarcStrValue(VarClientID.CHATINPUT);
 	}
 
 	@Override
@@ -781,6 +817,7 @@ public class ClueScrollPlugin extends Plugin
 				}
 			});
 		}
+
 	}
 
 	@Subscribe
@@ -1262,8 +1299,17 @@ public class ClueScrollPlugin extends Plugin
 
 	private void updateClue(final ClueScroll clue)
 	{
-		if (clue == null || clue == this.clue)
+		if (clue == null)
 		{
+			return;
+		}
+		if (clue == this.clue){
+			Emote emote = ((EmoteClue) this.clue).getFirstEmote();
+			if (emote.getSpriteId() != -1)
+			{
+				client.setVarcStrValue(VarClientID.CHATINPUT, "!" + emote.getName().replace(" ", "").toLowerCase());
+				client.runScript(73, -2147483640, -2147483639);
+			}
 			return;
 		}
 
@@ -1279,7 +1325,7 @@ public class ClueScrollPlugin extends Plugin
 			Emote emote = ((EmoteClue) this.clue).getFirstEmote();
 			if (emote.getSpriteId() != -1)
 			{
-				client.setVarcStrValue(VarClientStr.CHATBOX_TYPED_TEXT, "!" + emote.getName().replace(" ", "").toLowerCase());
+				client.setVarcStrValue(VarClientID.CHATINPUT, "!" + emote.getName().replace(" ", "").toLowerCase());
 				client.runScript(73, -2147483640, -2147483639);
 			}
 		}
