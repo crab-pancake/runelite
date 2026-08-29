@@ -278,19 +278,23 @@ public class ClueScrollPlugin extends Plugin
 	@Subscribe
 	public void onVarClientIntChanged(VarClientIntChanged event)
 	{
-		if (event.getIndex() != VarClientID.MESLAYERMODE || client.getVarcIntValue(VarClientID.MESLAYERMODE) != 7) {
+		if (event.getIndex() != VarClientID.MESLAYERMODE || client.getVarcIntValue(VarClientID.MESLAYERMODE) != 7 || clue == null) {
 			return;
 		}
 
-		if (!(clue instanceof AnagramClue))
-			return;
+		String answer;
+		if (clue instanceof AnagramClue && ((AnagramClue) clue).getAnswerProvider() != null)
+			answer = ((AnagramClue) clue).getAnswerProvider().apply(this);
+		else if (clue instanceof CipherClue && ((CipherClue) clue).getAnswer() != null)
+			answer = ((CipherClue) clue).getAnswer();
+		else if (clue instanceof CrypticClue && ((CrypticClue) clue).getAnswer() != null)
+			answer = ((CrypticClue) clue).getAnswer();
+		else
+			answer = "";
 
-		Function<ClueScrollPlugin, String> dumbOb = ((AnagramClue) clue).getAnswerProvider();
-		if (dumbOb == null)
-			return;
+		if ("".equals(answer)) return;
 
 		clientThread.invokeLater(() -> {
-
 			Item[] items = client.getItemContainer(InventoryID.INV).getItems();
 			boolean hasChallengeScroll = false;
 			for (Item item : items)
@@ -302,7 +306,7 @@ public class ClueScrollPlugin extends Plugin
 				}
 			}
 			if (hasChallengeScroll){
-				client.setVarcStrValue(VarClientID.MESLAYERINPUT, dumbOb.apply(this));
+				client.setVarcStrValue(VarClientID.MESLAYERINPUT, answer);
 				client.runScript(222,"");
 			}
 		});
@@ -314,13 +318,13 @@ public class ClueScrollPlugin extends Plugin
 		if (e.getIndex() != VarClientID.CHATINPUT)
 			return;
 
-		if (clue != null && this.clue instanceof EmoteClue)
+		if (clue != null && clue instanceof EmoteClue)
 		{
-			Emote emote = ((EmoteClue) this.clue).getFirstEmote();
+			Emote emote = ((EmoteClue) clue).getFirstEmote();
 			String previousCommand = "!" + emote.getName().replace(" ", "").toLowerCase();
 			if (emote.getSpriteId() != -1 && "".equals(client.getVarcStrValue(VarClientID.CHATINPUT)) && previousCommand.equals(previousChatboxText))
 			{
-				Emote emote2 = ((EmoteClue) this.clue).getSecondEmote();
+				Emote emote2 = ((EmoteClue) clue).getSecondEmote();
 				if (emote2 != null)
 				{
 					clientThread.invokeLater(() -> {
@@ -1292,24 +1296,10 @@ public class ClueScrollPlugin extends Plugin
 		}
 	}
 
-	private void getInventoryClues(ItemContainer e)
-	{
-
-	}
-
 	private void updateClue(final ClueScroll clue)
 	{
 		if (clue == null)
 		{
-			return;
-		}
-		if (clue == this.clue){
-			Emote emote = ((EmoteClue) this.clue).getFirstEmote();
-			if (emote.getSpriteId() != -1)
-			{
-				client.setVarcStrValue(VarClientID.CHATINPUT, "!" + emote.getName().replace(" ", "").toLowerCase());
-				client.runScript(73, -2147483640, -2147483639);
-			}
 			return;
 		}
 
