@@ -40,6 +40,9 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -557,22 +560,24 @@ public class ConfigManager
 			// --profile
 			if (configProfileName != null)
 			{
-				// if this is a filepath (contains C:/...)
-				if (configProfileName.toLowerCase().startsWith("c:")){
-					log.info("config is file path: {}. Manually making a profile",configProfileName);
+				if (configProfileName.contains(":")){
+					try {
+						if (Files.exists(Paths.get(configProfileName))){
+							log.info("Selected configName is an existing file: {}. Manually making a profile",configProfileName);
 
-					configProfile = new ConfigData(new File(configProfileName));
-					profile = new ConfigProfile(-1L);
-					profile.setName("filepathmanual");
-					profile.setActive(true);
-					profile.setSync(false);
-					profile.setRev(-2L);
-					this.profile = profile;
-					eventBus.post(new ProfileChanged());
-					return;
+							configProfile = new ConfigData(new File(configProfileName));
+							profile = new ConfigProfile(-1L);
+							profile.setName("filepathmanual");
+							profile.setActive(true);
+							profile.setSync(false);
+							profile.setRev(-2L);
+							this.profile = profile;
+							eventBus.post(new ProfileChanged());
+							return;
+						}
+					}
+					catch (InvalidPathException | NullPointerException ignored) {}
 				}
-				//  just create a temp profile and set path for the below manually?
-				//  configProfile = new ConfigData(new File(configProfileName));
 
 				profile = lock.findProfile(p -> !p.isInternal() && configProfileName.equals(p.getName()));
 			}
