@@ -1277,7 +1277,7 @@ public class LootTrackerPlugin extends Plugin
 
 	private void countChangedItems(int itemId, Object metadata)
 	{
-		onInvChange((((invItems, groundItems, removedItems) ->
+		onInvChange((invItems, groundItems, removedItems) ->
 		{
 			int cnt = removedItems.count(itemId);
 			if (cnt > 0)
@@ -1288,7 +1288,7 @@ public class LootTrackerPlugin extends Plugin
 				combined.addAll(groundItems);
 				addLoot(name, -1, LootRecordType.EVENT, metadata, combined, cnt);
 			}
-		})));
+		});
 	}
 
 	@Subscribe
@@ -1427,7 +1427,7 @@ public class LootTrackerPlugin extends Plugin
 							put("HERBLORE", client.getBoostedSkillLevel(Skill.HERBLORE)).
 							put("HUNTER", client.getBoostedSkillLevel(Skill.HUNTER)).
 							build();
-						onInvChange((((invItems, groundItems, removedItems) ->
+						onInvChange((invItems, groundItems, removedItems) ->
 						{
 							int cnt = removedItems.count(itemId);
 							if (cnt > 0)
@@ -1435,7 +1435,7 @@ public class LootTrackerPlugin extends Plugin
 								String name = itemManager.getItemComposition(itemId).getMembersName();
 								addLoot(name, -1, LootRecordType.EVENT, levels, invItems, cnt);
 							}
-						})));
+						});
 						break;
 				}
 			}
