@@ -176,6 +176,15 @@ class VarInspector extends DevToolsFrame
 			return;
 		}
 
+		if (name.startsWith("MAP_CLOCK"))
+			return;
+		if ("DATE_VARS".equalsIgnoreCase(name))
+			return;
+		if ("DATE_SECONDS_PAST_MINUTE".equalsIgnoreCase(name))
+			return;
+		if ("DATE_MILLISECONDS_PAST_MINUTE".equalsIgnoreCase(name))
+			return;
+
 		int tick = client.getTickCount();
 		SwingUtilities.invokeLater(() ->
 		{
