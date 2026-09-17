@@ -328,7 +328,10 @@ public class SlayerPlugin extends Plugin
 			|| varpId == VarPlayerID.SLAYER_AREA
 			|| varpId == VarPlayerID.SLAYER_TARGET
 			|| varbitId == VarbitID.SLAYER_TARGET_BOSSID
-			|| varpId == VarPlayerID.SLAYER_COUNT_ORIGINAL)
+			|| varpId == VarPlayerID.SLAYER_COUNT_ORIGINAL
+			|| varbitId == VarbitID.SLAYER_MODIFIER_ID
+			|| varbitId == VarbitID.SLAYER_MODIFIER_VALUE
+			|| varbitId == VarbitID.SLAYER_MODIFIER_NEGATIVE)
 		{
 			clientThread.invokeLater(this::updateTask);
 		}
@@ -474,9 +477,8 @@ public class SlayerPlugin extends Plugin
 			return;
 		}
 
-		String chatMsg = Text.removeTags(event.getMessage()); //remove color and linebreaks
-
-		if (chatMsg.equals(CHAT_SUPERIOR_MESSAGE))
+		var msg = event.getMessage();
+		if (msg.contains(CHAT_SUPERIOR_MESSAGE))
 		{
 			notifier.notify(config.showSuperiorNotification(), CHAT_SUPERIOR_MESSAGE);
 		}
