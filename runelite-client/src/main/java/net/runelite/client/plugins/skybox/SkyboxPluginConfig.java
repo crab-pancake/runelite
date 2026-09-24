@@ -47,4 +47,24 @@ public interface SkyboxPluginConfig extends Config
 		position = 2
 	)
 	Color customOtherColor();
+
+	@ConfigItem(
+			keyName = "useCustomColours",
+			name = "Always use custom colours",
+			description = "Always override default skybox",
+			position = 3
+	)
+	default boolean useCustomColours(){
+		return false;
+	}
+
+	@ConfigItem(
+			keyName = "customSkyboxRegions",
+			name = "Regions in which to override default skybox colours",
+			description = "comma separated",
+			position = 4
+	)
+	default String customSkyboxRegions(){
+		return "";
+	}
 }

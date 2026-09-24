@@ -109,12 +109,15 @@ public class SkyboxPlugin extends Plugin
 			return;
 		}
 
-		Color overrideColor = WorldPoint.getMirrorPoint(player.getWorldLocation(), true).getY() < Constants.OVERWORLD_MAX_Y
-			? config.customOverworldColor() : config.customOtherColor();
-		if (overrideColor != null)
-		{
-			client.setSkyboxColor(overrideColor.getRGB());
-			return;
+		int regionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+		// TODO: config.useCustomColours() || regionId is in (parsed) config.customSkyboxRegions
+		if (config.useCustomColours()) {
+			Color overrideColor = WorldPoint.getMirrorPoint(player.getWorldLocation(), true).getY() < Constants.OVERWORLD_MAX_Y
+					? config.customOverworldColor() : config.customOtherColor();
+			if (overrideColor != null) {
+				client.setSkyboxColor(overrideColor.getRGB());
+				return;
+			}
 		}
 
 		int px, py;
