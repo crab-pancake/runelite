@@ -932,7 +932,7 @@ public class LootTrackerPlugin extends Plugin
 			long totalValue = items.stream()
 				.filter(item -> item.getId() > -1)
 				.mapToLong(item -> config.priceType() == LootTrackerPriceType.GRAND_EXCHANGE ?
-					(long) itemManager.getItemPrice(item.getId()) * item.getQuantity() :
+					itemManager.getItemPrice(item.getId()) * item.getQuantity() :
 					(long) itemManager.getItemComposition(item.getId()).getHaPrice() * item.getQuantity())
 				.sum();
 
@@ -1738,7 +1738,7 @@ public class LootTrackerPlugin extends Plugin
 	private LootTrackerItem buildLootTrackerItem(int itemId, int quantity)
 	{
 		final ItemComposition itemComposition = itemManager.getItemComposition(itemId);
-		final int gePrice = itemManager.getItemPrice(itemId);
+		final long gePrice = itemManager.getItemPrice(itemId);
 		final int haPrice = itemComposition.getHaPrice();
 		final boolean ignored = ignoredItems.contains(itemComposition.getMembersName());
 
@@ -1799,7 +1799,7 @@ public class LootTrackerPlugin extends Plugin
 	{
 		long totalPrice = items.stream()
 			.mapToLong(item -> config.priceType() == LootTrackerPriceType.GRAND_EXCHANGE ?
-				(long) itemManager.getItemPrice(item.getId()) * item.getQuantity() :
+				itemManager.getItemPrice(item.getId()) * item.getQuantity() :
 				(long) itemManager.getItemComposition(item.getId()).getHaPrice() * item.getQuantity())
 			.sum();
 
