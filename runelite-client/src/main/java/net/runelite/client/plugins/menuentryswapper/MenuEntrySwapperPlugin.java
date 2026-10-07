@@ -1553,25 +1553,27 @@ public class MenuEntrySwapperPlugin extends Plugin
 		if (NPC_MENU_TYPES.contains(menuAction))
 		{
 			final NPC npc = menuEntry.getNpc();
-			assert npc != null;
-			final NPCComposition composition = npc.getTransformedComposition();
-			assert composition != null;
-
-			Integer customOption = getNpcSwapConfig(shiftModifier(), composition.getId());
-			if (customOption != null && customOption >= 0)
+			if (npc != null)
 			{
-				MenuAction swapAction = NPC_MENU_TYPES.get(customOption);
-				if (swapAction == menuAction)
-				{
-					// Advance to the top-most op for this NPC.
-					int i = index;
-					while (i < menuEntries.length - 1 && NPC_MENU_TYPES.contains(menuEntries[i + 1].getType()))
-					{
-						++i;
-					}
+				final NPCComposition composition = npc.getTransformedComposition();
+				assert composition != null;
 
-					swap(menu, menuEntries, index, i);
-					return;
+				Integer customOption = getNpcSwapConfig(shiftModifier(), composition.getId());
+				if (customOption != null && customOption >= 0)
+				{
+					MenuAction swapAction = NPC_MENU_TYPES.get(customOption);
+					if (swapAction == menuAction)
+					{
+						// Advance to the top-most op for this NPC.
+						int i = index;
+						while (i < menuEntries.length - 1 && NPC_MENU_TYPES.contains(menuEntries[i + 1].getType()))
+						{
+							++i;
+						}
+
+						swap(menu, menuEntries, index, i);
+						return;
+					}
 				}
 			}
 		}
