@@ -113,7 +113,7 @@ public class Ping
 		}
 		catch (IOException ex)
 		{
-			log.warn("error pinging", ex);
+			log.warn("error pinging");
 			return -1;
 		}
 	}
