@@ -310,7 +310,7 @@ public class ClueScrollPlugin extends Plugin
 				}
 			}
 			if (hasChallengeScroll){
-				client.setVarcStrValue(VarClientID.MESLAYERINPUT, answer);
+				client.setVarcStrValue(VarClientID.MESLAYERINPUT, answer.replace(",",""));
 				client.runScript(222,"");
 			}
 		});
